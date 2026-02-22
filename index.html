@@ -1319,12 +1319,20 @@
             <button class="btn btn-outline btn-block" id="btn-achievements">🏆  הישגים</button>
             <button class="btn btn-outline btn-block" id="btn-mastery">📊  לוח השליטה שלי</button>
         </div>
-        <!-- Settings: Max Multiplier Toggle -->
-        <div class="settings-toggle-row" id="max-multiplier-toggle">
+        <!-- Settings Toggles -->
+        <div class="settings-toggle-row">
             <span class="settings-label">טווח כפל:</span>
             <div class="toggle-group">
                 <button class="toggle-option" data-max="10" id="toggle-max-10">עד 10</button>
                 <button class="toggle-option" data-max="12" id="toggle-max-12">עד 12</button>
+            </div>
+        </div>
+        <div class="settings-toggle-row">
+            <span class="settings-label">מס׳ תשובות:</span>
+            <div class="toggle-group">
+                <button class="toggle-option" data-answers="4" id="toggle-ans-4">4</button>
+                <button class="toggle-option" data-answers="6" id="toggle-ans-6">6</button>
+                <button class="toggle-option" data-answers="8" id="toggle-ans-8">8</button>
             </div>
         </div>
 
@@ -1342,7 +1350,8 @@
         <div class="title-lg mb-1">בחר מספרים לתרגול</div>
         <div class="subtitle">אפשר לבחור כמה שרוצים!</div>
         <div class="number-grid" id="number-grid"></div>
-        <button class="btn btn-success btn-lg btn-block mt-2" id="btn-start-session" disabled>▶  התחל!</button>
+        <button class="btn btn-outline btn-block mt-1" id="btn-select-all">✅  בחר הכל</button>
+        <button class="btn btn-success btn-lg btn-block mt-1" id="btn-start-session" disabled>▶  התחל!</button>
         <button class="btn btn-outline btn-block mt-1" id="btn-back-to-welcome">←  חזרה</button>
     </div>
 </div>
@@ -1616,7 +1625,7 @@ const DEFAULT_DATA = {
     currentSession: null,
     achievements: { unlocked: [] },
     daily: {},
-    settings: { soundEnabled: true, maxMultiplier: 12 }
+    settings: { soundEnabled: true, maxMultiplier: 12, answerCount: 4 }
 };
 
 // ====== STORAGE ======
@@ -1652,6 +1661,11 @@ const Storage = {
 function getMaxMultiplier() {
     const data = Storage.load();
     return (data.settings && data.settings.maxMultiplier) || 12;
+}
+
+function getAnswerCount() {
+    const data = Storage.load();
+    return (data.settings && data.settings.answerCount) || 4;
 }
 
 // ====== SOUND ENGINE (Video-Game Style) ======
@@ -1769,6 +1783,8 @@ const SoundEngine = {
         }
     },
 
+    _correctSoundIndex: 0,
+
     _play(ctx, name) {
         const T = (f, s, d, tp, v) => this._tone(ctx, f, s, d, tp, v);
         const S = (sf, ef, s, d, tp, v) => this._sweep(ctx, sf, ef, s, d, tp, v);
@@ -1776,17 +1792,59 @@ const SoundEngine = {
 
         switch (name) {
 
-        // ===== CORRECT: Plasma cannon hit + energy absorption =====
-        case 'correct':
-            S(400, 1800, 0, 0.1, 'sine', 0.30);
-            S(600, 2400, 0.02, 0.1, 'triangle', 0.15);
-            T(1800, 0.08, 0.12, 'sine', 0.32);
-            T(2400, 0.10, 0.08, 'sine', 0.20);
-            T(1200, 0.12, 0.25, 'sine', 0.22);
-            S(2000, 5000, 0.10, 0.2, 'sine', 0.10);
-            S(3000, 7000, 0.15, 0.15, 'sine', 0.06);
-            N(0, 0.04, 0.08);
+        // ===== CORRECT: 5 rotating sounds =====
+        case 'correct': {
+            const variant = this._correctSoundIndex % 5;
+            this._correctSoundIndex++;
+            switch (variant) {
+            case 0: // Plasma cannon hit
+                S(400, 1800, 0, 0.1, 'sine', 0.30);
+                S(600, 2400, 0.02, 0.1, 'triangle', 0.15);
+                T(1800, 0.08, 0.12, 'sine', 0.32);
+                T(2400, 0.10, 0.08, 'sine', 0.20);
+                T(1200, 0.12, 0.25, 'sine', 0.22);
+                S(2000, 5000, 0.10, 0.2, 'sine', 0.10);
+                N(0, 0.04, 0.08);
+                break;
+            case 1: // Photon torpedo impact
+                S(200, 1200, 0, 0.08, 'sawtooth', 0.18);
+                T(880, 0.06, 0.15, 'sine', 0.30);
+                T(1320, 0.08, 0.12, 'sine', 0.25);
+                T(1760, 0.12, 0.10, 'sine', 0.20);
+                S(1500, 4000, 0.12, 0.18, 'sine', 0.08);
+                N(0, 0.05, 0.10);
+                S(800, 3000, 0.15, 0.2, 'sine', 0.06);
+                break;
+            case 2: // Shield power-up
+                T(330, 0, 0.08, 'sine', 0.22);
+                T(440, 0.06, 0.08, 'sine', 0.25);
+                T(660, 0.12, 0.08, 'sine', 0.28);
+                T(880, 0.18, 0.15, 'sine', 0.32);
+                S(880, 2200, 0.22, 0.2, 'sine', 0.15);
+                T(1100, 0.25, 0.2, 'sine', 0.12);
+                S(2000, 5000, 0.28, 0.15, 'sine', 0.05);
+                break;
+            case 3: // Quantum teleport
+                S(2000, 400, 0, 0.06, 'sine', 0.20);
+                S(400, 2500, 0.06, 0.12, 'sine', 0.28);
+                T(2500, 0.12, 0.08, 'sine', 0.30);
+                T(1800, 0.15, 0.15, 'sine', 0.18);
+                S(1200, 4500, 0.15, 0.2, 'sine', 0.08);
+                N(0.05, 0.03, 0.06);
+                T(2200, 0.20, 0.12, 'sine', 0.10);
+                break;
+            case 4: // Star collector chime
+                T(523, 0, 0.06, 'sine', 0.25);
+                T(784, 0.05, 0.06, 'sine', 0.28);
+                T(1047, 0.10, 0.08, 'sine', 0.30);
+                T(1319, 0.15, 0.12, 'sine', 0.28);
+                S(1319, 3000, 0.18, 0.15, 'sine', 0.10);
+                T(1047, 0.22, 0.15, 'sine', 0.12);
+                N(0.15, 0.03, 0.04);
+                break;
+            }
             break;
+        }
 
         // ===== WRONG: Shield down / hull breach =====
         case 'wrong':
@@ -2058,12 +2116,14 @@ const QGen = {
         const { a, b } = parsed;
         const [da, db] = Math.random() > 0.5 ? [a, b] : [b, a];
         const correct = da * db;
+        const numAnswers = getAnswerCount();
+        const numDistractors = numAnswers - 1;
 
-        // Build 3 unique distractors that are NOT equal to correct
-        const distractors = this._buildDistractors(a, b, correct, difficulty);
+        // Build distractors
+        const distractors = this._buildDistractors(a, b, correct, difficulty, numDistractors);
 
-        // Build options: always start with correct, add 3 distractors, then shuffle
-        const optionsArr = [correct, distractors[0], distractors[1], distractors[2]];
+        // Build options: correct + distractors, then shuffle
+        const optionsArr = [correct, ...distractors.slice(0, numDistractors)];
         this.shuffle(optionsArr);
 
         // FINAL ASSERT: correct MUST be in options
@@ -2092,7 +2152,7 @@ const QGen = {
         return result;
     },
 
-    _buildDistractors(a, b, correct, difficulty) {
+    _buildDistractors(a, b, correct, difficulty, count = 3) {
         const mode = DIFFICULTY_CONFIG[difficulty]?.distractorMode || 'mixed';
         const candidates = new Set();
         const maxN = getMaxMultiplier();
@@ -2127,28 +2187,29 @@ const QGen = {
             this.shuffle(pool);
         }
 
-        // Pick up to 3 unique distractors
+        // Pick unique distractors
         const picked = [];
         for (const v of pool) {
             if (v !== correct && !picked.includes(v)) {
                 picked.push(v);
-                if (picked.length >= 3) break;
+                if (picked.length >= count) break;
             }
         }
 
         // Fill remaining slots with random values if needed
         let attempts = 0;
-        while (picked.length < 3 && attempts < 50) {
+        while (picked.length < count && attempts < 100) {
             attempts++;
-            const r = Math.max(1, correct + Math.floor(Math.random() * 20) - 10);
+            const range = Math.max(20, count * 5);
+            const r = Math.max(1, correct + Math.floor(Math.random() * range) - Math.floor(range / 2));
             if (r !== correct && !picked.includes(r) && r > 0 && r <= 144) {
                 picked.push(r);
             }
         }
 
         // Absolute fallback
-        while (picked.length < 3) {
-            const fallback = picked.length + 1;
+        while (picked.length < count) {
+            const fallback = picked.length + 2;
             if (fallback !== correct && !picked.includes(fallback)) picked.push(fallback);
             else picked.push(correct + picked.length + 1);
         }
@@ -2412,6 +2473,12 @@ function showWelcomeScreen() {
     document.getElementById('toggle-max-10').classList.toggle('active', maxM === 10);
     document.getElementById('toggle-max-12').classList.toggle('active', maxM === 12);
 
+    // Answer count toggle state
+    const ansC = getAnswerCount();
+    document.getElementById('toggle-ans-4').classList.toggle('active', ansC === 4);
+    document.getElementById('toggle-ans-6').classList.toggle('active', ansC === 6);
+    document.getElementById('toggle-ans-8').classList.toggle('active', ansC === 8);
+
     App.navigateTo('screen-welcome');
     // Only play welcome sound if AudioContext is already running (i.e., user has interacted)
     // On initial page load, ctx is null or suspended, so no sound plays (which is expected)
@@ -2535,7 +2602,7 @@ function showQuestion() {
     const valid = q && q.a != null && q.b != null
         && q.correct === q.a * q.b
         && Array.isArray(q.options)
-        && q.options.length === 4
+        && q.options.length >= 4
         && q.options.includes(q.correct);
 
     if (!valid) {
@@ -2555,6 +2622,9 @@ function showQuestion() {
 
     const grid = document.getElementById('practice-answers');
     grid.innerHTML = '';
+    const numOpts = q.options.length;
+    // 4 answers = 2 columns, 6 = 3 columns, 8 = 4 columns
+    grid.style.gridTemplateColumns = numOpts <= 4 ? 'repeat(2, 1fr)' : numOpts <= 6 ? 'repeat(3, 1fr)' : 'repeat(4, 1fr)';
     q.options.forEach((opt, i) => {
         const btn = document.createElement('button');
         btn.className = 'answer-btn';
@@ -3220,6 +3290,17 @@ document.addEventListener('click', (e) => {
 
     // Number selection
     if (e.target.closest('#number-grid')) handleNumberClick(e);
+    if (id === 'btn-select-all') {
+        SoundEngine.play('click');
+        const maxN = getMaxMultiplier();
+        const allSelected = App.selectedNumbers.length === maxN;
+        App.selectedNumbers = allSelected ? [] : Array.from({length: maxN}, (_, i) => i + 1);
+        document.querySelectorAll('.number-btn').forEach(b => {
+            b.classList.toggle('selected', App.selectedNumbers.includes(parseInt(b.dataset.num)));
+        });
+        document.getElementById('btn-start-session').disabled = App.selectedNumbers.length === 0;
+        document.getElementById('btn-select-all').textContent = allSelected ? '✅  בחר הכל' : '❌  נקה הכל';
+    }
     if (id === 'btn-start-session') {
         if (App.selectedNumbers.length > 0) { SoundEngine.play('navigate'); showDifficultyScreen(); }
     }
@@ -3280,6 +3361,20 @@ document.addEventListener('click', (e) => {
         document.getElementById('toggle-max-12').classList.toggle('active', newMax === 12);
     }
 
+    // Answer count toggle
+    const toggleAns = e.target.closest('.toggle-option[data-answers]');
+    if (toggleAns) {
+        const newCount = parseInt(toggleAns.dataset.answers);
+        SoundEngine.play('click');
+        Storage.update(data => {
+            if (!data.settings) data.settings = {};
+            data.settings.answerCount = newCount;
+        });
+        document.getElementById('toggle-ans-4').classList.toggle('active', newCount === 4);
+        document.getElementById('toggle-ans-6').classList.toggle('active', newCount === 6);
+        document.getElementById('toggle-ans-8').classList.toggle('active', newCount === 8);
+    }
+
     // Reset data
     if (id === 'btn-reset-data') showResetConfirm();
     if (id === 'btn-reset-confirm') performReset();
@@ -3304,6 +3399,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     if (data.settings && !data.settings.maxMultiplier) {
         data.settings.maxMultiplier = 12;
+        Storage.save();
+    }
+    if (data.settings && !data.settings.answerCount) {
+        data.settings.answerCount = 4;
         Storage.save();
     }
 
