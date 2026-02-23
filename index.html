@@ -1288,6 +1288,115 @@
             background: linear-gradient(90deg, #FFD700, #FFA500, #FF6347) !important;
         }
 
+        /* Genius title bar */
+        #genius-title-bar {
+            text-align: center;
+            margin-bottom: 0.75rem;
+            position: relative;
+            padding: 0.5rem 0;
+        }
+        .genius-title-text {
+            font-family: var(--font-display);
+            font-size: 1.6rem;
+            font-weight: 900;
+            color: #FFD700;
+            text-shadow:
+                0 0 10px rgba(255, 215, 0, 0.8),
+                0 0 20px rgba(255, 215, 0, 0.6),
+                0 0 40px rgba(255, 165, 0, 0.4),
+                0 0 60px rgba(255, 100, 0, 0.2);
+            animation: neonFlicker 3s ease-in-out infinite;
+            letter-spacing: 0.05em;
+        }
+        @keyframes neonFlicker {
+            0%, 100% {
+                text-shadow:
+                    0 0 10px rgba(255, 215, 0, 0.8),
+                    0 0 20px rgba(255, 215, 0, 0.6),
+                    0 0 40px rgba(255, 165, 0, 0.4),
+                    0 0 60px rgba(255, 100, 0, 0.2);
+            }
+            50% {
+                text-shadow:
+                    0 0 15px rgba(255, 215, 0, 1),
+                    0 0 30px rgba(255, 215, 0, 0.8),
+                    0 0 50px rgba(255, 165, 0, 0.6),
+                    0 0 80px rgba(255, 100, 0, 0.3);
+            }
+        }
+
+        /* Sparkles container */
+        .genius-sparkles {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            pointer-events: none;
+            overflow: hidden;
+        }
+        .genius-sparkle {
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            pointer-events: none;
+            animation: sparkleFloat 0.8s ease-out forwards;
+        }
+        .genius-sparkle::before, .genius-sparkle::after {
+            content: '';
+            position: absolute;
+            background: inherit;
+            border-radius: 50%;
+        }
+        .genius-sparkle::before {
+            width: 100%; height: 2px;
+            top: 50%; left: 0;
+            transform: translateY(-50%);
+        }
+        .genius-sparkle::after {
+            width: 2px; height: 100%;
+            top: 0; left: 50%;
+            transform: translateX(-50%);
+        }
+        @keyframes sparkleFloat {
+            0% {
+                opacity: 1;
+                transform: scale(0) translateY(0);
+            }
+            50% {
+                opacity: 1;
+                transform: scale(1.5) translateY(-10px);
+            }
+            100% {
+                opacity: 0;
+                transform: scale(0.5) translateY(-25px);
+            }
+        }
+
+        /* Correct answer flash on genius title */
+        .genius-title-flash {
+            animation: titleFlash 0.5s ease-out;
+        }
+        @keyframes titleFlash {
+            0% {
+                color: #fff;
+                text-shadow:
+                    0 0 20px rgba(255, 255, 255, 1),
+                    0 0 40px rgba(255, 215, 0, 1),
+                    0 0 60px rgba(255, 215, 0, 0.8),
+                    0 0 80px rgba(255, 165, 0, 0.6),
+                    0 0 100px rgba(255, 100, 0, 0.4);
+                transform: scale(1.1);
+            }
+            100% {
+                color: #FFD700;
+                text-shadow:
+                    0 0 10px rgba(255, 215, 0, 0.8),
+                    0 0 20px rgba(255, 215, 0, 0.6),
+                    0 0 40px rgba(255, 165, 0, 0.4),
+                    0 0 60px rgba(255, 100, 0, 0.2);
+                transform: scale(1);
+            }
+        }
+
         /* Warp entry overlay */
         .warp-overlay {
             position: fixed;
@@ -1476,6 +1585,11 @@
     <div class="card" style="position:relative;">
         <img src="images/practice.jpg" alt="איתמר" class="itamar-photo-practice" id="practice-photo" onerror="this.style.display='none';document.getElementById('practice-bubble')&&(document.getElementById('practice-bubble').style.display='none')">
         <div class="practice-bubble" id="practice-bubble">קדימה!</div>
+        <!-- Genius title (genius mode only) -->
+        <div id="genius-title-bar" style="display:none;">
+            <div class="genius-title-text" id="genius-title-text">🧠 אלוף המחוננים 🧠</div>
+            <div class="genius-sparkles" id="genius-sparkles"></div>
+        </div>
         <!-- Timer (challenge mode only) -->
         <div id="practice-timer-section" style="display:none;">
             <div class="timer-display" id="practice-timer-display">1:00</div>
@@ -2844,6 +2958,7 @@ function showWelcomeScreen() {
     App.isGenius = false;
     App.geniusScore = 0;
     document.getElementById('screen-practice').classList.remove('genius-mode');
+    document.getElementById('genius-title-bar').style.display = 'none';
 
     const data = Storage.load();
     ensureToday();
@@ -2974,6 +3089,32 @@ function handleDifficultyClick(e) {
 }
 
 // ====== GENIUS MODE ======
+function triggerGeniusSparkles() {
+    const titleEl = document.getElementById('genius-title-text');
+    const sparklesEl = document.getElementById('genius-sparkles');
+    if (!titleEl || !sparklesEl) return;
+
+    // Flash the title
+    titleEl.classList.remove('genius-title-flash');
+    void titleEl.offsetWidth;
+    titleEl.classList.add('genius-title-flash');
+    setTimeout(() => titleEl.classList.remove('genius-title-flash'), 600);
+
+    // Create sparkle particles
+    const colors = ['#FFD700', '#FFA500', '#FFEC8B', '#FFE4B5', '#fff'];
+    for (let i = 0; i < 8; i++) {
+        const spark = document.createElement('div');
+        spark.className = 'genius-sparkle';
+        spark.style.background = colors[Math.floor(Math.random() * colors.length)];
+        spark.style.left = (10 + Math.random() * 80) + '%';
+        spark.style.top = (20 + Math.random() * 60) + '%';
+        spark.style.animationDelay = (Math.random() * 0.2) + 's';
+        spark.style.width = spark.style.height = (4 + Math.random() * 5) + 'px';
+        sparklesEl.appendChild(spark);
+        setTimeout(() => spark.remove(), 1000);
+    }
+}
+
 function playWarpEntry() {
     const overlay = document.createElement('div');
     overlay.className = 'warp-overlay';
@@ -3095,8 +3236,9 @@ function startGeniusMode() {
     // Start background music
     SpaceMusic.start();
 
-    // Add genius visual class
+    // Add genius visual class + show title
     document.getElementById('screen-practice').classList.add('genius-mode');
+    document.getElementById('genius-title-bar').style.display = '';
 
     SoundEngine.play('launch');
     App.navigateTo('screen-practice');
@@ -3243,7 +3385,10 @@ function handleAnswerClick(e) {
         SoundEngine.play('correct');
         showPhotoFeedback(true);
         App.currentStreak++;
-        if (App.isGenius) App.geniusScore++;
+        if (App.isGenius) {
+            App.geniusScore++;
+            triggerGeniusSparkles();
+        }
 
         // Stars & coins
         let starsEarned = 1;
@@ -3384,6 +3529,7 @@ function endSession(reason) {
     if (App.isGenius) {
         SpaceMusic.stop();
         document.getElementById('screen-practice').classList.remove('genius-mode');
+        document.getElementById('genius-title-bar').style.display = 'none';
     }
 
     const results = App.sessionResults;
