@@ -3086,7 +3086,7 @@ function showQuestion() {
 
     // Render question text
     if (q.type === 'reverse') {
-        document.getElementById('practice-question').innerHTML = `${q.displayA} &times; ___ = ${q.displayResult}`;
+        document.getElementById('practice-question').innerHTML = `${q.displayA} &times; <span style="display:inline-block;width:2.5ch;border-bottom:3px solid #FFD700;vertical-align:baseline;"></span> = ${q.displayResult}`;
     } else {
         document.getElementById('practice-question').innerHTML = `${q.a} &times; ${q.b} = ?`;
     }
