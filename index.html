@@ -1271,13 +1271,14 @@
             50% { box-shadow: 0 0 30px rgba(255, 215, 0, 0.5), 0 4px 20px rgba(255, 165, 0, 0.4); }
         }
 
-        .genius-mode {
-            position: relative;
-            overflow: hidden;
-        }
         .genius-mode .card {
             border: 2px solid rgba(255, 215, 0, 0.4);
             box-shadow: 0 0 30px rgba(255, 215, 0, 0.15), 0 0 60px rgba(255, 165, 0, 0.08);
+            animation: geniusCardEntry 0.6s ease-out 1.8s both;
+        }
+        @keyframes geniusCardEntry {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
         }
         .genius-mode .question-text {
             color: #FFD700;
@@ -1286,60 +1287,24 @@
         .genius-mode .practice-timer-fill {
             background: linear-gradient(90deg, #FFD700, #FFA500, #FF6347) !important;
         }
-        .genius-mode .stat-icon {
-            animation: geniusStatPulse 1.5s ease-in-out infinite;
-        }
-        @keyframes geniusStatPulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.2); }
-        }
 
-        /* Flying spaceship */
-        .genius-mode::after {
-            content: '🚀';
+        /* Warp entry overlay */
+        .warp-overlay {
             position: fixed;
-            font-size: 2rem;
-            top: 15%;
-            animation: spaceshipFly 8s linear infinite;
-            z-index: 100;
+            top: 0; left: 0; right: 0; bottom: 0;
+            z-index: 9999;
+            background: #000;
             pointer-events: none;
-            filter: drop-shadow(0 0 8px rgba(255, 165, 0, 0.6));
+            animation: warpFade 2.4s ease-in forwards;
         }
-        @keyframes spaceshipFly {
-            0% { left: -50px; top: 15%; transform: rotate(-15deg); }
-            25% { top: 25%; transform: rotate(5deg); }
-            50% { top: 10%; transform: rotate(-10deg); }
-            75% { top: 30%; transform: rotate(8deg); }
-            100% { left: calc(100% + 50px); top: 20%; transform: rotate(-5deg); }
+        @keyframes warpFade {
+            0% { opacity: 1; }
+            75% { opacity: 1; }
+            100% { opacity: 0; }
         }
-
-        /* Gold star particles */
-        .genius-mode::before {
-            content: '';
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background:
-                radial-gradient(1px 1px at 10% 20%, #FFD700, transparent),
-                radial-gradient(1px 1px at 30% 40%, #FFA500, transparent),
-                radial-gradient(1.5px 1.5px at 50% 15%, #FFD700, transparent),
-                radial-gradient(1px 1px at 70% 35%, #FF6347, transparent),
-                radial-gradient(1.5px 1.5px at 90% 25%, #FFD700, transparent),
-                radial-gradient(1px 1px at 15% 60%, #FFA500, transparent),
-                radial-gradient(1px 1px at 45% 70%, #FFD700, transparent),
-                radial-gradient(1.5px 1.5px at 75% 55%, #FF6347, transparent),
-                radial-gradient(1px 1px at 85% 75%, #FFD700, transparent),
-                radial-gradient(1px 1px at 25% 85%, #FFA500, transparent);
-            pointer-events: none;
-            z-index: 0;
-            animation: goldSparkle 3s ease-in-out infinite alternate;
-            opacity: 0.6;
-        }
-        @keyframes goldSparkle {
-            0% { opacity: 0.4; }
-            100% { opacity: 0.7; }
+        .warp-overlay canvas {
+            width: 100%;
+            height: 100%;
         }
 
         /* Genius summary */
@@ -2972,6 +2937,97 @@ function handleDifficultyClick(e) {
 }
 
 // ====== GENIUS MODE ======
+function playWarpEntry() {
+    const overlay = document.createElement('div');
+    overlay.className = 'warp-overlay';
+    const canvas = document.createElement('canvas');
+    overlay.appendChild(canvas);
+    document.body.appendChild(overlay);
+
+    const ctx = canvas.getContext('2d');
+    const W = canvas.width = window.innerWidth;
+    const H = canvas.height = window.innerHeight;
+    const cx = W / 2;
+    const cy = H / 2;
+
+    // Create stars
+    const stars = [];
+    for (let i = 0; i < 200; i++) {
+        stars.push({
+            x: (Math.random() - 0.5) * W * 2,
+            y: (Math.random() - 0.5) * H * 2,
+            z: Math.random() * 1500 + 100,
+            speed: Math.random() * 30 + 15
+        });
+    }
+
+    const startTime = performance.now();
+    const duration = 2200;
+
+    function drawFrame(now) {
+        const elapsed = now - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        // Accelerating speed
+        const accel = 1 + progress * progress * 25;
+
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.15)';
+        ctx.fillRect(0, 0, W, H);
+
+        for (const star of stars) {
+            star.z -= star.speed * accel;
+            if (star.z <= 1) {
+                star.x = (Math.random() - 0.5) * W * 2;
+                star.y = (Math.random() - 0.5) * H * 2;
+                star.z = 1500;
+            }
+
+            const sx = cx + star.x / star.z * 300;
+            const sy = cy + star.y / star.z * 300;
+            // Previous position for streak
+            const pz = star.z + star.speed * accel;
+            const px = cx + star.x / pz * 300;
+            const py = cy + star.y / pz * 300;
+
+            const brightness = Math.min(1, (1500 - star.z) / 800);
+            const streakLen = Math.min(1, progress * 2);
+            const goldMix = progress;
+            const r = Math.round(200 + 55 * goldMix);
+            const g = Math.round(200 + 15 * goldMix);
+            const b = Math.round(255 * (1 - goldMix * 0.7));
+            const alpha = brightness * (0.5 + streakLen * 0.5);
+
+            ctx.strokeStyle = `rgba(${r},${g},${b},${alpha})`;
+            ctx.lineWidth = Math.max(0.5, brightness * 2 * (1 + progress));
+            ctx.beginPath();
+            ctx.moveTo(px + (px - sx) * (1 - streakLen), py + (py - sy) * (1 - streakLen));
+            ctx.lineTo(sx, sy);
+            ctx.stroke();
+        }
+
+        // Central glow at end
+        if (progress > 0.6) {
+            const glowAlpha = (progress - 0.6) / 0.4 * 0.4;
+            const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, W * 0.5);
+            grad.addColorStop(0, `rgba(255, 215, 0, ${glowAlpha})`);
+            grad.addColorStop(0.5, `rgba(255, 165, 0, ${glowAlpha * 0.3})`);
+            grad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+            ctx.fillStyle = grad;
+            ctx.fillRect(0, 0, W, H);
+        }
+
+        if (progress < 1) {
+            requestAnimationFrame(drawFrame);
+        }
+    }
+
+    requestAnimationFrame(drawFrame);
+
+    // Remove overlay after animation
+    setTimeout(() => {
+        overlay.remove();
+    }, 2500);
+}
+
 function startGeniusMode() {
     const maxN = getMaxMultiplier();
     App.selectedNumbers = Array.from({length: maxN}, (_, i) => i + 1);
@@ -2993,12 +3049,11 @@ function startGeniusMode() {
     App.currentStreak = 0;
     App.isProcessing = false;
 
-    // Timer - 3 minutes
+    // Setup timer display but don't start yet (wait for warp animation)
     const timerSection = document.getElementById('practice-timer-section');
     timerSection.style.display = '';
     App.timerRemaining = 180;
     updateTimerDisplay();
-    startTimer();
 
     // Start background music
     SpaceMusic.start();
@@ -3008,7 +3063,13 @@ function startGeniusMode() {
 
     SoundEngine.play('launch');
     App.navigateTo('screen-practice');
-    showQuestion();
+
+    // Play warp entry animation, then start timer + questions
+    playWarpEntry();
+    setTimeout(() => {
+        startTimer();
+        showQuestion();
+    }, 2000);
 }
 
 // ====== SCREEN: PRACTICE ======
