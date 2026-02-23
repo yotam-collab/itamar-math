@@ -1436,6 +1436,58 @@
             margin-top: 0.25rem;
         }
 
+        /* Genius sound controls */
+        .genius-sound-controls {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-top: 0.35rem;
+        }
+        .genius-sound-btn {
+            background: rgba(255, 215, 0, 0.1);
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            border-radius: 8px;
+            padding: 0.2rem 0.6rem;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .genius-sound-btn:hover {
+            background: rgba(255, 215, 0, 0.2);
+        }
+        .genius-sound-btn.muted {
+            opacity: 0.35;
+            border-color: rgba(255, 255, 255, 0.15);
+        }
+
+        /* Genius high score displays */
+        .genius-highscore-welcome {
+            font-size: 0.85rem;
+            color: #FFA500;
+            font-weight: 700;
+            margin-top: 0.25rem;
+            text-shadow: 0 0 8px rgba(255, 165, 0, 0.3);
+        }
+        .genius-record-line {
+            font-size: 0.85rem;
+            color: #FFA500;
+            font-weight: 600;
+            margin-top: 0.15rem;
+            text-shadow: 0 0 8px rgba(255, 165, 0, 0.3);
+            transition: all 0.3s ease;
+        }
+        .genius-record-line.new-record {
+            color: #FFD700;
+            font-size: 1rem;
+            animation: newRecordPop 0.6s ease-out;
+            text-shadow: 0 0 12px rgba(255, 215, 0, 0.6), 0 0 24px rgba(255, 165, 0, 0.3);
+        }
+        @keyframes newRecordPop {
+            0% { transform: scale(1); }
+            40% { transform: scale(1.3); }
+            100% { transform: scale(1); }
+        }
+
         /* ====== Responsive ====== */
         @media (max-width: 480px) {
             html { font-size: 14px; }
@@ -1502,6 +1554,7 @@
             <button class="btn btn-outline btn-block" id="btn-review-mistakes">🔄  חזרה על טעויות</button>
             <button class="btn btn-outline btn-block" id="btn-challenge">⏱️  מצב אתגר</button>
             <button class="btn btn-genius btn-block" id="btn-genius">🧠  אלוף המחוננים</button>
+            <div class="genius-highscore-welcome" id="genius-highscore-welcome" style="display:none;">🏆 שיא: <span id="genius-highscore-val">0</span></div>
             <button class="btn btn-outline btn-block" id="btn-achievements">🏆  הישגים</button>
             <button class="btn btn-outline btn-block" id="btn-mastery">📊  לוח השליטה שלי</button>
         </div>
@@ -1588,6 +1641,11 @@
         <!-- Genius title (genius mode only) -->
         <div id="genius-title-bar" style="display:none;">
             <div class="genius-title-text" id="genius-title-text">🧠 אלוף המחוננים 🧠</div>
+            <div class="genius-record-line" id="genius-record-line">🏆 שיא: <span id="genius-record-val">0</span></div>
+            <div class="genius-sound-controls">
+                <button class="genius-sound-btn" id="btn-toggle-music" title="מוזיקה">🎵</button>
+                <button class="genius-sound-btn" id="btn-toggle-sfx" title="אפקטים">🔊</button>
+            </div>
             <div class="genius-sparkles" id="genius-sparkles"></div>
         </div>
         <!-- Timer (challenge mode only) -->
@@ -3008,6 +3066,16 @@ function showWelcomeScreen() {
     document.getElementById('toggle-ans-6').classList.toggle('active', ansC === 6);
     document.getElementById('toggle-ans-8').classList.toggle('active', ansC === 8);
 
+    // Genius high score on welcome
+    const gHS = data.settings.geniusHighScore || 0;
+    const hsWelcome = document.getElementById('genius-highscore-welcome');
+    if (gHS > 0) {
+        hsWelcome.style.display = '';
+        document.getElementById('genius-highscore-val').textContent = gHS;
+    } else {
+        hsWelcome.style.display = 'none';
+    }
+
     App.navigateTo('screen-welcome');
     // Only play welcome sound if AudioContext is already running (i.e., user has interacted)
     // On initial page load, ctx is null or suspended, so no sound plays (which is expected)
@@ -3236,9 +3304,12 @@ function startGeniusMode() {
     // Start background music
     SpaceMusic.start();
 
-    // Add genius visual class + show title
+    // Add genius visual class + show title with high score
     document.getElementById('screen-practice').classList.add('genius-mode');
     document.getElementById('genius-title-bar').style.display = '';
+    const currentHS = Storage.load().settings.geniusHighScore || 0;
+    document.getElementById('genius-record-val').textContent = currentHS;
+    document.getElementById('genius-record-line').classList.remove('new-record');
 
     SoundEngine.play('launch');
     App.navigateTo('screen-practice');
@@ -3388,6 +3459,16 @@ function handleAnswerClick(e) {
         if (App.isGenius) {
             App.geniusScore++;
             triggerGeniusSparkles();
+            // Live high score update
+            const prevHS = Storage.load().settings.geniusHighScore || 0;
+            if (App.geniusScore > prevHS) {
+                Storage.update(d => { d.settings.geniusHighScore = App.geniusScore; });
+                document.getElementById('genius-record-val').textContent = App.geniusScore;
+                const recLine = document.getElementById('genius-record-line');
+                recLine.classList.remove('new-record');
+                void recLine.offsetWidth;
+                recLine.classList.add('new-record');
+            }
         }
 
         // Stars & coins
@@ -4140,6 +4221,30 @@ document.addEventListener('click', (e) => {
     if (id === 'btn-test-sound') {
         testSound();
         setTimeout(() => SoundEngine.play('correct'), 600);
+    }
+
+    // Genius music toggle
+    if (id === 'btn-toggle-music') {
+        const btn = document.getElementById('btn-toggle-music');
+        if (SpaceMusic.playing) {
+            SpaceMusic.stop();
+            btn.classList.add('muted');
+            btn.textContent = '🎵';
+        } else {
+            SpaceMusic.start();
+            btn.classList.remove('muted');
+            btn.textContent = '🎵';
+        }
+    }
+
+    // Genius SFX toggle
+    if (id === 'btn-toggle-sfx') {
+        const btn = document.getElementById('btn-toggle-sfx');
+        const data = Storage.load();
+        const newState = !(data.settings.soundEnabled !== false);
+        Storage.update(d => { d.settings.soundEnabled = newState; });
+        btn.classList.toggle('muted', !newState);
+        btn.textContent = newState ? '🔊' : '🔇';
     }
 
     // Max multiplier toggle
