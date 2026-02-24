@@ -148,11 +148,35 @@
             display: flex;
         }
         .screen.screen-enter {
-            animation: warpIn 0.45s cubic-bezier(0.2, 0.8, 0.2, 1);
+            animation: screenSlideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1);
         }
         .screen.screen-exit {
-            animation: warpOut 0.35s ease-in forwards;
+            animation: screenSlideOut 0.3s ease-in forwards;
         }
+
+        /* Staggered button entrance on welcome screen */
+        #screen-welcome.screen-enter .flex-col > button:nth-child(1),
+        #screen-welcome.screen-enter .flex-col > .btn:nth-child(1) { animation: btnPopIn 0.45s cubic-bezier(0.16, 1, 0.3, 1) 0.10s both; }
+        #screen-welcome.screen-enter .flex-col > button:nth-child(2),
+        #screen-welcome.screen-enter .flex-col > .btn:nth-child(2) { animation: btnPopIn 0.45s cubic-bezier(0.16, 1, 0.3, 1) 0.16s both; }
+        #screen-welcome.screen-enter .flex-col > button:nth-child(3),
+        #screen-welcome.screen-enter .flex-col > .btn:nth-child(3) { animation: btnPopIn 0.45s cubic-bezier(0.16, 1, 0.3, 1) 0.22s both; }
+        #screen-welcome.screen-enter .flex-col > button:nth-child(4),
+        #screen-welcome.screen-enter .flex-col > .btn:nth-child(4) { animation: btnPopIn 0.45s cubic-bezier(0.16, 1, 0.3, 1) 0.28s both; }
+        #screen-welcome.screen-enter .flex-col > button:nth-child(5),
+        #screen-welcome.screen-enter .flex-col > .btn:nth-child(5) { animation: btnPopIn 0.45s cubic-bezier(0.16, 1, 0.3, 1) 0.34s both; }
+        #screen-welcome.screen-enter .flex-col > button:nth-child(6),
+        #screen-welcome.screen-enter .flex-col > .btn:nth-child(6) { animation: btnPopIn 0.45s cubic-bezier(0.16, 1, 0.3, 1) 0.40s both; }
+        #screen-welcome.screen-enter .flex-col > button:nth-child(7),
+        #screen-welcome.screen-enter .flex-col > .btn:nth-child(7) { animation: btnPopIn 0.45s cubic-bezier(0.16, 1, 0.3, 1) 0.46s both; }
+        #screen-welcome.screen-enter .flex-col > button:nth-child(8),
+        #screen-welcome.screen-enter .flex-col > .btn:nth-child(8) { animation: btnPopIn 0.45s cubic-bezier(0.16, 1, 0.3, 1) 0.52s both; }
+        #screen-welcome.screen-enter .flex-col > button:nth-child(n+9) { animation: btnPopIn 0.45s cubic-bezier(0.16, 1, 0.3, 1) 0.58s both; }
+
+        /* Welcome screen profile entrance */
+        #screen-welcome.screen-enter .itamar-photo-welcome { animation: profileBounce 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) 0.05s both; }
+        #screen-welcome.screen-enter .welcome-title { animation: titleReveal 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.1s both; }
+        #screen-welcome.screen-enter .mission-card { animation: btnPopIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.15s both; }
 
         /* ====== Card - Space Panel ====== */
         .card {
@@ -214,7 +238,7 @@
             font-size: 0.95rem;
             font-weight: 700;
             cursor: pointer;
-            transition: all 0.2s ease;
+            transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s ease, filter 0.25s ease, background 0.25s ease, border-color 0.25s ease;
             user-select: none;
             -webkit-tap-highlight-color: transparent;
             letter-spacing: 1px;
@@ -229,6 +253,10 @@
             background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, transparent 50%);
             pointer-events: none;
         }
+        .btn:hover:not(:disabled) {
+            transform: translateY(-3px) scale(1.02);
+            filter: brightness(1.12);
+        }
         .btn:active { transform: scale(0.96); }
         .btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
 
@@ -239,8 +267,10 @@
             border-color: rgba(108, 99, 255, 0.6);
         }
         .btn-primary:hover:not(:disabled) {
-            box-shadow: 0 0 30px rgba(108, 99, 255, 0.6);
+            box-shadow: 0 0 30px rgba(108, 99, 255, 0.6), 0 8px 25px rgba(108, 99, 255, 0.3), inset 0 0 12px rgba(255,255,255,0.1);
             border-color: rgba(108, 99, 255, 0.9);
+            transform: translateY(-4px) scale(1.03);
+            filter: brightness(1.15);
         }
 
         .btn-success {
@@ -255,7 +285,11 @@
             color: var(--color-primary-light);
             border: var(--space-border);
         }
-        .btn-outline:hover { background: rgba(108, 99, 255, 0.15); }
+        .btn-outline:hover {
+            background: rgba(108, 99, 255, 0.2);
+            border-color: rgba(108, 99, 255, 0.6);
+            box-shadow: 0 0 18px rgba(108, 99, 255, 0.25), inset 0 0 12px rgba(108, 99, 255, 0.08);
+        }
 
         .btn-lg {
             padding: 1rem 2.5rem;
@@ -757,6 +791,30 @@
         @keyframes warpOut {
             0% { transform: scale(1); opacity: 1; filter: blur(0); }
             100% { transform: scale(0.9) translateY(-20px); opacity: 0; filter: blur(5px); }
+        }
+        @keyframes screenSlideUp {
+            0% { transform: translateY(40px) scale(0.95); opacity: 0; filter: blur(6px); }
+            50% { filter: blur(0); }
+            100% { transform: translateY(0) scale(1); opacity: 1; filter: blur(0); }
+        }
+        @keyframes screenSlideOut {
+            0% { transform: translateY(0) scale(1); opacity: 1; }
+            100% { transform: translateY(-30px) scale(0.92); opacity: 0; filter: blur(4px); }
+        }
+        @keyframes btnPopIn {
+            0% { transform: translateY(25px) scale(0.85); opacity: 0; }
+            60% { transform: translateY(-4px) scale(1.02); opacity: 1; }
+            100% { transform: translateY(0) scale(1); opacity: 1; }
+        }
+        @keyframes profileBounce {
+            0% { transform: scale(0) rotate(-10deg); opacity: 0; }
+            50% { transform: scale(1.1) rotate(3deg); opacity: 1; }
+            70% { transform: scale(0.95) rotate(-1deg); }
+            100% { transform: scale(1) rotate(0deg); opacity: 1; }
+        }
+        @keyframes titleReveal {
+            0% { transform: translateY(15px); opacity: 0; letter-spacing: 8px; }
+            100% { transform: translateY(0); opacity: 1; letter-spacing: inherit; }
         }
         /* keep old names as aliases */
         @keyframes slideIn {
@@ -1263,8 +1321,9 @@
             animation: geniusBtnPulse 2s ease-in-out infinite;
         }
         .btn-genius:hover {
-            box-shadow: 0 0 30px rgba(255, 215, 0, 0.5), 0 6px 20px rgba(255, 165, 0, 0.4);
-            transform: translateY(-2px);
+            box-shadow: 0 0 35px rgba(255, 215, 0, 0.6), 0 8px 25px rgba(255, 165, 0, 0.5), inset 0 0 15px rgba(255,255,255,0.15);
+            transform: translateY(-4px) scale(1.03);
+            filter: brightness(1.15) saturate(1.2);
         }
         @keyframes geniusBtnPulse {
             0%, 100% { box-shadow: 0 0 20px rgba(255, 215, 0, 0.3), 0 4px 15px rgba(255, 165, 0, 0.2); }
@@ -1468,6 +1527,15 @@
             margin-top: 0.25rem;
             text-shadow: 0 0 8px rgba(255, 165, 0, 0.3);
         }
+        .genius-hs-inline {
+            display: inline-block;
+            font-size: 0.75em;
+            background: rgba(0,0,0,0.25);
+            padding: 0.15em 0.5em;
+            border-radius: 1em;
+            margin-right: 0.4em;
+            vertical-align: middle;
+        }
         .genius-record-line {
             font-size: 0.85rem;
             color: #FFA500;
@@ -1507,6 +1575,159 @@
         }
         @media (min-width: 768px) {
             html { font-size: 18px; }
+        }
+
+        /* ====== NEW: Question Type Styles ====== */
+        .q-label-small {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+        .answer-btn-tf {
+            font-size: 1.3rem !important;
+            font-weight: 800 !important;
+            padding: 1.2rem 0.5rem !important;
+            min-height: 70px;
+        }
+        .answer-btn-tf.tf-true { border-color: rgba(0, 230, 118, 0.3); }
+        .answer-btn-tf.tf-false { border-color: rgba(255, 82, 82, 0.3); }
+        .answer-btn-compare { font-size: 1.1rem !important; font-weight: 700 !important; }
+        .vs-badge {
+            display: inline-block;
+            background: var(--gradient-plasma);
+            color: white;
+            padding: 0.15rem 0.5rem;
+            border-radius: var(--radius-sm);
+            font-size: 0.75rem;
+            font-weight: 800;
+            font-family: var(--font-display);
+            margin: 0 0.3rem;
+            vertical-align: middle;
+        }
+        .seq-display {
+            font-family: var(--font-display);
+            font-size: 1.5rem;
+            letter-spacing: 2px;
+            color: var(--color-neon-blue);
+        }
+
+        /* ====== NEW: Practice Mode Badge ====== */
+        .practice-mode-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            background: var(--gradient-cosmic);
+            color: white;
+            margin-bottom: 0.5rem;
+            text-align: center;
+        }
+
+        /* ====== NEW: Daily Boost Button ====== */
+        .btn-daily-boost {
+            background: linear-gradient(135deg, #FF6D00 0%, #FFD740 50%, #FF9100 100%) !important;
+            color: #1a1a3e !important;
+            font-weight: 800 !important;
+            border: none !important;
+            position: relative;
+            text-shadow: none !important;
+            box-shadow: 0 0 20px rgba(255, 109, 0, 0.3), 0 0 40px rgba(255, 215, 64, 0.15);
+        }
+        .btn-daily-boost:hover {
+            box-shadow: 0 0 35px rgba(255, 109, 0, 0.6), 0 8px 25px rgba(255, 215, 64, 0.4), inset 0 0 15px rgba(255,255,255,0.15);
+            transform: translateY(-4px) scale(1.03);
+            filter: brightness(1.15) saturate(1.2);
+        }
+        .daily-boost-badge {
+            display: inline-block;
+            background: rgba(0,0,0,0.2);
+            color: white;
+            padding: 0.1rem 0.4rem;
+            border-radius: 10px;
+            font-size: 0.65rem;
+            margin-right: 0.3rem;
+            vertical-align: middle;
+        }
+
+        /* ====== NEW: Mission Card ====== */
+        .mission-card {
+            background: var(--bg-card);
+            border: var(--space-border);
+            border-radius: var(--radius-md);
+            padding: 0.75rem 1rem;
+            margin-top: 1rem;
+        }
+        .mission-header { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.3rem; }
+        .mission-icon { font-size: 1.2rem; }
+        .mission-title { font-weight: 700; font-size: 0.85rem; color: var(--color-warning); }
+        .mission-desc { font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 0.5rem; }
+        .mission-progress-bar {
+            height: 6px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 3px;
+            overflow: hidden;
+            margin-bottom: 0.3rem;
+        }
+        .mission-progress-fill {
+            height: 100%;
+            background: var(--gradient-solar);
+            border-radius: 3px;
+            transition: width 0.5s ease;
+        }
+        .mission-status { font-size: 0.7rem; color: var(--text-secondary); text-align: left; }
+
+        /* ====== NEW: Hint Overlay ====== */
+        .hint-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+        .hint-overlay.visible { opacity: 1; pointer-events: all; }
+        .hint-popup {
+            background: var(--bg-card-solid);
+            border: var(--space-border-glow);
+            border-radius: var(--radius-xl);
+            padding: 1.5rem;
+            max-width: 90vw;
+            text-align: center;
+        }
+        .hint-visual { margin-bottom: 1rem; }
+        .hint-title { font-size: 1.3rem; font-weight: 700; margin-bottom: 0.75rem; color: var(--color-neon-blue); }
+        .hint-array { display: inline-flex; flex-direction: column; gap: 4px; margin: 0.5rem 0; }
+        .hint-row { display: flex; gap: 4px; justify-content: center; }
+        .hint-dot {
+            width: 18px; height: 18px;
+            border-radius: 50%;
+            background: var(--gradient-aurora);
+            box-shadow: 0 0 6px rgba(0, 229, 255, 0.4);
+        }
+        .hint-count { font-size: 0.9rem; color: var(--text-secondary); margin-top: 0.5rem; }
+
+        /* ====== NEW: Encouragement Flash ====== */
+        .encouragement-flash {
+            animation: encouragePulse 0.6s ease-in-out 3;
+        }
+        @keyframes encouragePulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); color: var(--color-neon-blue); }
+        }
+
+        /* ====== NEW: Progress Messages ====== */
+        .progress-messages { text-align: center; }
+        .progress-msg {
+            font-size: 0.85rem;
+            color: var(--color-success-light);
+            padding: 0.2rem 0;
+            font-weight: 600;
         }
     </style>
 </head>
@@ -1549,12 +1770,24 @@
 
         <div class="week-calendar mt-2" id="welcome-calendar"></div>
 
+        <!-- Daily Mission Card -->
+        <div class="mission-card" id="mission-card" style="display:none;">
+            <div class="mission-header">
+                <span class="mission-icon" id="mission-icon"></span>
+                <span class="mission-title">משימת היום</span>
+            </div>
+            <div class="mission-desc" id="mission-desc"></div>
+            <div class="mission-progress-bar"><div class="mission-progress-fill" id="mission-progress-fill" style="width:0%"></div></div>
+            <div class="mission-status" id="mission-status"></div>
+        </div>
+
         <div class="flex-col gap-1 mt-3">
+            <button class="btn btn-daily-boost btn-lg btn-block" id="btn-daily-boost">☀️  החימום של היום <span class="daily-boost-badge" id="daily-boost-badge"></span></button>
+            <button class="btn btn-genius btn-block" id="btn-genius">🧠  אלוף המחוננים <span class="genius-hs-inline" id="genius-highscore-welcome" style="display:none;">🏆 <span id="genius-highscore-val">0</span></span></button>
             <button class="btn btn-primary btn-lg btn-block" id="btn-start-practice">🎯  תרגול חדש</button>
+            <button class="btn btn-outline btn-block" id="btn-focus-mode">🎯  תרגול חולשות חכם</button>
             <button class="btn btn-outline btn-block" id="btn-review-mistakes">🔄  חזרה על טעויות</button>
             <button class="btn btn-outline btn-block" id="btn-challenge">⏱️  מצב אתגר</button>
-            <button class="btn btn-genius btn-block" id="btn-genius">🧠  אלוף המחוננים</button>
-            <div class="genius-highscore-welcome" id="genius-highscore-welcome" style="display:none;">🏆 שיא: <span id="genius-highscore-val">0</span></div>
             <button class="btn btn-outline btn-block" id="btn-achievements">🏆  הישגים</button>
             <button class="btn btn-outline btn-block" id="btn-mastery">📊  לוח השליטה שלי</button>
         </div>
@@ -1656,7 +1889,8 @@
             </div>
         </div>
 
-        <!-- Progress -->
+        <!-- Mode badge + Progress -->
+        <div id="practice-mode-badge" class="practice-mode-badge" style="display:none;"></div>
         <div class="flex-row" style="justify-content:space-between; margin-bottom:0.25rem;">
             <span id="practice-question-num" style="font-size:0.9rem; font-weight:600; color:var(--text-secondary);">1 / 15</span>
             <div class="stats-bar" style="padding:0; gap:1rem;">
@@ -1775,6 +2009,14 @@
     </div>
 </div>
 
+<!-- ====== Hint Overlay (Focus Mode) ====== -->
+<div class="hint-overlay" id="hint-overlay">
+    <div class="hint-popup">
+        <div id="hint-content"></div>
+        <button class="btn btn-primary" id="hint-dismiss">הבנתי! 👍</button>
+    </div>
+</div>
+
 <!-- ====== Photo Feedback Container ====== -->
 <div class="feedback-photo-container" id="feedback-photo-container">
     <img src="" alt="איתמר" class="feedback-photo" id="feedback-photo">
@@ -1853,7 +2095,13 @@ const ACHIEVEMENTS = [
     { id: 'challenge_complete', icon: '\u23F1\uFE0F', name: '!אתגר', desc: 'סיימת אתגר עם טיימר' },
     { id: 'two_hundred', icon: '\uD83D\uDE80', name: '!מאתיים', desc: 'ענית נכון על 200 שאלות' },
     { id: 'five_hundred', icon: '\uD83D\uDC8E', name: '!חמש מאות', desc: 'ענית נכון על 500 שאלות' },
-    { id: 'genius_20', icon: '\uD83E\uDDE0', name: 'מחונן!', desc: 'ענית על 20+ שאלות במצב מחוננים' }
+    { id: 'genius_20', icon: '\uD83E\uDDE0', name: 'מחונן!', desc: 'ענית על 20+ שאלות במצב מחוננים' },
+    { id: 'focus_5', icon: '\uD83C\uDFAF', name: 'מתמקד!', desc: 'סיימת 5 תרגולי חולשות' },
+    { id: 'daily_streak_3', icon: '\u2600\uFE0F', name: '3 ימים רצופים', desc: '3 חימומים יומיים ברצף' },
+    { id: 'daily_streak_7', icon: '\uD83D\uDD25', name: 'שבוע של חימום!', desc: '7 חימומים יומיים ברצף' },
+    { id: 'mastery_upgrade', icon: '\uD83D\uDCC8', name: 'שיפור!', desc: 'שיפרת צבע של תרגיל' },
+    { id: 'all_green', icon: '\uD83C\uDF1F', name: 'הכל ירוק!', desc: 'כל לוח הכפל ירוק' },
+    { id: 'genius_variety', icon: '\uD83E\uDDE9', name: 'מגוון!', desc: '5 סוגי שאלות שונים במצב מחוננים' }
 ];
 
 const DIFFICULTY_CONFIG = {
@@ -1864,19 +2112,99 @@ const DIFFICULTY_CONFIG = {
     genius:    { questions: 999, distractorMode: 'close', multiplier: 4,  timer: 180,  showCorrect: false, retryWrong: false }
 };
 
+// ====== GENIUS QUESTION TYPE CONFIG ======
+const GENIUS_QTYPE_CONFIG = {
+    weights: {
+        standard:     0.35,
+        reverse:      0.20,
+        trueFalse:    0.15,
+        comparison:   0.10,
+        reverseMatch: 0.10,
+        sequence:     0.05,
+        commutative:  0.05
+    },
+    maxConsecutiveSameType: 3,
+    difficultyAdjust: {
+        errorsToTrigger: 2,
+        streakToTrigger: 5,
+        boostStandardBy: 0.15,
+        redFactBoost: 2.0
+    }
+};
+
+// ====== SCORING CONFIG ======
+const SCORING_CONFIG = {
+    basePoints: 10,
+    questionTypeMultipliers: {
+        standard: 1.0, reverse: 1.2, trueFalse: 0.9,
+        comparison: 1.1, reverseMatch: 1.2, sequence: 1.1, commutative: 1.0
+    },
+    difficultyMultipliers: {
+        easy: 1.0, normal: 1.2, hard: 1.5, challenge: 1.8, genius: 1.8
+    },
+    masteryZoneMultipliers: {
+        high: 1.0, mid: 1.25, low: 1.6, none: 1.15
+    },
+    speedBonus: {
+        fast:   { threshold: 2000, multiplier: 1.5 },
+        medium: { threshold: 4000, multiplier: 1.2 }
+    },
+    sessionBonuses: { accuracy90: 50, accuracy80: 30, accuracy70: 15 },
+    improvementBonuses: { redToYellow: 40, yellowToGreen: 60 },
+    frustrationShield: {
+        errorPenalty: -2,
+        normalErrorPenalty: 0,
+        consecutiveErrorsForHelp: 3
+    },
+    streakBonuses: {
+        five:  { stars: 3, coins: 5, points: 50 },
+        ten:   { stars: 5, coins: 10, points: 100 }
+    }
+};
+
+// ====== FOCUS MODE CONFIG ======
+const FOCUS_CONFIG = {
+    maxQuestions: 20,
+    minQuestions: 10,
+    maxTimeMinutes: 5,
+    hintsAfterWrongCount: 2
+};
+
+// ====== DAILY BOOST CONFIG ======
+const DAILY_BOOST_CONFIG = {
+    questionCount: 12,
+    maxTimeMinutes: 4,
+    mix: { strong: 0.60, medium: 0.30, weak: 0.10 },
+    bonuses: { firstDaily: 100, streak3: 50, streak7: 150, streak14: 300 },
+    subsequentBonusRatio: 0.3
+};
+
+// ====== DAILY MISSION TEMPLATES ======
+const MISSION_TEMPLATES = [
+    { id: 'turn_reds', desc: 'הפוך 2 אדומים לצהובים', icon: '🔴➡️🟡', target: 2, checkField: 'redsImproved' },
+    { id: 'genius_10', desc: '10 נכונות במצב מחוננים', icon: '🧠', target: 10, checkField: 'geniusCorrect' },
+    { id: 'streak_7', desc: 'רצף של 7 תשובות נכונות', icon: '🔥', target: 7, checkField: 'bestStreakToday' },
+    { id: 'practice_20', desc: 'ענה על 20 שאלות', icon: '📝', target: 20, checkField: 'questionsToday' },
+    { id: 'daily_boost', desc: 'השלם את החימום היומי', icon: '☀️', target: 1, checkField: 'dailyBoostDone' },
+    { id: 'perfect_mini', desc: 'סיים תרגול בלי טעויות', icon: '💯', target: 1, checkField: 'perfectSession' }
+];
+
 const DEFAULT_DATA = {
-    version: 1,
+    version: 2,
     profile: { name: 'איתמר', avatar: null, createdAt: null },
     stats: {
         totalQuestions: 0, totalCorrect: 0, totalWrong: 0,
         totalStars: 0, totalCoins: 0, totalPoints: 0,
-        currentStreak: 0, bestStreak: 0, totalSessions: 0
+        currentStreak: 0, bestStreak: 0, totalSessions: 0,
+        dailyBoostStreak: 0, lastDailyBoostDate: null,
+        focusModeSessions: 0, dailyBoostSessions: 0
     },
     facts: {},
     currentSession: null,
     achievements: { unlocked: [] },
     daily: {},
-    settings: { soundEnabled: true, maxMultiplier: 12, answerCount: 4 }
+    dailyMissions: {},
+    settings: { soundEnabled: true, maxMultiplier: 12, answerCount: 4, geniusHighScore: 0 }
 };
 
 // ====== STORAGE ======
@@ -1906,6 +2234,38 @@ const Storage = {
         mutator(data);
         this.save();
         return data;
+    }
+};
+
+// ====== DATA MIGRATION ======
+const DataMigration = {
+    run() {
+        const data = Storage.load();
+        if (!data.version || data.version < 2) {
+            this._migrateV1toV2(data);
+        }
+    },
+    _migrateV1toV2(data) {
+        data.version = 2;
+        // Stats
+        if (!data.stats.dailyBoostStreak) data.stats.dailyBoostStreak = 0;
+        if (!data.stats.lastDailyBoostDate) data.stats.lastDailyBoostDate = null;
+        if (!data.stats.focusModeSessions) data.stats.focusModeSessions = 0;
+        if (!data.stats.dailyBoostSessions) data.stats.dailyBoostSessions = 0;
+        // Settings
+        if (!data.settings) data.settings = {};
+        if (!data.settings.geniusHighScore) data.settings.geniusHighScore = 0;
+        // Daily missions
+        if (!data.dailyMissions) data.dailyMissions = {};
+        // Upgrade existing daily entries
+        Object.keys(data.daily).forEach(dk => {
+            const d = data.daily[dk];
+            if (d.dailyBoostCompleted === undefined) d.dailyBoostCompleted = false;
+            if (!d.dailyBoostCount) d.dailyBoostCount = 0;
+            if (!d.factsImproved) d.factsImproved = [];
+            if (!d.masteryChanges) d.masteryChanges = [];
+        });
+        Storage.save();
     }
 };
 
@@ -2305,8 +2665,14 @@ const SpaceMusic = {
     start() {
         if (this.playing) return;
         try {
-            this.ctx = new (window.AudioContext || window.webkitAudioContext)();
-            if (this.ctx.state === 'suspended') this.ctx.resume();
+            // Share SoundEngine's AudioContext to avoid browser limits and conflicts
+            if (SoundEngine.ctx && SoundEngine.ctx.state !== 'closed') {
+                this.ctx = SoundEngine.ctx;
+            } else {
+                SoundEngine.init();
+                this.ctx = SoundEngine.ctx;
+            }
+            if (this.ctx && this.ctx.state === 'suspended') this.ctx.resume();
             this.playing = true;
             this._scheduleLoop();
         } catch(e) {
@@ -2339,29 +2705,76 @@ const SpaceMusic = {
         const osc = ctx.createOscillator();
         const gain = ctx.createGain();
         osc.type = 'sine';
-        osc.frequency.setValueAtTime(150, t);
-        osc.frequency.exponentialRampToValueAtTime(40, t + 0.08);
-        gain.gain.setValueAtTime(0.12, t);
-        gain.gain.linearRampToValueAtTime(0, t + 0.12);
+        osc.frequency.setValueAtTime(160, t);
+        osc.frequency.exponentialRampToValueAtTime(35, t + 0.10);
+        gain.gain.setValueAtTime(0.14, t);
+        gain.gain.linearRampToValueAtTime(0, t + 0.14);
         osc.connect(gain);
         gain.connect(ctx.destination);
         osc.start(t);
-        osc.stop(t + 0.15);
+        osc.stop(t + 0.16);
+        // Click transient for punch
+        const click = ctx.createOscillator();
+        const cg = ctx.createGain();
+        click.type = 'square';
+        click.frequency.value = 1200;
+        cg.gain.setValueAtTime(0.06, t);
+        cg.gain.linearRampToValueAtTime(0, t + 0.008);
+        click.connect(cg);
+        cg.connect(ctx.destination);
+        click.start(t);
+        click.stop(t + 0.01);
     },
 
-    _hihat(start) {
+    _snare(start) {
         if (!this.ctx || !this.playing) return;
         const ctx = this.ctx;
         const t = ctx.currentTime + start;
-        const buf = ctx.createBuffer(1, Math.floor(ctx.sampleRate * 0.04), ctx.sampleRate);
+        // Noise burst
+        const buf = ctx.createBuffer(1, Math.floor(ctx.sampleRate * 0.08), ctx.sampleRate);
+        const d = buf.getChannelData(0);
+        for (let i = 0; i < d.length; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / d.length, 1.5);
+        const src = ctx.createBufferSource();
+        src.buffer = buf;
+        const gain = ctx.createGain();
+        gain.gain.setValueAtTime(0.09, t);
+        gain.gain.linearRampToValueAtTime(0, t + 0.07);
+        src.connect(gain);
+        gain.connect(ctx.destination);
+        src.start(t);
+        // Tonal body
+        const osc = ctx.createOscillator();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(220, t);
+        osc.frequency.exponentialRampToValueAtTime(90, t + 0.04);
+        const og = ctx.createGain();
+        og.gain.setValueAtTime(0.07, t);
+        og.gain.linearRampToValueAtTime(0, t + 0.05);
+        osc.connect(og);
+        og.connect(ctx.destination);
+        osc.start(t);
+        osc.stop(t + 0.08);
+    },
+
+    _hihat(start, open) {
+        if (!this.ctx || !this.playing) return;
+        const ctx = this.ctx;
+        const t = ctx.currentTime + start;
+        const dur = open ? 0.08 : 0.03;
+        const buf = ctx.createBuffer(1, Math.floor(ctx.sampleRate * dur), ctx.sampleRate);
         const d = buf.getChannelData(0);
         for (let i = 0; i < d.length; i++) d[i] = (Math.random() * 2 - 1) * (1 - i / d.length);
         const src = ctx.createBufferSource();
         src.buffer = buf;
         const gain = ctx.createGain();
-        gain.gain.setValueAtTime(0.06, t);
-        gain.gain.linearRampToValueAtTime(0, t + 0.04);
-        src.connect(gain);
+        gain.gain.setValueAtTime(open ? 0.055 : 0.04, t);
+        gain.gain.linearRampToValueAtTime(0, t + dur);
+        // Bandpass to make it brighter
+        const filter = ctx.createBiquadFilter();
+        filter.type = 'highpass';
+        filter.frequency.value = 7000;
+        src.connect(filter);
+        filter.connect(gain);
         gain.connect(ctx.destination);
         src.start(t);
     },
@@ -2370,72 +2783,125 @@ const SpaceMusic = {
         if (!this.playing) return;
         const N = this._note.bind(this);
         const K = this._kick.bind(this);
-        const H = this._hihat.bind(this);
-        const BPM = 140;
-        const beat = 60 / BPM;         // ~0.428s per beat
+        const SN = this._snare.bind(this);
+        const H = (s, open) => this._hihat(s, open);
+        const BPM = 125;
+        const beat = 60 / BPM;         // 0.48s
         const eighth = beat / 2;
-        const bar = beat * 4;           // ~1.71s per bar
-        const loopLen = bar * 4;        // 4 bars = ~6.86s
+        const sixteenth = beat / 4;
+        const bar = beat * 4;           // ~1.92s
+        const loopLen = bar * 4;        // 4 bars = ~7.68s
 
-        // ---- DRUMS: kick on 1,3 + hihat on every eighth ----
+        // ---- DRUMS: modern funky groove ----
         for (let b = 0; b < 4; b++) {
-            const bOff = b * bar;
-            K(bOff);                    // beat 1
-            K(bOff + beat * 2);         // beat 3
-            K(bOff + beat * 2.5);       // extra bounce
-            for (let e = 0; e < 8; e++) {
-                H(bOff + e * eighth);
+            const o = b * bar;
+            // Kick: 1, 2-and, 4-and (syncopated bounce)
+            K(o);
+            K(o + beat * 1 + eighth);
+            K(o + beat * 2);
+            if (b % 2 === 1) K(o + beat * 3 + eighth); // extra groove every other bar
+            // Snare: 2 and 4 (backbeat)
+            SN(o + beat);
+            SN(o + beat * 3);
+            // Hi-hats: sixteenth swing with accents
+            for (let e = 0; e < 16; e++) {
+                const isOpen = (e === 4 || e === 12);   // open on off-beats
+                const isGhost = (e % 2 === 1);
+                if (!isGhost || Math.random() > 0.3) {
+                    H(o + e * sixteenth, isOpen);
+                }
             }
         }
 
-        // ---- BASS: bouncy square bass line (C minor pentatonic) ----
-        // Pattern: C2-C2-Eb2-F2 | G2-F2-Eb2-C2 | C2-G2-F2-Eb2 | F2-Eb2-C2-G1
-        const bassNotes = [
-            130.8, 130.8, 155.6, 174.6,
-            196.0, 174.6, 155.6, 130.8,
-            130.8, 196.0, 174.6, 155.6,
-            174.6, 155.6, 130.8, 98.0
+        // ---- BASS: groovy synth bass in G major ----
+        // Syncopated funky pattern: G2-.-B2-. | D3-C3-B2-. | G2-.-A2-B2 | C3-B2-A2-G2
+        const bassPattern = [
+            // [freq, beatOffset, duration]
+            [98.0,  0,           0.6],   // G2
+            [123.5, 1 + 0.5,    0.4],   // B2 syncopated
+            [146.8, 2,           0.4],   // D3
+            [130.8, 2.5,         0.35],  // C3
+            [123.5, 3,           0.4],   // B2
+            [98.0,  4,           0.6],   // G2
+            [110.0, 5 + 0.5,    0.4],   // A2 syncopated
+            [123.5, 6,           0.4],   // B2
+            [130.8, 6.5,         0.5],   // C3
+            [98.0,  8,           0.6],   // G2
+            [123.5, 9 + 0.5,    0.4],   // B2
+            [146.8, 10,          0.5],   // D3
+            [164.8, 10.5,        0.4],   // E3
+            [146.8, 11,          0.3],   // D3
+            [130.8, 12,          0.5],   // C3
+            [123.5, 12.5,        0.4],   // B2
+            [110.0, 13,          0.4],   // A2
+            [98.0,  14,          0.8],   // G2
         ];
-        for (let i = 0; i < 16; i++) {
-            N(bassNotes[i], i * beat, beat * 0.8, 'square', 0.07);
+        for (const [freq, beatOff, dur] of bassPattern) {
+            N(freq, beatOff * beat, dur * beat, 'square', 0.065);
         }
 
-        // ---- LEAD: catchy arpeggio melody (triangle wave, higher octave) ----
-        // Bar 1: C4 Eb4 G4 C5 | Bar 2: Bb4 G4 Eb4 F4
-        // Bar 3: G4 Bb4 C5 Eb5 | Bar 4: C5 G4 F4 Eb4
-        const melodyNotes = [
-            523.3, 622.3, 784.0, 1047,
-            932.3, 784.0, 622.3, 698.5,
-            784.0, 932.3, 1047, 1245,
-            1047, 784.0, 698.5, 622.3
+        // ---- LEAD: catchy bright melody (sine + triangle) ----
+        // G major pentatonic earworm: G4-A4-B4-D5 | E5-D5-B4-A4 | B4-D5-E5-G5 | E5-D5-B4-G4
+        const melodyPattern = [
+            // [freq, beatOffset, duration]
+            [392.0, 0,     0.4],   // G4
+            [440.0, 0.5,   0.4],   // A4
+            [493.9, 1,     0.5],   // B4
+            [587.3, 2,     0.8],   // D5 (hold)
+            [659.3, 4,     0.5],   // E5
+            [587.3, 4.75,  0.4],   // D5
+            [493.9, 5.5,   0.4],   // B4
+            [440.0, 6,     0.8],   // A4 (hold)
+            [493.9, 8,     0.4],   // B4
+            [587.3, 8.5,   0.4],   // D5
+            [659.3, 9,     0.5],   // E5
+            [784.0, 10,    0.8],   // G5 (hold — high point!)
+            [659.3, 12,    0.5],   // E5
+            [587.3, 12.75, 0.4],   // D5
+            [493.9, 13.5,  0.4],   // B4
+            [392.0, 14,    1.0],   // G4 (resolve)
         ];
-        for (let i = 0; i < 16; i++) {
-            N(melodyNotes[i], i * beat + eighth, beat * 0.5, 'triangle', 0.06);
+        for (const [freq, beatOff, dur] of melodyPattern) {
+            N(freq, beatOff * beat + sixteenth, dur * beat, 'triangle', 0.055);
+            // Double with quiet sine an octave up for shimmer
+            N(freq * 2, beatOff * beat + sixteenth, dur * beat * 0.6, 'sine', 0.018);
         }
 
-        // ---- ARPEGGIO: fast sparkly notes on offbeats ----
-        const arpNotes = [1047, 1319, 1568, 1319, 1047, 784, 1047, 1319];
-        for (let b = 0; b < 4; b++) {
-            for (let a = 0; a < 2; a++) {
-                const idx = b * 2 + a;
-                N(arpNotes[idx % arpNotes.length], b * bar + a * beat + beat * 3, eighth * 0.6, 'sine', 0.035);
-                N(arpNotes[(idx + 1) % arpNotes.length], b * bar + a * beat + beat * 3 + eighth, eighth * 0.6, 'sine', 0.035);
+        // ---- CHORDS: bright stab hits on 1 and 3 ----
+        const chords = [
+            // bar 0: Gmaj (G4, B4, D5)
+            [[392, 493.9, 587.3], 0],
+            // bar 1: Cmaj (C4, E4, G4)
+            [[261.6, 329.6, 392], 4],
+            // bar 2: Dmaj (D4, F#4, A4)
+            [[293.7, 370, 440], 8],
+            // bar 3: Em (E4, G4, B4)
+            [[329.6, 392, 493.9], 12],
+        ];
+        for (const [notes, beatOff] of chords) {
+            for (const f of notes) {
+                N(f, beatOff * beat, beat * 0.3, 'sine', 0.025);
+                N(f, (beatOff + 2) * beat, beat * 0.25, 'sine', 0.02);
             }
+        }
+
+        // ---- SPARKLE: quick arp bursts every 2 bars ----
+        const sparkle = [784, 988, 1175, 1319, 1568];
+        for (let s = 0; s < sparkle.length; s++) {
+            N(sparkle[s], bar * 2 + beat * 3 + s * sixteenth * 0.8, sixteenth * 0.7, 'sine', 0.025);
         }
 
         // Schedule next loop
         this._loopTimer = setTimeout(() => {
             this._scheduleLoop();
-        }, loopLen * 1000 - 100); // slight overlap to avoid gaps
+        }, loopLen * 1000 - 100);
     },
 
     stop() {
         this.playing = false;
         if (this._loopTimer) { clearTimeout(this._loopTimer); this._loopTimer = null; }
-        if (this.ctx) {
-            try { this.ctx.close(); } catch(e) {}
-            this.ctx = null;
-        }
+        // Don't close the shared AudioContext — just release our reference
+        this.ctx = null;
     }
 };
 
@@ -2704,102 +3170,501 @@ const QGen = {
 
 // ====== GENIUS QUESTION GENERATOR ======
 const GeniusQGen = {
-    _nextType: 'standard',
     _usedQuestions: new Set(),
+    _typeHistory: [],
+    _consecutiveErrors: 0,
+    _currentStreak: 0,
+    _adjustedWeights: null,
+    _geniusTypesUsed: new Set(),
 
     reset() {
-        this._nextType = 'standard';
         this._usedQuestions.clear();
+        this._typeHistory = [];
+        this._consecutiveErrors = 0;
+        this._currentStreak = 0;
+        this._adjustedWeights = null;
+        this._geniusTypesUsed = new Set();
+    },
+
+    recordAnswer(correct) {
+        if (correct) { this._consecutiveErrors = 0; this._currentStreak++; }
+        else { this._consecutiveErrors++; this._currentStreak = 0; }
+        this._recalcWeights();
+    },
+
+    _recalcWeights() {
+        const cfg = GENIUS_QTYPE_CONFIG;
+        const w = { ...cfg.weights };
+        if (this._consecutiveErrors >= cfg.difficultyAdjust.errorsToTrigger) {
+            w.standard += cfg.difficultyAdjust.boostStandardBy;
+            w.reverse += 0.05;
+            w.trueFalse = Math.max(0, w.trueFalse - 0.05);
+            w.comparison = Math.max(0, w.comparison - 0.05);
+            w.reverseMatch = Math.max(0, w.reverseMatch - 0.05);
+            w.sequence = Math.max(0, w.sequence - 0.03);
+            w.commutative = Math.max(0, w.commutative - 0.02);
+        }
+        if (this._currentStreak >= cfg.difficultyAdjust.streakToTrigger) {
+            w.standard = Math.max(0.10, w.standard - 0.10);
+            w.trueFalse += 0.03; w.comparison += 0.03;
+            w.reverseMatch += 0.02; w.sequence += 0.01; w.commutative += 0.01;
+        }
+        this._adjustedWeights = w;
+    },
+
+    _pickType() {
+        const cfg = GENIUS_QTYPE_CONFIG;
+        const w = this._adjustedWeights || cfg.weights;
+        const types = Object.keys(w);
+        // Enforce max consecutive same type
+        const lastTypes = this._typeHistory.slice(-cfg.maxConsecutiveSameType);
+        let blockedType = null;
+        if (lastTypes.length >= cfg.maxConsecutiveSameType && lastTypes.every(t => t === lastTypes[0])) {
+            blockedType = lastTypes[0];
+        }
+        const filtered = {};
+        let total = 0;
+        for (const t of types) {
+            if (t === blockedType) continue;
+            filtered[t] = w[t];
+            total += w[t];
+        }
+        let r = Math.random() * total;
+        for (const [type, weight] of Object.entries(filtered)) {
+            r -= weight;
+            if (r <= 0) { this._typeHistory.push(type); this._geniusTypesUsed.add(type); return type; }
+        }
+        this._typeHistory.push('standard');
+        return 'standard';
+    },
+
+    _pickFactPair() {
+        const maxN = getMaxMultiplier();
+        const data = Storage.load();
+        // Bias toward red/weak facts
+        const redFacts = [];
+        for (let i = 1; i <= maxN; i++) {
+            for (let j = i; j <= maxN; j++) {
+                const key = SR.factKey(i, j);
+                const fact = data.facts[key];
+                if (fact && getMasteryLevel(fact) === 'low') redFacts.push({ a: i, b: j });
+            }
+        }
+        let a, b;
+        if (redFacts.length > 0 && Math.random() < 0.3) {
+            const pick = redFacts[Math.floor(Math.random() * redFacts.length)];
+            a = pick.a; b = pick.b;
+        } else {
+            let attempts = 0;
+            do {
+                a = Math.floor(Math.random() * maxN) + 1;
+                b = Math.floor(Math.random() * maxN) + 1;
+                attempts++;
+            } while (this._usedQuestions.has(a + 'x' + b) && attempts < 50);
+        }
+        if (Math.random() > 0.5) [a, b] = [b, a];
+        this._usedQuestions.add(a + 'x' + b);
+        return { a, b };
     },
 
     generate() {
+        const type = this._pickType();
+        const { a, b } = this._pickFactPair();
         const maxN = getMaxMultiplier();
-        const type = this._nextType;
-        this._nextType = type === 'standard' ? 'reverse' : 'standard';
-
-        // Pick random a, b
-        let a, b, attempts = 0;
-        do {
-            a = Math.floor(Math.random() * maxN) + 1;
-            b = Math.floor(Math.random() * maxN) + 1;
-            attempts++;
-        } while (this._usedQuestions.has(a + 'x' + b) && attempts < 50);
-        this._usedQuestions.add(a + 'x' + b);
-
-        if (type === 'standard') {
-            return this._generateStandard(a, b, maxN);
-        } else {
-            return this._generateReverse(a, b, maxN);
+        switch (type) {
+            case 'standard':    return this._genStandard(a, b, maxN);
+            case 'reverse':     return this._genReverse(a, b, maxN);
+            case 'trueFalse':   return this._genTrueFalse(a, b, maxN);
+            case 'comparison':  return this._genComparison(a, b, maxN);
+            case 'reverseMatch':return this._genReverseMatch(a, b, maxN);
+            case 'sequence':    return this._genSequence(a, b, maxN);
+            case 'commutative': return this._genCommutative(a, b, maxN);
+            default:            return this._genStandard(a, b, maxN);
         }
     },
 
-    _generateStandard(a, b, maxN) {
+    _genStandard(a, b, maxN) {
         const correct = a * b;
         const distractors = QGen._buildDistractors(a, b, correct, 'genius', 7);
         const options = [correct, ...distractors.slice(0, 7)];
         QGen.shuffle(options);
-        return {
-            type: 'standard',
-            factKey: a + 'x' + b,
-            a: a,
-            b: b,
-            correct: correct,
-            options: options,
-            correctIdx: options.indexOf(correct)
-        };
+        return { type: 'standard', factKey: SR.factKey(a, b), a, b, correct, options, correctIdx: options.indexOf(correct) };
     },
 
-    _generateReverse(a, b, maxN) {
-        // Question: a × ___ = result, answer is b
+    _genReverse(a, b, maxN) {
         const result = a * b;
         const correct = b;
         const distractors = this._buildReverseDistractors(correct, maxN);
         const options = [correct, ...distractors.slice(0, 7)];
         QGen.shuffle(options);
+        return { type: 'reverse', factKey: SR.factKey(a, b), a, b, displayA: a, displayResult: result, correct, options, correctIdx: options.indexOf(correct) };
+    },
+
+    _genTrueFalse(a, b, maxN) {
+        const correct = a * b;
+        const isTrue = Math.random() > 0.4;
+        let displayedResult;
+        if (isTrue) {
+            displayedResult = correct;
+        } else {
+            const offsets = [a, b, -a, -b, 1, -1, 10, -10].filter(o => correct + o > 0 && correct + o !== correct);
+            displayedResult = offsets.length > 0 ? correct + offsets[Math.floor(Math.random() * offsets.length)] : correct + 1;
+        }
+        // Build follow-up options for when "false" is answered correctly
+        let followUpOptions = null;
+        if (!isTrue) {
+            const fuDistractors = QGen._buildDistractors(a, b, correct, 'mixed', 5);
+            const fuOpts = [correct, ...fuDistractors.slice(0, 5)];
+            QGen.shuffle(fuOpts);
+            followUpOptions = { options: fuOpts, correctIdx: fuOpts.indexOf(correct), correct };
+        }
         return {
-            type: 'reverse',
-            factKey: a + 'x' + b,
-            a: a,
-            b: b,
-            displayA: a,
-            displayResult: result,
-            correct: correct,
-            options: options,
-            correctIdx: options.indexOf(correct)
+            type: 'trueFalse', factKey: SR.factKey(a, b), a, b, displayedResult, isTrue,
+            correct: isTrue, correctValue: correct,
+            options: ['נכון', 'לא נכון'], correctIdx: isTrue ? 0 : 1,
+            followUpOptions
         };
+    },
+
+    _genComparison(a, b, maxN) {
+        let a2, b2, attempts = 0;
+        do {
+            a2 = Math.floor(Math.random() * maxN) + 1;
+            b2 = Math.floor(Math.random() * maxN) + 1;
+            attempts++;
+        } while (a2 * b2 === a * b && attempts < 30);
+        const r1 = a * b, r2 = a2 * b2;
+        // Display is LTR: a×b on LEFT, a2×b2 on RIGHT
+        // RTL grid buttons: [ימין(right), שווים(center), שמאל(left)]
+        let correctAnswer;
+        if (r1 > r2) correctAnswer = 2;       // שמאל — left-side expr is bigger
+        else if (r2 > r1) correctAnswer = 0;   // ימין — right-side expr is bigger
+        else correctAnswer = 1;                 // שווים
+        const labels = ['ימין', 'שווים', 'שמאל'];
+        return { type: 'comparison', factKey: SR.factKey(a, b), a, b, a2, b2, result1: r1, result2: r2, correct: correctAnswer, options: labels, correctIdx: correctAnswer };
+    },
+
+    _genReverseMatch(a, b, maxN) {
+        const target = a * b;
+        const correctExpr = { a, b, label: `${a}×${b}` };
+        const expressions = [correctExpr];
+        const used = new Set([`${a}x${b}`, `${b}x${a}`]);
+        let attempts = 0;
+        while (expressions.length < 4 && attempts < 50) {
+            const ra = Math.floor(Math.random() * maxN) + 1;
+            const rb = Math.floor(Math.random() * maxN) + 1;
+            if (ra * rb !== target && !used.has(`${ra}x${rb}`)) {
+                expressions.push({ a: ra, b: rb, label: `${ra}×${rb}` });
+                used.add(`${ra}x${rb}`);
+            }
+            attempts++;
+        }
+        QGen.shuffle(expressions);
+        const opts = expressions.map(e => e.label);
+        return { type: 'reverseMatch', factKey: SR.factKey(a, b), a, b, targetResult: target, correct: 0, expressions, options: opts, correctIdx: expressions.findIndex(e => e.a === a && e.b === b) };
+    },
+
+    _genSequence(a, b, maxN) {
+        const base = Math.max(a, b);
+        const seqLen = 4;
+        const missingIdx = 1 + Math.floor(Math.random() * 2); // hide 2nd or 3rd
+        const sequence = [];
+        for (let i = 1; i <= seqLen; i++) sequence.push(base * i);
+        const correct = sequence[missingIdx];
+        const displayed = sequence.map((v, i) => i === missingIdx ? '___' : v);
+        const distVals = [correct + base, correct - base, correct + 1, correct - 1, correct + 2 * base, correct - 2 * base]
+            .filter(v => v > 0 && v !== correct);
+        const opts = [correct, ...distVals.slice(0, 5)];
+        QGen.shuffle(opts);
+        return { type: 'sequence', factKey: SR.factKey(base, missingIdx + 1), a: base, b: missingIdx + 1, base, displayedSequence: displayed, correct, options: opts, correctIdx: opts.indexOf(correct) };
+    },
+
+    _genCommutative(a, b, maxN) {
+        // Ensure a != b for meaningful commutative question
+        if (a === b) { b = (a % maxN) + 1; }
+        const correctLabel = `${b}×${a}`;
+        const distractors = [];
+        const used = new Set([correctLabel, `${a}×${b}`]);
+        let attempts = 0;
+        while (distractors.length < 3 && attempts < 30) {
+            const ra = Math.floor(Math.random() * maxN) + 1;
+            const rb = Math.floor(Math.random() * maxN) + 1;
+            const label = `${ra}×${rb}`;
+            if (!used.has(label) && ra * rb !== a * b) {
+                distractors.push(label);
+                used.add(label);
+            }
+            attempts++;
+        }
+        const opts = [correctLabel, ...distractors];
+        QGen.shuffle(opts);
+        return { type: 'commutative', factKey: SR.factKey(a, b), a, b, correct: correctLabel, correctValue: a * b, options: opts, correctIdx: opts.indexOf(correctLabel) };
     },
 
     _buildReverseDistractors(correct, maxN) {
         const candidates = new Set();
-        // Adjacent values
-        for (let d = -3; d <= 3; d++) {
-            if (d !== 0) candidates.add(correct + d);
-        }
-        // Random values from 1 to maxN
-        for (let i = 0; i < 15; i++) {
-            candidates.add(Math.floor(Math.random() * maxN) + 1);
-        }
+        for (let d = -3; d <= 3; d++) { if (d !== 0) candidates.add(correct + d); }
+        for (let i = 0; i < 15; i++) { candidates.add(Math.floor(Math.random() * maxN) + 1); }
         candidates.delete(correct);
         let pool = [...candidates].filter(v => v >= 1 && v <= maxN);
-        // Sort by closeness
         pool.sort((x, y) => Math.abs(x - correct) - Math.abs(y - correct));
         const picked = [];
         for (const v of pool) {
-            if (!picked.includes(v) && v !== correct) {
-                picked.push(v);
-                if (picked.length >= 7) break;
-            }
+            if (!picked.includes(v) && v !== correct) { picked.push(v); if (picked.length >= 7) break; }
         }
-        // Fill if needed
         let val = 1;
         while (picked.length < 7) {
-            if (val !== correct && !picked.includes(val) && val <= maxN) {
-                picked.push(val);
-            }
-            val++;
-            if (val > maxN) break;
+            if (val !== correct && !picked.includes(val) && val <= maxN) picked.push(val);
+            val++; if (val > maxN) break;
         }
         return picked;
+    }
+};
+
+// ====== FOCUS MODE ======
+const FocusMode = {
+    _wrongCountPerFact: {},
+
+    getWeakFacts() {
+        const data = Storage.load();
+        const maxN = getMaxMultiplier();
+        const weak = [];
+        for (let i = 1; i <= maxN; i++) {
+            for (let j = i; j <= maxN; j++) {
+                const key = SR.factKey(i, j);
+                const fact = data.facts[key];
+                const level = getMasteryLevel(fact);
+                if (level === 'low') weak.push({ key, a: i, b: j, level, priority: 1 });
+                else if (level === 'mid') weak.push({ key, a: i, b: j, level, priority: 2 });
+            }
+        }
+        weak.sort((a, b) => a.priority - b.priority);
+        return weak;
+    },
+
+    start() {
+        this._wrongCountPerFact = {};
+        const weak = this.getWeakFacts();
+        App.isFocusMode = true;
+        App.isDailyBoost = false;
+        App.isChallenge = false;
+        App.isGenius = false;
+        App.sessionDifficulty = 'normal';
+        App.focusModeFactsBefore = {};
+        App.focusModeImproved = [];
+
+        let selectedFacts;
+        if (weak.length === 0) {
+            // No weak facts - use mixed practice
+            const maxN = getMaxMultiplier();
+            const allFacts = [];
+            for (let i = 1; i <= maxN; i++) {
+                for (let j = i; j <= maxN; j++) { allFacts.push({ key: SR.factKey(i, j), a: i, b: j }); }
+            }
+            QGen.shuffle(allFacts);
+            selectedFacts = allFacts.slice(0, FOCUS_CONFIG.minQuestions);
+        } else {
+            const count = Math.min(FOCUS_CONFIG.maxQuestions, Math.max(FOCUS_CONFIG.minQuestions, weak.length));
+            selectedFacts = weak.slice(0, count);
+        }
+
+        // Snapshot mastery levels before session
+        selectedFacts.forEach(f => { App.focusModeFactsBefore[f.key] = getMasteryLevel(SR.getFact(f.key)); });
+
+        App.selectedNumbers = [...new Set(selectedFacts.flatMap(f => [f.a, f.b]))];
+        App.sessionQuestions = selectedFacts.map(f => QGen.generate(f.key, 'normal'));
+        QGen.shuffle(App.sessionQuestions);
+        App.sessionIndex = 0;
+        App.sessionResults = [];
+        App.sessionStars = 0;
+        App.sessionCoins = 0;
+        App.currentStreak = 0;
+        App.isProcessing = false;
+
+        // Timer
+        const timerSection = document.getElementById('practice-timer-section');
+        if (timerSection) timerSection.style.display = '';
+        App.timerRemaining = FOCUS_CONFIG.maxTimeMinutes * 60;
+        updateTimerDisplay();
+        startTimer();
+
+        // Show mode badge
+        const badge = document.getElementById('practice-mode-badge');
+        if (badge) { badge.textContent = '🎯 תרגול חולשות'; badge.style.display = ''; }
+
+        SoundEngine.play('launch');
+        App.navigateTo('screen-practice');
+        showQuestion();
+    },
+
+    generateHint(a, b) {
+        const product = a * b;
+        const maxDots = Math.min(a, 10);
+        const maxCols = Math.min(b, 10);
+        let html = `<div class="hint-visual">`;
+        html += `<div class="hint-title">${a} × ${b} = ?</div>`;
+        html += `<div class="hint-array">`;
+        for (let r = 0; r < maxDots; r++) {
+            html += `<div class="hint-row">`;
+            for (let c = 0; c < maxCols; c++) { html += `<div class="hint-dot"></div>`; }
+            html += `</div>`;
+        }
+        html += `</div>`;
+        html += `<div class="hint-count">${a} שורות × ${b} בכל שורה = <strong>${product}</strong></div>`;
+        html += `</div>`;
+        return html;
+    }
+};
+
+// ====== DAILY BOOST ======
+const DailyBoost = {
+    isFirstToday() {
+        const data = Storage.load();
+        const dk = todayKey();
+        return !(data.daily[dk] && data.daily[dk].dailyBoostCompleted);
+    },
+
+    start() {
+        const data = Storage.load();
+        const maxN = getMaxMultiplier();
+        ensureToday();
+
+        App.isDailyBoost = true;
+        App.isFocusMode = false;
+        App.isChallenge = false;
+        App.isGenius = false;
+        App.sessionDifficulty = 'normal';
+
+        // Categorize facts by mastery
+        const strong = [], medium = [], weak = [];
+        for (let i = 1; i <= maxN; i++) {
+            for (let j = i; j <= maxN; j++) {
+                const key = SR.factKey(i, j);
+                const fact = data.facts[key];
+                const level = getMasteryLevel(fact);
+                const entry = { key, a: i, b: j };
+                if (level === 'high') strong.push(entry);
+                else if (level === 'mid') medium.push(entry);
+                else weak.push(entry);
+            }
+        }
+
+        const cfg = DAILY_BOOST_CONFIG;
+        const total = cfg.questionCount;
+        const strongCount = Math.round(total * cfg.mix.strong);
+        const mediumCount = Math.round(total * cfg.mix.medium);
+        const weakCount = total - strongCount - mediumCount;
+
+        const pickRandom = (arr, n) => { const s = [...arr]; QGen.shuffle(s); return s.slice(0, n); };
+        const selected = [
+            ...pickRandom(strong, Math.min(strongCount, strong.length)),
+            ...pickRandom(medium, Math.min(mediumCount, medium.length)),
+            ...pickRandom(weak, Math.min(weakCount, weak.length))
+        ];
+        // Fill remaining
+        const all = [...strong, ...medium, ...weak];
+        while (selected.length < total && all.length > 0) {
+            const pick = all[Math.floor(Math.random() * all.length)];
+            if (pick && !selected.find(s => s.key === pick.key)) selected.push(pick);
+            else break;
+        }
+
+        App.selectedNumbers = [...new Set(selected.flatMap(f => [f.a, f.b]))];
+        App.sessionQuestions = selected.map(f => QGen.generate(f.key, 'normal'));
+        QGen.shuffle(App.sessionQuestions);
+        App.sessionIndex = 0;
+        App.sessionResults = [];
+        App.sessionStars = 0;
+        App.sessionCoins = 0;
+        App.currentStreak = 0;
+        App.isProcessing = false;
+
+        // Timer
+        const timerSection = document.getElementById('practice-timer-section');
+        if (timerSection) timerSection.style.display = '';
+        App.timerRemaining = cfg.maxTimeMinutes * 60;
+        updateTimerDisplay();
+        startTimer();
+
+        // Show mode badge
+        const badge = document.getElementById('practice-mode-badge');
+        if (badge) { badge.textContent = '☀️ החימום של היום'; badge.style.display = ''; }
+
+        SoundEngine.play('launch');
+        App.navigateTo('screen-practice');
+        showQuestion();
+    },
+
+    awardBonuses() {
+        const data = Storage.load();
+        const dk = todayKey();
+        const isFirst = this.isFirstToday();
+        const cfg = DAILY_BOOST_CONFIG;
+        let bonusCoins = 0, bonusPoints = 0;
+
+        if (isFirst) {
+            bonusCoins = cfg.bonuses.firstDaily;
+            bonusPoints = cfg.bonuses.firstDaily;
+            Storage.update(d => {
+                const yesterday = new Date(); yesterday.setDate(yesterday.getDate() - 1);
+                const yKey = yesterday.toISOString().split('T')[0];
+                if (d.stats.lastDailyBoostDate === yKey) { d.stats.dailyBoostStreak++; }
+                else if (d.stats.lastDailyBoostDate !== dk) { d.stats.dailyBoostStreak = 1; }
+                d.stats.lastDailyBoostDate = dk;
+                if (d.daily[dk]) { d.daily[dk].dailyBoostCompleted = true; d.daily[dk].dailyBoostCount++; }
+            });
+            const streak = Storage.load().stats.dailyBoostStreak;
+            if (streak >= 14) { bonusCoins += cfg.bonuses.streak14; bonusPoints += cfg.bonuses.streak14; }
+            else if (streak >= 7) { bonusCoins += cfg.bonuses.streak7; bonusPoints += cfg.bonuses.streak7; }
+            else if (streak >= 3) { bonusCoins += cfg.bonuses.streak3; bonusPoints += cfg.bonuses.streak3; }
+        } else {
+            bonusCoins = Math.round(cfg.bonuses.firstDaily * cfg.subsequentBonusRatio);
+            bonusPoints = bonusCoins;
+            Storage.update(d => { if (d.daily[dk]) d.daily[dk].dailyBoostCount++; });
+        }
+
+        Storage.update(d => {
+            d.stats.totalCoins += bonusCoins;
+            d.stats.totalPoints += bonusPoints;
+            d.stats.dailyBoostSessions++;
+        });
+        return { bonusCoins, bonusPoints, isFirst, streak: Storage.load().stats.dailyBoostStreak };
+    }
+};
+
+// ====== DAILY MISSION ======
+const DailyMission = {
+    getTodayMission() {
+        const data = Storage.load();
+        const dk = todayKey();
+        if (!data.dailyMissions) data.dailyMissions = {};
+        if (data.dailyMissions[dk]) return data.dailyMissions[dk];
+        const dayNum = Math.floor(new Date().getTime() / 86400000);
+        const template = MISSION_TEMPLATES[dayNum % MISSION_TEMPLATES.length];
+        const mission = { id: template.id, desc: template.desc, icon: template.icon, target: template.target, checkField: template.checkField, progress: 0, completed: false };
+        Storage.update(d => { if (!d.dailyMissions) d.dailyMissions = {}; d.dailyMissions[dk] = mission; });
+        return mission;
+    },
+
+    updateProgress(ctx) {
+        const dk = todayKey();
+        const data = Storage.load();
+        if (!data.dailyMissions || !data.dailyMissions[dk]) return;
+        const mission = data.dailyMissions[dk];
+        if (mission.completed) return;
+        const val = ctx[mission.checkField] || 0;
+        mission.progress = Math.min(val, mission.target);
+        if (mission.progress >= mission.target) {
+            mission.completed = true;
+            Storage.update(d => {
+                d.dailyMissions[dk] = mission;
+                d.stats.totalCoins += 50;
+                d.stats.totalPoints += 50;
+            });
+            showRewardPopup('🎯', 'משימה הושלמה!', mission.desc);
+        } else {
+            Storage.update(d => { d.dailyMissions[dk] = mission; });
+        }
     }
 };
 
@@ -2827,7 +3692,26 @@ const AchSys = {
             daily_7: () => Object.keys(data.daily).filter(k => data.daily[k].questionsAnswered > 0).length >= 7,
             perfect_session: () => ctx.perfectSession,
             challenge_complete: () => ctx.challengeComplete,
-            genius_20: () => ctx.geniusScore >= 20
+            genius_20: () => ctx.geniusScore >= 20,
+            focus_5: () => (ctx.focusModeSessions || 0) >= 5,
+            daily_streak_3: () => (ctx.dailyBoostStreak || 0) >= 3,
+            daily_streak_7: () => (ctx.dailyBoostStreak || 0) >= 7,
+            mastery_upgrade: () => {
+                const dk = todayKey();
+                const d = Storage.load().daily[dk];
+                return d && d.factsImproved && d.factsImproved.length > 0;
+            },
+            all_green: () => {
+                const maxN = getMaxMultiplier();
+                for (let i = 1; i <= maxN; i++) {
+                    for (let j = i; j <= maxN; j++) {
+                        const fact = Storage.load().facts[SR.factKey(i, j)];
+                        if (getMasteryLevel(fact) !== 'high') return false;
+                    }
+                }
+                return true;
+            },
+            genius_variety: () => (ctx.geniusTypesUsed || 0) >= 5
         };
 
         for (const ach of ACHIEVEMENTS) {
@@ -2841,6 +3725,42 @@ const AchSys = {
 
         if (newlyUnlocked.length > 0) Storage.save();
         return newlyUnlocked;
+    }
+};
+
+// ====== SCORER MODULE ======
+const Scorer = {
+    calcPoints(questionType, difficulty, masteryLevel, responseMs, isCorrect) {
+        if (!isCorrect) {
+            if (difficulty === 'challenge' || difficulty === 'genius') return SCORING_CONFIG.frustrationShield.errorPenalty;
+            return SCORING_CONFIG.frustrationShield.normalErrorPenalty;
+        }
+        let points = SCORING_CONFIG.basePoints;
+        points *= (SCORING_CONFIG.questionTypeMultipliers[questionType] || 1.0);
+        points *= (SCORING_CONFIG.difficultyMultipliers[difficulty] || 1.0);
+        points *= (SCORING_CONFIG.masteryZoneMultipliers[masteryLevel] || 1.0);
+        if (responseMs < SCORING_CONFIG.speedBonus.fast.threshold) {
+            points *= SCORING_CONFIG.speedBonus.fast.multiplier;
+        } else if (responseMs < SCORING_CONFIG.speedBonus.medium.threshold) {
+            points *= SCORING_CONFIG.speedBonus.medium.multiplier;
+        }
+        return Math.round(points);
+    },
+    calcSessionBonus(accuracy) {
+        if (accuracy >= 90) return SCORING_CONFIG.sessionBonuses.accuracy90;
+        if (accuracy >= 80) return SCORING_CONFIG.sessionBonuses.accuracy80;
+        if (accuracy >= 70) return SCORING_CONFIG.sessionBonuses.accuracy70;
+        return 0;
+    },
+    calcImprovementBonus(fromLevel, toLevel) {
+        let bonus = 0;
+        if (fromLevel === 'low' && (toLevel === 'mid' || toLevel === 'high')) bonus += SCORING_CONFIG.improvementBonuses.redToYellow;
+        if ((fromLevel === 'mid' || fromLevel === 'low') && toLevel === 'high') bonus += SCORING_CONFIG.improvementBonuses.yellowToGreen;
+        return bonus;
+    },
+    getFactMasteryLevel(factKey) {
+        const fact = SR.getFact(factKey);
+        return getMasteryLevel(fact);
     }
 };
 
@@ -2862,6 +3782,10 @@ const App = {
     isChallenge: false,
     isGenius: false,
     geniusScore: 0,
+    isFocusMode: false,
+    isDailyBoost: false,
+    focusModeFactsBefore: {},
+    focusModeImproved: [],
     selectedAvatar: null,
 
     navigateTo(screenId) {
@@ -2911,7 +3835,17 @@ function ensureToday() {
     Storage.update(data => {
         const key = todayKey();
         if (!data.daily[key]) {
-            data.daily[key] = { questionsAnswered: 0, correctAnswers: 0, sessionsCompleted: 0 };
+            data.daily[key] = {
+                questionsAnswered: 0, correctAnswers: 0, sessionsCompleted: 0,
+                dailyBoostCompleted: false, dailyBoostCount: 0,
+                factsImproved: [], masteryChanges: []
+            };
+        } else {
+            const d = data.daily[key];
+            if (d.dailyBoostCompleted === undefined) d.dailyBoostCompleted = false;
+            if (!d.dailyBoostCount) d.dailyBoostCount = 0;
+            if (!d.factsImproved) d.factsImproved = [];
+            if (!d.masteryChanges) d.masteryChanges = [];
         }
     });
 }
@@ -3011,12 +3945,18 @@ function confirmAvatar() {
 
 // ====== SCREEN: WELCOME ======
 function showWelcomeScreen() {
-    // Always stop genius mode when returning to welcome
+    // Reset all mode flags
     SpaceMusic.stop();
     App.isGenius = false;
     App.geniusScore = 0;
+    App.isFocusMode = false;
+    App.isDailyBoost = false;
+    App.focusModeFactsBefore = {};
+    App.focusModeImproved = [];
     document.getElementById('screen-practice').classList.remove('genius-mode');
     document.getElementById('genius-title-bar').style.display = 'none';
+    const modeBadge = document.getElementById('practice-mode-badge');
+    if (modeBadge) modeBadge.style.display = 'none';
 
     const data = Storage.load();
     ensureToday();
@@ -3066,19 +4006,47 @@ function showWelcomeScreen() {
     document.getElementById('toggle-ans-6').classList.toggle('active', ansC === 6);
     document.getElementById('toggle-ans-8').classList.toggle('active', ansC === 8);
 
-    // Genius high score on welcome
+    // Genius high score inside button
     const gHS = data.settings.geniusHighScore || 0;
     const hsWelcome = document.getElementById('genius-highscore-welcome');
     if (gHS > 0) {
-        hsWelcome.style.display = '';
+        hsWelcome.style.display = 'inline-block';
         document.getElementById('genius-highscore-val').textContent = gHS;
     } else {
         hsWelcome.style.display = 'none';
     }
 
+    // Daily Boost button state
+    const dbBadge = document.getElementById('daily-boost-badge');
+    if (dbBadge) {
+        const isFirst = DailyBoost.isFirstToday();
+        const streak = data.stats.dailyBoostStreak || 0;
+        if (isFirst) {
+            dbBadge.textContent = streak > 0 ? `🔥${streak}` : 'חדש!';
+            dbBadge.style.display = '';
+        } else {
+            dbBadge.textContent = `✅ ${streak}`;
+            dbBadge.style.display = '';
+        }
+    }
+
+    // Focus mode button visibility (show only if there are weak facts)
+    const weakFacts = FocusMode.getWeakFacts();
+    document.getElementById('btn-focus-mode').style.display = weakFacts.length > 0 ? '' : 'none';
+
+    // Daily Mission card
+    const missionCard = document.getElementById('mission-card');
+    if (missionCard) {
+        const mission = DailyMission.getTodayMission();
+        document.getElementById('mission-icon').textContent = mission.icon;
+        document.getElementById('mission-desc').textContent = mission.desc;
+        const pct = mission.target > 0 ? Math.min(100, (mission.progress / mission.target) * 100) : 0;
+        document.getElementById('mission-progress-fill').style.width = pct + '%';
+        document.getElementById('mission-status').textContent = mission.completed ? '✅ הושלמה!' : `${mission.progress}/${mission.target}`;
+        missionCard.style.display = '';
+    }
+
     App.navigateTo('screen-welcome');
-    // Only play welcome sound if AudioContext is already running (i.e., user has interacted)
-    // On initial page load, ctx is null or suspended, so no sound plays (which is expected)
     if (SoundEngine.ctx && SoundEngine.ctx.state === 'running') {
         SoundEngine.play('welcome');
     }
@@ -3368,14 +4336,14 @@ function showQuestion() {
 
     let q = App.sessionQuestions[App.sessionIndex];
 
-    // Validation: skip for genius reverse questions (correct != a*b)
-    if (!App.isGenius || q.type === 'standard') {
+    // Validation: skip for new question types that don't follow a*b=correct pattern
+    const skipValidation = ['reverse', 'trueFalse', 'comparison', 'reverseMatch', 'sequence', 'commutative'];
+    if (!App.isGenius && !skipValidation.includes(q.type)) {
         const valid = q && q.a != null && q.b != null
             && q.correct === q.a * q.b
             && Array.isArray(q.options)
             && q.options.length >= 4
             && q.options.includes(q.correct);
-
         if (!valid) {
             console.warn('Question validation failed, regenerating:', JSON.stringify(q));
             q = QGen.generate(q.factKey, App.sessionDifficulty);
@@ -3385,7 +4353,7 @@ function showQuestion() {
 
     const cfg = DIFFICULTY_CONFIG[App.sessionDifficulty];
 
-    // Genius mode: show score instead of question count
+    // Progress display
     if (App.isGenius) {
         document.getElementById('practice-question-num').textContent = `ניקוד: ${App.geniusScore}`;
         document.getElementById('practice-progress').style.width = '0%';
@@ -3395,29 +4363,121 @@ function showQuestion() {
         document.getElementById('practice-progress').style.width = ((App.sessionIndex / Math.min(total, App.sessionQuestions.length)) * 100) + '%';
     }
 
-    // Render question text
-    if (q.type === 'reverse') {
-        document.getElementById('practice-question').innerHTML = `${q.displayA} &times; <span style="display:inline-block;width:2.5ch;border-bottom:3px solid #FFD700;vertical-align:baseline;"></span> = ${q.displayResult}`;
-    } else {
-        document.getElementById('practice-question').innerHTML = `${q.a} &times; ${q.b} = ?`;
-    }
-
     document.getElementById('practice-stars').textContent = App.sessionStars;
     document.getElementById('practice-streak').textContent = App.currentStreak;
 
+    const questionEl = document.getElementById('practice-question');
     const grid = document.getElementById('practice-answers');
     grid.innerHTML = '';
-    const numOpts = q.options.length;
-    // Genius always 4 columns (8 options), otherwise dynamic
-    grid.style.gridTemplateColumns = (App.isGenius || numOpts > 6) ? 'repeat(4, 1fr)' : numOpts <= 4 ? 'repeat(2, 1fr)' : 'repeat(3, 1fr)';
-    q.options.forEach((opt, i) => {
-        const btn = document.createElement('button');
-        btn.className = 'answer-btn';
-        btn.dataset.option = opt;
-        btn.dataset.index = i;
-        btn.textContent = opt;
-        grid.appendChild(btn);
-    });
+
+    // Update the question label above the question based on type
+    const questionLabel = document.querySelector('.question-label');
+    if (questionLabel) {
+        const labelMap = { trueFalse: 'נכון או לא נכון?', comparison: 'מי יותר גדול?', reverseMatch: 'איזה תרגיל שווה?', sequence: 'מה חסר ברצף?', commutative: 'מה שווה?', reverse: 'מה חסר?' };
+        questionLabel.textContent = labelMap[q.type] || 'כמה זה?';
+    }
+
+    // Helper: wrap math in LTR block to prevent RTL text reversal
+    const ltr = (html) => `<span dir="ltr" style="unicode-bidi:isolate;display:inline-block">${html}</span>`;
+
+    // Render question text + answers based on type
+    // Rule: Hebrew goes ONLY in .question-label header, math goes in questionEl wrapped in ltr()
+    switch (q.type) {
+        case 'trueFalse': {
+            questionEl.innerHTML = ltr(q.a + ' × ' + q.b + ' = ' + q.displayedResult);
+            grid.style.gridTemplateColumns = 'repeat(2, 1fr)';
+            q.options.forEach((opt, i) => {
+                const btn = document.createElement('button');
+                btn.className = 'answer-btn answer-btn-tf' + (i === 0 ? ' tf-true' : ' tf-false');
+                btn.dataset.option = i;
+                btn.dataset.index = i;
+                btn.textContent = opt;
+                grid.appendChild(btn);
+            });
+            break;
+        }
+        case 'comparison': {
+            questionEl.innerHTML = ltr(q.a + '×' + q.b + ' <span class="vs-badge">VS</span> ' + q.a2 + '×' + q.b2);
+            grid.style.gridTemplateColumns = 'repeat(3, 1fr)';
+            q.options.forEach((opt, i) => {
+                const btn = document.createElement('button');
+                btn.className = 'answer-btn answer-btn-compare';
+                btn.dataset.option = i;
+                btn.dataset.index = i;
+                btn.textContent = opt;
+                grid.appendChild(btn);
+            });
+            break;
+        }
+        case 'reverseMatch': {
+            questionEl.innerHTML = ltr('? = ' + q.targetResult);
+            grid.style.gridTemplateColumns = 'repeat(2, 1fr)';
+            q.options.forEach((opt, i) => {
+                const btn = document.createElement('button');
+                btn.className = 'answer-btn';
+                btn.dataset.option = i;
+                btn.dataset.index = i;
+                btn.textContent = opt;
+                grid.appendChild(btn);
+            });
+            break;
+        }
+        case 'sequence': {
+            const seqStr = q.displayedSequence.map(v => v === '___' ? '<span style="display:inline-block;width:2ch;border-bottom:3px solid #FFD700"></span>' : v).join(' , ');
+            questionEl.innerHTML = ltr('<span class="seq-display">' + seqStr + '</span>');
+            grid.style.gridTemplateColumns = q.options.length > 4 ? 'repeat(3, 1fr)' : 'repeat(2, 1fr)';
+            q.options.forEach((opt, i) => {
+                const btn = document.createElement('button');
+                btn.className = 'answer-btn';
+                btn.dataset.option = opt;
+                btn.dataset.index = i;
+                btn.textContent = opt;
+                grid.appendChild(btn);
+            });
+            break;
+        }
+        case 'commutative': {
+            questionEl.innerHTML = ltr(q.a + ' × ' + q.b + ' = ?');
+            grid.style.gridTemplateColumns = 'repeat(2, 1fr)';
+            q.options.forEach((opt, i) => {
+                const btn = document.createElement('button');
+                btn.className = 'answer-btn';
+                btn.dataset.option = opt;
+                btn.dataset.index = i;
+                btn.textContent = opt;
+                grid.appendChild(btn);
+            });
+            break;
+        }
+        case 'reverse': {
+            questionEl.innerHTML = ltr(q.displayA + ' × <span style="display:inline-block;width:2ch;border-bottom:3px solid #FFD700;vertical-align:baseline"></span> = ' + q.displayResult);
+            const numOpts = q.options.length;
+            grid.style.gridTemplateColumns = (App.isGenius || numOpts > 6) ? 'repeat(4, 1fr)' : numOpts <= 4 ? 'repeat(2, 1fr)' : 'repeat(3, 1fr)';
+            q.options.forEach((opt, i) => {
+                const btn = document.createElement('button');
+                btn.className = 'answer-btn';
+                btn.dataset.option = opt;
+                btn.dataset.index = i;
+                btn.textContent = opt;
+                grid.appendChild(btn);
+            });
+            break;
+        }
+        default: { // standard
+            questionEl.innerHTML = ltr(q.a + ' × ' + q.b + ' = ?');
+            const numOpts = q.options.length;
+            grid.style.gridTemplateColumns = (App.isGenius || numOpts > 6) ? 'repeat(4, 1fr)' : numOpts <= 4 ? 'repeat(2, 1fr)' : 'repeat(3, 1fr)';
+            q.options.forEach((opt, i) => {
+                const btn = document.createElement('button');
+                btn.className = 'answer-btn';
+                btn.dataset.option = opt;
+                btn.dataset.index = i;
+                btn.textContent = opt;
+                grid.appendChild(btn);
+            });
+            break;
+        }
+    }
 
     App.questionStartTime = Date.now();
     App.isProcessing = false;
@@ -3431,22 +4491,41 @@ function handleAnswerClick(e) {
 
     const q = App.sessionQuestions[App.sessionIndex];
     if (!q) { App.isProcessing = false; return; }
-    const chosen = parseInt(btn.dataset.option);
-    // For genius reverse questions, correct = missing multiplier (not a*b)
-    let trueAnswer;
-    if (App.isGenius && q.type === 'reverse') {
-        trueAnswer = q.correct; // the missing multiplier b
-    } else {
-        trueAnswer = q.a * q.b;
-        // Sync q.correct if it was somehow wrong
-        if (q.correct !== trueAnswer) {
-            console.warn('Answer check: q.correct was wrong, using a*b', { qCorrect: q.correct, trueAnswer, a: q.a, b: q.b });
-            q.correct = trueAnswer;
-        }
-    }
-    const isCorrect = chosen === trueAnswer;
+    const chosenRaw = btn.dataset.option;
     const responseMs = Date.now() - App.questionStartTime;
     const cfg = DIFFICULTY_CONFIG[App.sessionDifficulty];
+
+    // Determine correctness based on question type
+    let isCorrect;
+    switch (q.type) {
+        case 'trueFalse':
+            isCorrect = parseInt(chosenRaw) === q.correctIdx;
+            break;
+        case 'comparison':
+            isCorrect = parseInt(chosenRaw) === q.correctIdx;
+            break;
+        case 'reverseMatch':
+            isCorrect = parseInt(chosenRaw) === q.correctIdx;
+            break;
+        case 'sequence':
+            isCorrect = parseInt(chosenRaw) === q.correct;
+            break;
+        case 'commutative':
+            isCorrect = chosenRaw === q.correct;
+            break;
+        case 'reverse':
+            isCorrect = parseInt(chosenRaw) === q.correct;
+            break;
+        default: { // standard
+            let trueAnswer = q.a * q.b;
+            if (q.correct !== trueAnswer) q.correct = trueAnswer;
+            isCorrect = parseInt(chosenRaw) === trueAnswer;
+            break;
+        }
+    }
+
+    // Notify GeniusQGen for adaptive difficulty
+    if (App.isGenius) GeniusQGen.recordAnswer(isCorrect);
 
     // Mark buttons
     document.querySelectorAll('.answer-btn').forEach(b => b.classList.add('disabled'));
@@ -3456,10 +4535,16 @@ function handleAnswerClick(e) {
         SoundEngine.play('correct');
         showPhotoFeedback(true);
         App.currentStreak++;
+
+        // True/False: if answered "not true" correctly, show bonus follow-up
+        if (q.type === 'trueFalse' && !q.isTrue && q.followUpOptions && !q._isFollowUp) {
+            setTimeout(() => { showTrueFalseFollowUp(q); }, 600);
+            return; // Don't advance yet - follow-up will handle it
+        }
+
         if (App.isGenius) {
             App.geniusScore++;
             triggerGeniusSparkles();
-            // Live high score update
             const prevHS = Storage.load().settings.geniusHighScore || 0;
             if (App.geniusScore > prevHS) {
                 Storage.update(d => { d.settings.geniusHighScore = App.geniusScore; });
@@ -3471,19 +4556,33 @@ function handleAnswerClick(e) {
             }
         }
 
-        // Stars & coins
+        // Capture mastery level BEFORE SR update for celebration tracking
+        const beforeLevel = getMasteryLevel(SR.getFact(q.factKey));
+
+        // Scoring via Scorer module
+        const masteryLevel = beforeLevel;
+        const qType = q.type || 'standard';
+        let pointsEarned = Scorer.calcPoints(qType, App.sessionDifficulty, masteryLevel, responseMs, true);
+
         let starsEarned = 1;
         let coinsEarned = 1;
-        let pointsEarned = 10;
-        if (responseMs < 2000) { starsEarned = 2; coinsEarned = 2; pointsEarned = 20; }
+        if (responseMs < 2000) { starsEarned = 2; coinsEarned = 2; }
 
         // Streak bonuses
-        if (App.currentStreak === 5) { starsEarned += 3; coinsEarned += 5; pointsEarned += 50; SoundEngine.play('streak'); }
-        else if (App.currentStreak === 10) { starsEarned += 5; coinsEarned += 10; pointsEarned += 100; SoundEngine.play('streak'); }
-        else if (App.currentStreak > 0 && App.currentStreak % 5 === 0) { SoundEngine.play('streak'); }
+        if (App.currentStreak === 5) {
+            starsEarned += SCORING_CONFIG.streakBonuses.five.stars;
+            coinsEarned += SCORING_CONFIG.streakBonuses.five.coins;
+            pointsEarned += SCORING_CONFIG.streakBonuses.five.points;
+            SoundEngine.play('streak');
+        } else if (App.currentStreak === 10) {
+            starsEarned += SCORING_CONFIG.streakBonuses.ten.stars;
+            coinsEarned += SCORING_CONFIG.streakBonuses.ten.coins;
+            pointsEarned += SCORING_CONFIG.streakBonuses.ten.points;
+            SoundEngine.play('streak');
+        } else if (App.currentStreak > 0 && App.currentStreak % 5 === 0) {
+            SoundEngine.play('streak');
+        }
 
-        // Apply multiplier
-        pointsEarned = Math.round(pointsEarned * cfg.multiplier);
         App.sessionStars += starsEarned;
         App.sessionCoins += coinsEarned;
 
@@ -3508,6 +4607,25 @@ function handleAnswerClick(e) {
         const quality = SR.quality(true, responseMs);
         SR.updateFact(q.factKey, quality, responseMs);
 
+        // Mastery color change celebration
+        const afterLevel = getMasteryLevel(SR.getFact(q.factKey));
+        if (beforeLevel !== afterLevel && afterLevel !== 'none' && beforeLevel !== 'none') {
+            const impBonus = Scorer.calcImprovementBonus(beforeLevel, afterLevel);
+            if (impBonus > 0) {
+                Storage.update(d => {
+                    d.stats.totalPoints += impBonus;
+                    d.stats.totalCoins += Math.round(impBonus / 2);
+                    const dk = todayKey();
+                    if (d.daily[dk]) {
+                        d.daily[dk].masteryChanges.push({ key: q.factKey, from: beforeLevel, to: afterLevel, at: Date.now() });
+                        if (!d.daily[dk].factsImproved.includes(q.factKey)) d.daily[dk].factsImproved.push(q.factKey);
+                    }
+                });
+                showMasteryUpgrade(q.factKey, beforeLevel, afterLevel);
+                SoundEngine.play('achievement');
+            }
+        }
+
         // Check achievements
         const wasMistake = SR.getFact(q.factKey).wrong > 0;
         AchSys.check({ correct: true, responseMs, correctedMistake: wasMistake && quality >= 3 });
@@ -3517,22 +4635,28 @@ function handleAnswerClick(e) {
         SoundEngine.play('wrong');
         showPhotoFeedback(false);
 
-        // Show correct answer
-        if (cfg.showCorrect) {
+        // Show correct answer for standard/reverse types
+        if (cfg.showCorrect && (q.type === 'standard' || q.type === 'reverse' || !q.type)) {
             let foundCorrectBtn = false;
+            const correctVal = q.type === 'reverse' ? q.correct : (q.a * q.b);
             document.querySelectorAll('.answer-btn').forEach(b => {
-                if (parseInt(b.dataset.option) === q.correct) {
+                if (parseInt(b.dataset.option) === correctVal) {
                     b.classList.add('reveal-correct');
                     foundCorrectBtn = true;
                 }
             });
-            // If correct answer wasn't found in buttons, show it as text
             if (!foundCorrectBtn) {
                 const correctDisplay = document.createElement('div');
                 correctDisplay.style.cssText = 'text-align:center;margin-top:0.5rem;font-size:1.5rem;font-weight:800;color:var(--color-success);font-family:var(--font-display);text-shadow:0 0 15px rgba(0,230,118,0.4)';
-                correctDisplay.textContent = `${q.a} \u00D7 ${q.b} = ${q.correct}`;
+                correctDisplay.textContent = `${q.a} \u00D7 ${q.b} = ${q.a * q.b}`;
                 document.getElementById('practice-answers').appendChild(correctDisplay);
             }
+        }
+
+        // Frustration shield penalty
+        const penalty = Scorer.calcPoints(q.type || 'standard', App.sessionDifficulty, 'none', responseMs, false);
+        if (penalty < 0) {
+            Storage.update(data => { data.stats.totalPoints = Math.max(0, data.stats.totalPoints + penalty); });
         }
 
         App.currentStreak = 0;
@@ -3547,6 +4671,22 @@ function handleAnswerClick(e) {
 
         SR.updateFact(q.factKey, 0, responseMs);
 
+        // Focus mode: track wrong count per fact for hints
+        if (App.isFocusMode && typeof FocusMode !== 'undefined') {
+            if (!FocusMode._wrongCountPerFact[q.factKey]) FocusMode._wrongCountPerFact[q.factKey] = 0;
+            FocusMode._wrongCountPerFact[q.factKey]++;
+            if (FocusMode._wrongCountPerFact[q.factKey] >= FOCUS_CONFIG.hintsAfterWrongCount) {
+                const { a: ha, b: hb } = SR.parseFact(q.factKey);
+                showHintOverlay(FocusMode.generateHint(ha, hb));
+            }
+        }
+
+        // Frustration shield: 3 consecutive errors -> encouragement
+        const recentErrors = App.sessionResults.slice(-(SCORING_CONFIG.frustrationShield.consecutiveErrorsForHelp - 1));
+        if (recentErrors.length >= SCORING_CONFIG.frustrationShield.consecutiveErrorsForHelp - 1 && recentErrors.every(r => !r.correct)) {
+            showEncouragementBubble();
+        }
+
         // Re-insert question later in session
         if (cfg.retryWrong) {
             const reinsertAt = App.sessionIndex + 3 + Math.floor(Math.random() * 3);
@@ -3557,7 +4697,7 @@ function handleAnswerClick(e) {
         AchSys.check({ correct: false, responseMs });
     }
 
-    App.sessionResults.push({ factKey: q.factKey, correct: isCorrect, responseMs, chosen });
+    App.sessionResults.push({ factKey: q.factKey, correct: isCorrect, responseMs, chosen: chosenRaw });
 
     // Next question after delay
     const delay = App.isGenius ? (isCorrect ? 500 : 1000) : (isCorrect ? 800 : (cfg.showCorrect === 'brief' ? 1200 : 1500));
@@ -3565,6 +4705,61 @@ function handleAnswerClick(e) {
         App.sessionIndex++;
         showQuestion();
     }, delay);
+}
+
+// True/False follow-up bonus question
+function showTrueFalseFollowUp(originalQ) {
+    const fu = originalQ.followUpOptions;
+    const questionEl = document.getElementById('practice-question');
+    const grid = document.getElementById('practice-answers');
+    questionEl.innerHTML = `<span class="q-label-small">בונוס! מה התשובה הנכונה?</span><br>${originalQ.a} &times; ${originalQ.b} = ?`;
+    grid.innerHTML = '';
+    grid.style.gridTemplateColumns = fu.options.length > 4 ? 'repeat(3, 1fr)' : 'repeat(2, 1fr)';
+    fu.options.forEach((opt, i) => {
+        const btn = document.createElement('button');
+        btn.className = 'answer-btn';
+        btn.dataset.option = opt;
+        btn.dataset.index = i;
+        btn.textContent = opt;
+        grid.appendChild(btn);
+    });
+    // Replace question with standard type for answer handling
+    App.sessionQuestions[App.sessionIndex] = {
+        ...originalQ, _isFollowUp: true, type: 'standard',
+        correct: fu.correct, options: fu.options, correctIdx: fu.correctIdx
+    };
+    App.questionStartTime = Date.now();
+    App.isProcessing = false;
+}
+
+// Mastery upgrade celebration
+function showMasteryUpgrade(factKey, from, to) {
+    const colorMap = { low: '🔴', mid: '🟡', high: '🟢', none: '⬜' };
+    showFloatingReward(`${colorMap[from]}➡️${colorMap[to]}`, window.innerWidth / 2, window.innerHeight / 3);
+}
+
+// Encouragement bubble (frustration shield)
+function showEncouragementBubble() {
+    const msgs = ['לא נורא, בוא ננסה שוב! 💪', 'אתה יכול! קדימה! 🚀', 'טעויות זה חלק מהלמידה! 🌟', 'בפעם הבאה יהיה יותר קל! ✨'];
+    const bubble = document.getElementById('practice-bubble');
+    if (bubble) {
+        bubble.textContent = msgs[Math.floor(Math.random() * msgs.length)];
+        bubble.classList.add('encouragement-flash');
+        setTimeout(() => bubble.classList.remove('encouragement-flash'), 2000);
+    }
+}
+
+// Hint overlay for Focus Mode
+function showHintOverlay(html) {
+    const overlay = document.getElementById('hint-overlay');
+    if (overlay) {
+        document.getElementById('hint-content').innerHTML = html;
+        overlay.classList.add('visible');
+    }
+}
+function hideHintOverlay() {
+    const overlay = document.getElementById('hint-overlay');
+    if (overlay) overlay.classList.remove('visible');
 }
 
 // ====== TIMER ======
@@ -3628,24 +4823,62 @@ function endSession(reason) {
         if (data.daily[dk]) data.daily[dk].sessionsCompleted++;
     });
 
-    // Session completion bonuses
+    // Session completion bonuses via Scorer
+    let sessionBonusPoints = 0;
     if (total > 0) {
         let bonusStars = 5;
         let bonusCoins = 10;
-        let bonusPoints = 50;
-        if (isPerfect) { bonusStars += 10; bonusCoins += 25; bonusPoints += 200; }
+        sessionBonusPoints = Scorer.calcSessionBonus(accuracy);
+        if (isPerfect) { bonusStars += 10; bonusCoins += 25; sessionBonusPoints += 200; }
+
+        // Focus mode: calculate improvement bonuses
+        let focusImprovementBonus = 0;
+        if (App.isFocusMode && App.focusModeFactsBefore) {
+            const improved = [];
+            Object.entries(App.focusModeFactsBefore).forEach(([key, beforeLevel]) => {
+                const afterLevel = getMasteryLevel(SR.getFact(key));
+                if (afterLevel !== beforeLevel) {
+                    focusImprovementBonus += Scorer.calcImprovementBonus(beforeLevel, afterLevel);
+                    improved.push({ key, from: beforeLevel, to: afterLevel });
+                }
+            });
+            App.focusModeImproved = improved;
+            Storage.update(d => { d.stats.focusModeSessions++; });
+        }
+
+        // Daily Boost bonuses
+        let dailyBoostResult = null;
+        if (App.isDailyBoost) {
+            dailyBoostResult = DailyBoost.awardBonuses();
+        }
+
         Storage.update(data => {
             data.stats.totalStars += bonusStars;
             data.stats.totalCoins += bonusCoins;
-            data.stats.totalPoints += Math.round(bonusPoints * cfg.multiplier);
+            data.stats.totalPoints += sessionBonusPoints + focusImprovementBonus;
         });
     }
+
+    // Update daily mission progress
+    const dk = todayKey();
+    const dailyData = Storage.load().daily[dk] || {};
+    DailyMission.updateProgress({
+        redsImproved: (dailyData.masteryChanges || []).filter(c => c.from === 'low').length,
+        geniusCorrect: App.isGenius ? App.geniusScore : 0,
+        bestStreakToday: Storage.load().stats.bestStreak,
+        questionsToday: dailyData.questionsAnswered || 0,
+        dailyBoostDone: dailyData.dailyBoostCompleted ? 1 : 0,
+        perfectSession: isPerfect && total >= 5 ? 1 : 0
+    });
 
     // Check achievements
     const newAch = AchSys.check({
         perfectSession: isPerfect && total >= 5,
         challengeComplete: App.isChallenge,
-        geniusScore: App.isGenius ? App.geniusScore : 0
+        geniusScore: App.isGenius ? App.geniusScore : 0,
+        focusModeSessions: Storage.load().stats.focusModeSessions,
+        dailyBoostStreak: Storage.load().stats.dailyBoostStreak,
+        geniusTypesUsed: App.isGenius ? GeniusQGen._geniusTypesUsed.size : 0
     });
 
     // Render summary
@@ -3788,11 +5021,59 @@ function endSession(reason) {
         });
     }
 
+    // Progress messages
+    const progressMsgs = generateProgressMessages(results);
+    if (progressMsgs.length > 0) {
+        achDiv.innerHTML += `<div class="progress-messages mt-2">${progressMsgs.map(m => `<div class="progress-msg">${m}</div>`).join('')}</div>`;
+    }
+
+    // Focus mode improved facts
+    if (App.isFocusMode && App.focusModeImproved.length > 0) {
+        const colorMap = { low: '🔴', mid: '🟡', high: '🟢', none: '⬜' };
+        achDiv.innerHTML += `<div class="title-md mt-2">📈 תרגילים שהשתפרו:</div>`;
+        App.focusModeImproved.forEach(imp => {
+            const { a, b } = SR.parseFact(imp.key);
+            achDiv.innerHTML += `<div class="progress-msg">${a}×${b}: ${colorMap[imp.from]} ➡️ ${colorMap[imp.to]}</div>`;
+        });
+    }
+
     // Review button
     const mistakes = SR.getFactsNeedingReview();
     document.getElementById('btn-review-after-summary').style.display = mistakes.length > 0 ? '' : 'none';
 
     App.navigateTo('screen-summary');
+}
+
+function generateProgressMessages(results) {
+    const messages = [];
+    const data = Storage.load();
+    const dk = todayKey();
+    const daily = data.daily[dk];
+
+    // Facts improved today
+    if (daily && daily.factsImproved && daily.factsImproved.length > 0) {
+        messages.push(`📈 שיפרת ${daily.factsImproved.length} תרגילים היום!`);
+    }
+    // Genius high score
+    if (App.isGenius) {
+        const hs = data.settings.geniusHighScore || 0;
+        if (App.geniusScore >= hs && App.geniusScore > 0) messages.push('🏆 שיא חדש!');
+    }
+    // Best table
+    const tableStrengths = {};
+    results.filter(r => r.correct).forEach(r => {
+        if (!r.factKey) return;
+        const { a } = SR.parseFact(r.factKey);
+        tableStrengths[a] = (tableStrengths[a] || 0) + 1;
+    });
+    const best = Object.entries(tableStrengths).sort((a, b) => b[1] - a[1])[0];
+    if (best && best[1] >= 3) messages.push(`💪 הלוח של ${best[0]} מתחזק!`);
+    // Daily boost streak
+    if (App.isDailyBoost) {
+        const streak = data.stats.dailyBoostStreak || 0;
+        if (streak >= 3) messages.push(`🔥 רצף של ${streak} ימים!`);
+    }
+    return messages;
 }
 
 // ====== SCREEN: REVIEW MISTAKES ======
@@ -4160,8 +5441,11 @@ document.addEventListener('click', (e) => {
         App.isChallenge = true;
     }
     if (id === 'btn-genius') { SoundEngine.play('navigate'); startGeniusMode(); }
+    if (id === 'btn-daily-boost') { SoundEngine.play('navigate'); DailyBoost.start(); }
+    if (id === 'btn-focus-mode') { SoundEngine.play('navigate'); FocusMode.start(); }
     if (id === 'btn-achievements') { SoundEngine.play('navigate'); showAchievementsScreen(); }
     if (id === 'btn-mastery') { SoundEngine.play('navigate'); showMasteryScreen(); }
+    if (id === 'hint-dismiss') { hideHintOverlay(); }
 
     // Number selection
     if (e.target.closest('#number-grid')) handleNumberClick(e);
@@ -4286,6 +5570,7 @@ document.addEventListener('click', (e) => {
 // ====== INITIALIZATION ======
 document.addEventListener('DOMContentLoaded', () => {
     Storage.load();
+    DataMigration.run();
     ensureToday();
     renderBgDecorations();
     renderAvatarScreen();
