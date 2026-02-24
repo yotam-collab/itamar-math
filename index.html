@@ -2239,9 +2239,143 @@
             50% { transform: translateY(-20px) rotate(5deg); }
             100% { transform: translateY(0px) rotate(0deg); }
         }
+
+        /* ====== SPLASH SCREEN ====== */
+        #splash-screen {
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: var(--bg-main);
+            background-image:
+                radial-gradient(ellipse at 30% 40%, rgba(108, 99, 255, 0.15) 0%, transparent 50%),
+                radial-gradient(ellipse at 70% 60%, rgba(0, 229, 255, 0.12) 0%, transparent 50%);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+        #splash-screen.splash-exit {
+            opacity: 0;
+            transform: scale(1.08);
+            pointer-events: none;
+        }
+        .splash-emoji {
+            font-size: 5rem;
+            animation: splashRocket 1.5s ease-in-out infinite alternate;
+            filter: drop-shadow(0 0 20px rgba(0,229,255,0.4));
+        }
+        @keyframes splashRocket {
+            0% { transform: translateY(5px) rotate(-3deg); }
+            100% { transform: translateY(-10px) rotate(3deg); }
+        }
+        .splash-title {
+            font-size: 2.2rem;
+            font-weight: 900;
+            font-family: var(--font-display);
+            background: linear-gradient(135deg, #fff, var(--color-neon-blue), var(--color-primary), #fff);
+            background-size: 300% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: splashTitleGlow 2s linear infinite;
+            margin-top: 1rem;
+            letter-spacing: 4px;
+        }
+        @keyframes splashTitleGlow {
+            0% { background-position: 0% center; }
+            100% { background-position: 300% center; }
+        }
+        .splash-stars {
+            margin-top: 1.2rem;
+            display: flex;
+            gap: 0.8rem;
+        }
+        .splash-star {
+            font-size: 1.5rem;
+            animation: splashStarPop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+            opacity: 0;
+        }
+        .splash-star:nth-child(1) { animation-delay: 0.3s; }
+        .splash-star:nth-child(2) { animation-delay: 0.5s; }
+        .splash-star:nth-child(3) { animation-delay: 0.7s; }
+        @keyframes splashStarPop {
+            0% { transform: scale(0) rotate(-30deg); opacity: 0; }
+            100% { transform: scale(1) rotate(0deg); opacity: 1; }
+        }
+        .splash-loader {
+            margin-top: 2rem;
+            width: 120px;
+            height: 4px;
+            background: rgba(108,99,255,0.2);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+        .splash-loader-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, var(--color-primary), var(--color-neon-blue));
+            border-radius: 2px;
+            animation: splashLoad 1.8s ease-in-out forwards;
+            box-shadow: 0 0 8px rgba(0,229,255,0.4);
+        }
+        @keyframes splashLoad {
+            0% { width: 0%; }
+            60% { width: 70%; }
+            100% { width: 100%; }
+        }
+
+        /* ====== Enhanced Welcome Entry ====== */
+        #screen-welcome.screen-enter .itamar-photo-welcome {
+            animation: splashPhotoEntry 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) 0.05s both !important;
+        }
+        @keyframes splashPhotoEntry {
+            0% { transform: scale(0) rotate(-15deg); opacity: 0; filter: blur(8px); }
+            50% { transform: scale(1.12) rotate(4deg); opacity: 1; filter: blur(0); }
+            70% { transform: scale(0.95) rotate(-2deg); }
+            100% { transform: scale(1) rotate(0deg); opacity: 1; filter: blur(0); }
+        }
+        #screen-welcome.screen-enter .title-hero {
+            animation: splashTitleEntry 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.15s both !important;
+        }
+        @keyframes splashTitleEntry {
+            0% { transform: translateY(20px) scale(0.8); opacity: 0; letter-spacing: 12px; filter: blur(4px); }
+            100% { transform: translateY(0) scale(1); opacity: 1; letter-spacing: inherit; filter: blur(0); }
+        }
+        #screen-welcome.screen-enter .subtitle {
+            animation: fadeSlideUp 0.5s ease-out 0.25s both;
+        }
+        #screen-welcome.screen-enter .level-bar {
+            animation: fadeSlideUp 0.5s ease-out 0.3s both;
+        }
+        #screen-welcome.screen-enter .stats-bar {
+            animation: fadeSlideUp 0.5s ease-out 0.35s both;
+        }
+        #screen-welcome.screen-enter .week-calendar {
+            animation: fadeSlideUp 0.5s ease-out 0.4s both;
+        }
+        #screen-welcome.screen-enter .mission-card {
+            animation: fadeSlideUp 0.5s ease-out 0.45s both !important;
+        }
+        @keyframes fadeSlideUp {
+            0% { transform: translateY(15px); opacity: 0; }
+            100% { transform: translateY(0); opacity: 1; }
+        }
     </style>
 </head>
 <body>
+
+<!-- ====== SPLASH SCREEN ====== -->
+<div id="splash-screen">
+    <div class="splash-emoji">🚀</div>
+    <div class="splash-title">תרגול כפל</div>
+    <div class="splash-stars">
+        <span class="splash-star">⭐</span>
+        <span class="splash-star">🌟</span>
+        <span class="splash-star">⭐</span>
+    </div>
+    <div class="splash-loader"><div class="splash-loader-fill"></div></div>
+</div>
 
 <!-- Parallax Star Layers -->
 <div class="star-layer-2"></div>
@@ -7320,10 +7454,29 @@ document.addEventListener('DOMContentLoaded', () => {
     };
     document.addEventListener('touchstart', unlockAudio, { once: true });
 
-    if (!data.profile.avatar) {
-        App.navigateTo('screen-avatar');
+    // ====== Splash Screen Logic ======
+    const splash = document.getElementById('splash-screen');
+    if (splash) {
+        // Wait for loader animation to complete (1.8s) + small buffer
+        setTimeout(() => {
+            splash.classList.add('splash-exit');
+            // After fade-out transition (0.6s), remove splash and show app
+            setTimeout(() => {
+                splash.remove();
+                if (!data.profile.avatar) {
+                    App.navigateTo('screen-avatar');
+                } else {
+                    showWelcomeScreen();
+                }
+            }, 600);
+        }, 2000);
     } else {
-        showWelcomeScreen();
+        // Fallback if splash element missing
+        if (!data.profile.avatar) {
+            App.navigateTo('screen-avatar');
+        } else {
+            showWelcomeScreen();
+        }
     }
 });
 </script>
