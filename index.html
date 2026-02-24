@@ -65,9 +65,11 @@
             font-family: var(--font-family);
             background: var(--bg-main);
             background-image:
-                radial-gradient(ellipse at 20% 50%, rgba(108, 99, 255, 0.08) 0%, transparent 50%),
-                radial-gradient(ellipse at 80% 20%, rgba(0, 229, 255, 0.06) 0%, transparent 50%),
-                radial-gradient(ellipse at 50% 80%, rgba(224, 64, 251, 0.05) 0%, transparent 50%);
+                radial-gradient(ellipse at 20% 50%, rgba(108, 99, 255, 0.12) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 20%, rgba(0, 229, 255, 0.09) 0%, transparent 50%),
+                radial-gradient(ellipse at 50% 80%, rgba(224, 64, 251, 0.08) 0%, transparent 50%);
+            background-size: 200% 200%;
+            animation: nebulaFloat 60s ease-in-out infinite alternate;
             min-height: 100dvh;
             overflow-x: hidden;
             color: var(--text-primary);
@@ -104,6 +106,53 @@
             0% { opacity: 0.7; }
             100% { opacity: 1; }
         }
+        @keyframes nebulaFloat {
+            0% { background-position: 0% 0%; }
+            25% { background-position: 50% 30%; }
+            50% { background-position: 100% 50%; }
+            75% { background-position: 30% 80%; }
+            100% { background-position: 0% 100%; }
+        }
+
+        /* Parallax Star Layers */
+        .star-layer-2 {
+            position: fixed; inset: 0; pointer-events: none; z-index: 0;
+            background-image:
+                radial-gradient(1px 1px at 12% 28%, rgba(255,255,255,0.45) 0%, transparent 100%),
+                radial-gradient(1px 1px at 38% 72%, rgba(255,255,255,0.35) 0%, transparent 100%),
+                radial-gradient(1px 1px at 62% 18%, rgba(255,255,255,0.5) 0%, transparent 100%),
+                radial-gradient(1px 1px at 78% 48%, rgba(255,255,255,0.3) 0%, transparent 100%),
+                radial-gradient(1px 1px at 88% 82%, rgba(255,255,255,0.45) 0%, transparent 100%),
+                radial-gradient(1px 1px at 22% 55%, rgba(108,99,255,0.5) 0%, transparent 100%),
+                radial-gradient(1px 1px at 48% 38%, rgba(255,255,255,0.35) 0%, transparent 100%),
+                radial-gradient(1px 1px at 92% 22%, rgba(0,229,255,0.4) 0%, transparent 100%),
+                radial-gradient(1px 1px at 8% 92%, rgba(255,255,255,0.4) 0%, transparent 100%),
+                radial-gradient(1px 1px at 55% 68%, rgba(224,64,251,0.35) 0%, transparent 100%);
+            animation: twinkle 6s ease-in-out infinite alternate, parallaxSlow 30s ease-in-out infinite alternate;
+        }
+        .star-layer-3 {
+            position: fixed; inset: 0; pointer-events: none; z-index: 0;
+            background-image:
+                radial-gradient(0.5px 0.5px at 18% 15%, rgba(255,255,255,0.3) 0%, transparent 100%),
+                radial-gradient(0.5px 0.5px at 42% 82%, rgba(255,255,255,0.25) 0%, transparent 100%),
+                radial-gradient(0.5px 0.5px at 68% 32%, rgba(255,255,255,0.35) 0%, transparent 100%),
+                radial-gradient(0.5px 0.5px at 82% 65%, rgba(255,255,255,0.2) 0%, transparent 100%),
+                radial-gradient(0.5px 0.5px at 35% 45%, rgba(255,255,255,0.3) 0%, transparent 100%),
+                radial-gradient(0.5px 0.5px at 58% 88%, rgba(255,255,255,0.25) 0%, transparent 100%),
+                radial-gradient(0.5px 0.5px at 15% 72%, rgba(108,99,255,0.3) 0%, transparent 100%),
+                radial-gradient(0.5px 0.5px at 75% 12%, rgba(255,255,255,0.35) 0%, transparent 100%);
+            animation: twinkle 8s ease-in-out infinite alternate-reverse, parallaxFast 20s ease-in-out infinite alternate;
+        }
+        @keyframes parallaxSlow {
+            0% { transform: translateY(0px); }
+            100% { transform: translateY(-15px); }
+        }
+        @keyframes parallaxFast {
+            0% { transform: translateY(0px) translateX(0px); }
+            100% { transform: translateY(-25px) translateX(8px); }
+        }
+
+        /* Shooting Stars — disabled to reduce distraction */
 
         /* ====== Floating Background Decorations ====== */
         .bg-decorations {
@@ -185,23 +234,34 @@
             -webkit-backdrop-filter: blur(20px);
             border-radius: var(--radius-lg);
             padding: 2rem;
-            border: var(--space-border);
-            box-shadow: var(--shadow-lg);
+            border: 1px solid rgba(108, 99, 255, 0.25);
+            box-shadow: var(--shadow-lg), inset 0 0 30px rgba(108,99,255,0.04);
             width: 100%;
             max-width: 560px;
             position: relative;
             overflow: hidden;
         }
+        /* Animated rotating border glow */
         .card::before {
             content: '';
             position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 2px;
-            background: linear-gradient(90deg, transparent, var(--color-primary), var(--color-neon-blue), transparent);
-            opacity: 0.6;
+            top: -1px; left: -1px; right: -1px; bottom: -1px;
+            border-radius: var(--radius-lg);
+            background: conic-gradient(from var(--border-angle, 0deg), transparent 40%, rgba(108,99,255,0.5) 50%, rgba(0,229,255,0.4) 55%, transparent 65%);
+            z-index: -1;
+            animation: borderRotate 6s linear infinite;
+            opacity: 0.5;
         }
+        @property --border-angle {
+            syntax: '<angle>';
+            initial-value: 0deg;
+            inherits: false;
+        }
+        @keyframes borderRotate {
+            0% { --border-angle: 0deg; }
+            100% { --border-angle: 360deg; }
+        }
+        /* Card shimmer sweep — disabled to reduce distraction */
 
         /* ====== Typography ====== */
         .title-hero {
@@ -394,13 +454,18 @@
             background: rgba(20, 20, 55, 0.95);
             color: #FFFFFF;
             cursor: pointer;
-            transition: all 0.25s ease;
+            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
             user-select: none;
             -webkit-tap-highlight-color: transparent;
             min-height: 70px;
             box-shadow: 0 0 15px rgba(108, 99, 255, 0.15);
             position: relative;
             overflow: hidden;
+            animation: btnIdlePulse 3s ease-in-out infinite alternate;
+        }
+        @keyframes btnIdlePulse {
+            0% { box-shadow: 0 0 10px rgba(108, 99, 255, 0.1); }
+            100% { box-shadow: 0 0 18px rgba(108, 99, 255, 0.25); }
         }
         /* Scanning beam effect on hover */
         .answer-btn::before {
@@ -421,12 +486,40 @@
             border-color: var(--color-neon-blue);
             box-shadow: 0 0 30px rgba(0, 229, 255, 0.35), 0 0 60px rgba(108, 99, 255, 0.15), inset 0 0 20px rgba(108, 99, 255, 0.08);
             background: rgba(25, 25, 65, 0.98);
-            transform: scale(1.03);
+            transform: perspective(600px) rotateX(-2deg) scale(1.04);
             color: var(--color-neon-blue);
             text-shadow: 0 0 12px rgba(0, 229, 255, 0.5);
+            animation: none;
         }
-        .answer-btn:active:not(.disabled) { transform: scale(0.95); box-shadow: 0 0 15px rgba(108, 99, 255, 0.3); }
-        .answer-btn.disabled { pointer-events: none; opacity: 0.7; }
+        .answer-btn:active:not(.disabled) { transform: scale(0.95); box-shadow: 0 0 15px rgba(108, 99, 255, 0.3); animation: none; }
+        .answer-btn.disabled { pointer-events: none; opacity: 0.7; animation: none; }
+        /* Ripple effect */
+        .btn-ripple {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(0, 229, 255, 0.3);
+            transform: scale(0);
+            animation: ripple 0.6s ease-out forwards;
+            pointer-events: none;
+        }
+        @keyframes ripple {
+            0% { transform: scale(0); opacity: 0.5; }
+            100% { transform: scale(4); opacity: 0; }
+        }
+        /* Button particle burst */
+        .btn-particle {
+            position: fixed;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 100;
+            animation: particleBurst 0.8s ease-out forwards;
+        }
+        @keyframes particleBurst {
+            0% { transform: translate(0, 0) scale(1); opacity: 1; }
+            100% { transform: translate(var(--px), var(--py)) scale(0); opacity: 0; }
+        }
         .answer-btn.correct {
             background: linear-gradient(135deg, #00C853, #00E676);
             border-color: var(--color-success);
@@ -518,10 +611,17 @@
         }
         .timer-fill {
             height: 100%;
-            background: linear-gradient(90deg, var(--color-primary), var(--color-neon-blue));
+            background: linear-gradient(90deg, var(--color-primary), var(--color-neon-blue), var(--color-primary));
+            background-size: 200% 100%;
+            animation: timerFlow 2s linear infinite;
             border-radius: 3px;
             transition: width 1s linear;
             box-shadow: 0 0 8px rgba(108, 99, 255, 0.5);
+            position: relative;
+        }
+        @keyframes timerFlow {
+            0% { background-position: 0% 0%; }
+            100% { background-position: 200% 0%; }
         }
         .timer-fill.warning { background: linear-gradient(90deg, var(--color-warning), #FF9100); box-shadow: 0 0 8px rgba(255, 215, 64, 0.5); }
         .timer-fill.danger { background: linear-gradient(90deg, var(--color-error), #FF1744); box-shadow: 0 0 8px rgba(255, 82, 82, 0.5); animation: timerPulse 0.5s ease infinite; }
@@ -793,13 +893,13 @@
             100% { transform: scale(0.9) translateY(-20px); opacity: 0; filter: blur(5px); }
         }
         @keyframes screenSlideUp {
-            0% { transform: translateY(40px) scale(0.95); opacity: 0; filter: blur(6px); }
-            50% { filter: blur(0); }
-            100% { transform: translateY(0) scale(1); opacity: 1; filter: blur(0); }
+            0% { transform: translateY(40px) scale(0.92) perspective(800px) rotateX(3deg); opacity: 0; filter: blur(8px); }
+            40% { filter: blur(2px); }
+            100% { transform: translateY(0) scale(1) perspective(800px) rotateX(0deg); opacity: 1; filter: blur(0); }
         }
         @keyframes screenSlideOut {
-            0% { transform: translateY(0) scale(1); opacity: 1; }
-            100% { transform: translateY(-30px) scale(0.92); opacity: 0; filter: blur(4px); }
+            0% { transform: translateY(0) scale(1); opacity: 1; filter: blur(0); }
+            100% { transform: translateY(-35px) scale(0.88); opacity: 0; filter: blur(8px); }
         }
         @keyframes btnPopIn {
             0% { transform: translateY(25px) scale(0.85); opacity: 0; }
@@ -1141,7 +1241,20 @@
         .mastery-cell.mastery-none { background: rgba(108, 99, 255, 0.08); color: var(--text-secondary); }
         .mastery-cell.mastery-low { background: rgba(255, 82, 82, 0.25); color: #FF8A80; border-color: rgba(255, 82, 82, 0.3); }
         .mastery-cell.mastery-mid { background: rgba(255, 215, 64, 0.2); color: #FFD740; border-color: rgba(255, 215, 64, 0.3); }
-        .mastery-cell.mastery-high { background: rgba(0, 230, 118, 0.2); color: #69F0AE; border-color: rgba(0, 230, 118, 0.3); }
+        .mastery-cell.mastery-high { background: rgba(0, 230, 118, 0.2); color: #69F0AE; border-color: rgba(0, 230, 118, 0.3); animation: cellGlow 3s ease-in-out infinite alternate; }
+        @keyframes cellGlow {
+            0% { box-shadow: 0 0 4px rgba(0, 230, 118, 0.2); }
+            100% { box-shadow: 0 0 10px rgba(0, 230, 118, 0.4); }
+        }
+        .mastery-cell.mastery-leveling {
+            animation: masteryLevelUp 0.8s ease-out !important;
+        }
+        @keyframes masteryLevelUp {
+            0% { transform: scale(1); box-shadow: 0 0 0 transparent; }
+            30% { transform: scale(1.3); box-shadow: 0 0 20px rgba(255,215,0,0.6); }
+            60% { transform: scale(0.95); }
+            100% { transform: scale(1); box-shadow: 0 0 8px rgba(0,230,118,0.3); }
+        }
         .mastery-cell.mastery-hidden { opacity: 0.1; pointer-events: none; }
 
         /* Mastery Detail Modal */
@@ -1729,9 +1842,410 @@
             padding: 0.2rem 0;
             font-weight: 600;
         }
+
+        /* ====== Boss Battle ====== */
+        .boss-health-bar {
+            width: 100%;
+            height: 14px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 7px;
+            overflow: hidden;
+            margin: 0.5rem 0;
+            border: 1px solid rgba(255,82,82,0.4);
+        }
+        .boss-health-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #FF5252, #FF1744);
+            border-radius: 7px;
+            transition: width 0.5s ease;
+            box-shadow: 0 0 10px rgba(255,82,82,0.5);
+        }
+        .boss-bar-container {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: rgba(255,82,82,0.1);
+            border-radius: var(--radius-md);
+            margin-bottom: 0.5rem;
+        }
+        .boss-emoji { font-size: 2rem; }
+        .boss-bar-info { flex: 1; }
+        .boss-name { font-weight: 700; font-size: 0.85rem; color: #FF8A80; }
+        .boss-hp-text { font-size: 0.7rem; color: var(--text-secondary); }
+        .boss-defeat-anim {
+            animation: bossDefeat 0.8s ease-out;
+        }
+        @keyframes bossDefeat {
+            0% { transform: scale(1); opacity: 1; }
+            30% { transform: scale(1.3) rotate(10deg); }
+            60% { transform: scale(0.8) rotate(-5deg); opacity: 0.5; }
+            100% { transform: scale(0) rotate(15deg); opacity: 0; }
+        }
+
+        /* Boss Select Screen */
+        .boss-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 0.75rem;
+            margin: 1rem 0;
+        }
+        .boss-card {
+            background: var(--bg-card);
+            border: var(--space-border);
+            border-radius: var(--radius-md);
+            padding: 0.75rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .boss-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-glow); }
+        .boss-card.defeated { border-color: var(--color-success); background: rgba(0,230,118,0.08); }
+        .boss-card .boss-card-emoji { font-size: 2rem; display: block; margin-bottom: 0.3rem; }
+        .boss-card .boss-card-name { font-size: 0.8rem; font-weight: 700; }
+        .boss-card .boss-card-status { font-size: 0.65rem; color: var(--text-secondary); margin-top: 0.2rem; }
+
+        /* ====== Power-Ups ====== */
+        .powerup-bar {
+            display: flex;
+            gap: 0.3rem;
+            justify-content: center;
+            margin: 0.3rem 0;
+            flex-wrap: wrap;
+        }
+        .powerup-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.2rem;
+            padding: 0.2rem 0.5rem;
+            border-radius: 20px;
+            border: 1px solid rgba(108,99,255,0.3);
+            background: rgba(108,99,255,0.1);
+            color: var(--text-primary);
+            font-size: 0.7rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .powerup-btn:hover:not(:disabled) { background: rgba(108,99,255,0.25); transform: scale(1.05); }
+        .powerup-btn:disabled { opacity: 0.4; cursor: default; }
+        .powerup-btn .pu-icon { font-size: 1rem; }
+        .powerup-btn .pu-count { font-size: 0.65rem; opacity: 0.7; }
+        .powerup-active { animation: powerupGlow 0.5s ease; }
+        @keyframes powerupGlow {
+            0% { box-shadow: 0 0 5px rgba(108,99,255,0.5); }
+            50% { box-shadow: 0 0 20px rgba(108,99,255,0.8); transform: scale(1.1); }
+            100% { box-shadow: none; }
+        }
+        .powerup-shop {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+            gap: 0.5rem;
+            margin: 0.5rem 0;
+        }
+        .powerup-shop-item {
+            background: var(--bg-card);
+            border: var(--space-border);
+            border-radius: var(--radius-md);
+            padding: 0.5rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .powerup-shop-item:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+        .powerup-shop-item .pu-shop-icon { font-size: 1.5rem; display: block; }
+        .powerup-shop-item .pu-shop-name { font-size: 0.75rem; font-weight: 600; margin: 0.2rem 0; }
+        .powerup-shop-item .pu-shop-cost { font-size: 0.7rem; color: var(--color-coin); }
+
+        /* ====== Strategy Hint Overlay ====== */
+        .strategy-hint-bar {
+            background: rgba(0,229,255,0.1);
+            border: 1px solid rgba(0,229,255,0.3);
+            border-radius: var(--radius-md);
+            padding: 0.5rem 0.75rem;
+            margin: 0.3rem 0;
+            font-size: 0.8rem;
+            color: var(--color-neon-blue);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            animation: hintSlideIn 0.4s ease;
+        }
+        .strategy-hint-bar .hint-icon { font-size: 1.2rem; }
+        .strategy-hint-bar .hint-text { flex: 1; direction: rtl; }
+        @keyframes hintSlideIn {
+            0% { transform: translateY(-10px); opacity: 0; }
+            100% { transform: translateY(0); opacity: 1; }
+        }
+
+        /* ====== Mastery Upgrade Celebration ====== */
+        .mastery-upgrade-popup {
+            position: fixed;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            background: var(--bg-card-solid);
+            border: 2px solid var(--color-success);
+            border-radius: var(--radius-xl);
+            padding: 1.5rem 2rem;
+            text-align: center;
+            z-index: 2500;
+            animation: masteryPopIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+            box-shadow: 0 0 40px rgba(0,230,118,0.4), 0 0 80px rgba(0,230,118,0.15);
+        }
+        .mastery-upgrade-popup .mu-icon { font-size: 3rem; margin-bottom: 0.5rem; }
+        .mastery-upgrade-popup .mu-title { font-size: 1.2rem; font-weight: 800; color: var(--color-success); }
+        .mastery-upgrade-popup .mu-fact { font-size: 1.5rem; font-weight: 700; margin: 0.3rem 0; font-family: var(--font-display); }
+        .mastery-upgrade-popup .mu-bonus { font-size: 0.85rem; color: var(--color-coin); margin-top: 0.3rem; }
+        .mastery-upgrade-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.6);
+            z-index: 2400;
+            animation: fadeIn 0.3s ease;
+        }
+        @keyframes masteryPopIn {
+            0% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
+            60% { transform: translate(-50%, -50%) scale(1.1); opacity: 1; }
+            100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+        }
+
+        /* ====== Frustration Guard - Easy question glow ====== */
+        .easy-boost-question .answer-btn { border-color: rgba(0,229,255,0.3); }
+        .encouragement-bubble {
+            background: rgba(0,229,255,0.12);
+            border: 1px solid rgba(0,229,255,0.25);
+            border-radius: var(--radius-lg);
+            padding: 0.6rem 1rem;
+            margin: 0.3rem 0;
+            font-size: 0.85rem;
+            color: var(--color-neon-blue);
+            text-align: center;
+            animation: encourageSlide 0.4s ease;
+        }
+        @keyframes encourageSlide {
+            0% { transform: translateY(10px); opacity: 0; }
+            100% { transform: translateY(0); opacity: 1; }
+        }
+
+        /* ====== Progress Journal ====== */
+        .journal-section { margin: 1rem 0; }
+        .journal-stat-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.5rem;
+            margin: 0.5rem 0;
+        }
+        .journal-stat {
+            background: var(--bg-card);
+            border: var(--space-border);
+            border-radius: var(--radius-md);
+            padding: 0.6rem;
+            text-align: center;
+        }
+        .journal-stat .js-value { font-size: 1.3rem; font-weight: 800; font-family: var(--font-display); }
+        .journal-stat .js-label { font-size: 0.7rem; color: var(--text-secondary); margin-top: 0.15rem; }
+        .journal-weekly-chart {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-around;
+            height: 80px;
+            margin: 0.5rem 0;
+            gap: 0.3rem;
+        }
+        .journal-bar {
+            flex: 1;
+            max-width: 30px;
+            background: var(--gradient-cosmic);
+            border-radius: 4px 4px 0 0;
+            min-height: 4px;
+            transition: height 0.5s ease;
+        }
+        .journal-bar-label { font-size: 0.55rem; color: var(--text-secondary); text-align: center; margin-top: 0.2rem; }
+        .journal-message {
+            background: rgba(108,99,255,0.1);
+            border-radius: var(--radius-md);
+            padding: 0.6rem 0.8rem;
+            margin: 0.5rem 0;
+            font-size: 0.85rem;
+            text-align: center;
+            color: var(--color-primary-light);
+        }
+
+        /* ====== Parent Snapshot ====== */
+        .parent-lock-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.85);
+            z-index: 3000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .parent-lock-box {
+            background: var(--bg-card-solid);
+            border: var(--space-border-glow);
+            border-radius: var(--radius-xl);
+            padding: 1.5rem;
+            text-align: center;
+            max-width: 300px;
+        }
+        .parent-code-input {
+            font-size: 1.5rem;
+            text-align: center;
+            width: 100%;
+            padding: 0.5rem;
+            border: var(--space-border);
+            border-radius: var(--radius-md);
+            background: var(--bg-card);
+            color: var(--text-primary);
+            font-family: var(--font-display);
+            letter-spacing: 8px;
+            margin: 0.75rem 0;
+        }
+        .parent-snapshot-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 0.75rem;
+            margin: 0.75rem 0;
+        }
+        .parent-fact-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.5rem 0.75rem;
+            background: var(--bg-card);
+            border-radius: var(--radius-sm);
+            border: var(--space-border);
+        }
+        .parent-fact-name { font-weight: 600; font-size: 0.9rem; }
+        .parent-fact-accuracy { font-size: 0.8rem; }
+
+        /* ====== Mission Complete Anim ====== */
+        .mission-complete-flash {
+            animation: missionComplete 0.8s ease;
+        }
+        @keyframes missionComplete {
+            0% { transform: scale(1); }
+            30% { transform: scale(1.05); box-shadow: 0 0 20px rgba(255,215,0,0.5); }
+            60% { transform: scale(0.98); }
+            100% { transform: scale(1); box-shadow: none; }
+        }
+        .mission-card.completed {
+            border-color: var(--color-success);
+            background: rgba(0,230,118,0.08);
+        }
+
+        /* ====== 50/50 Scanner Effect ====== */
+        .answer-btn.scanner-dimmed {
+            opacity: 0.25;
+            pointer-events: none;
+            transform: scale(0.9);
+            transition: all 0.3s ease;
+        }
+
+        /* ====== Visual Upgrade: Screen Flash on Answer ====== */
+        .screen-flash-correct {
+            animation: flashGreen 0.4s ease-out;
+        }
+        .screen-flash-wrong {
+            animation: flashRed 0.4s ease-out;
+        }
+        @keyframes flashGreen {
+            0% { box-shadow: inset 0 0 0 transparent; }
+            30% { box-shadow: inset 0 0 60px rgba(0, 230, 118, 0.15), 0 0 40px rgba(0, 230, 118, 0.2); }
+            100% { box-shadow: var(--shadow-lg), inset 0 0 30px rgba(108,99,255,0.04); }
+        }
+        @keyframes flashRed {
+            0% { box-shadow: inset 0 0 0 transparent; }
+            30% { box-shadow: inset 0 0 60px rgba(255, 82, 82, 0.15), 0 0 40px rgba(255, 82, 82, 0.2); }
+            100% { box-shadow: var(--shadow-lg), inset 0 0 30px rgba(108,99,255,0.04); }
+        }
+        /* Card shake on wrong answer */
+        .card-shake {
+            animation: cardShake 0.35s ease-out;
+        }
+        @keyframes cardShake {
+            0%, 100% { transform: translateX(0); }
+            15% { transform: translateX(-4px); }
+            30% { transform: translateX(4px); }
+            45% { transform: translateX(-3px); }
+            60% { transform: translateX(3px); }
+            75% { transform: translateX(-2px); }
+            90% { transform: translateX(2px); }
+        }
+
+        /* ====== Visual Upgrade: Enhanced Confetti ====== */
+        .confetti-piece-v2 {
+            position: absolute;
+            top: -20px;
+            animation: confettiFallV2 linear forwards;
+            pointer-events: none;
+        }
+        @keyframes confettiFallV2 {
+            0% { transform: translateY(-10px) translateX(0) rotate(0deg); opacity: 1; }
+            25% { transform: translateY(25vh) translateX(calc(var(--sway) * 1)) rotate(180deg); opacity: 1; }
+            50% { transform: translateY(50vh) translateX(calc(var(--sway) * -0.5)) rotate(360deg); opacity: 0.9; }
+            75% { transform: translateY(75vh) translateX(calc(var(--sway) * 0.8)) rotate(540deg); opacity: 0.6; }
+            100% { transform: translateY(105vh) translateX(calc(var(--sway) * -0.3)) rotate(720deg); opacity: 0; }
+        }
+
+        /* ====== Visual Upgrade: Reward Trail Particles ====== */
+        .reward-trail {
+            position: fixed;
+            pointer-events: none;
+            z-index: 50;
+            border-radius: 50%;
+            animation: rewardTrail 1.5s ease-out forwards;
+        }
+        @keyframes rewardTrail {
+            0% { opacity: 0.8; transform: translateY(0) scale(1); }
+            40% { opacity: 0.6; transform: translateY(-40px) scale(0.8); }
+            100% { opacity: 0; transform: translateY(-110px) scale(0.3); }
+        }
+
+        /* ====== Visual Upgrade: Ambient Particles ====== */
+        .ambient-particle {
+            position: fixed;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 1;
+            animation: ambientFloat var(--float-dur, 8s) ease-in-out infinite;
+        }
+        @keyframes ambientFloat {
+            0%, 100% { transform: translateY(0px) translateX(0px); opacity: 0.3; }
+            25% { transform: translateY(-20px) translateX(8px); opacity: 0.6; }
+            50% { transform: translateY(-30px) translateX(-5px); opacity: 0.4; }
+            75% { transform: translateY(-10px) translateX(12px); opacity: 0.5; }
+        }
+
+        /* ====== Visual Upgrade: Title Shimmer ====== */
+        .title-shimmer {
+            background: linear-gradient(90deg, #fff 0%, var(--color-neon-blue) 25%, #fff 50%, var(--color-primary) 75%, #fff 100%);
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: titleShimmer 4s linear infinite;
+        }
+        @keyframes titleShimmer {
+            0% { background-position: 0% center; }
+            100% { background-position: 200% center; }
+        }
+
+        /* Comet — disabled to reduce distraction */
+
+        /* ====== Visual Upgrade: Slow floating for bg decorations ====== */
+        @keyframes floatSpaceSlow {
+            0% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(5deg); }
+            100% { transform: translateY(0px) rotate(0deg); }
+        }
     </style>
 </head>
 <body>
+
+<!-- Parallax Star Layers -->
+<div class="star-layer-2"></div>
+<div class="star-layer-3"></div>
 
 <!-- Background Decorations -->
 <div class="bg-decorations" id="bg-decorations"></div>
@@ -1787,9 +2301,12 @@
             <button class="btn btn-primary btn-lg btn-block" id="btn-start-practice">🎯  תרגול חדש</button>
             <button class="btn btn-outline btn-block" id="btn-focus-mode">🎯  תרגול חולשות חכם</button>
             <button class="btn btn-outline btn-block" id="btn-review-mistakes">🔄  חזרה על טעויות</button>
+            <button class="btn btn-outline btn-block" id="btn-boss-battle" style="border-color:rgba(255,82,82,0.4);color:#FF8A80;">⚔️  קרב בוסים <span class="boss-wins-badge" id="boss-wins-badge" style="display:none;"></span></button>
             <button class="btn btn-outline btn-block" id="btn-challenge">⏱️  מצב אתגר</button>
             <button class="btn btn-outline btn-block" id="btn-achievements">🏆  הישגים</button>
             <button class="btn btn-outline btn-block" id="btn-mastery">📊  לוח השליטה שלי</button>
+            <button class="btn btn-outline btn-block" id="btn-journal">📔  יומן התקדמות</button>
+            <button class="btn btn-outline btn-block" id="btn-parent-snapshot" style="font-size:0.75rem;opacity:0.6;">👨‍👩‍👦  דוח להורים</button>
         </div>
         <!-- Settings Toggles -->
         <div class="settings-toggle-row">
@@ -1902,6 +2419,19 @@
             <div class="progress-fill" id="practice-progress" style="width:0%"></div>
         </div>
 
+        <!-- Boss Health Bar (boss mode only) -->
+        <div id="boss-bar-container" class="boss-bar-container" style="display:none;">
+            <div class="boss-emoji" id="boss-current-emoji"></div>
+            <div class="boss-bar-info">
+                <div class="boss-name" id="boss-current-name"></div>
+                <div class="boss-health-bar"><div class="boss-health-fill" id="boss-health-fill" style="width:100%"></div></div>
+                <div class="boss-hp-text" id="boss-hp-text"></div>
+            </div>
+        </div>
+
+        <!-- Strategy Hint (shown after errors on same fact) -->
+        <div id="practice-strategy-hint" style="display:none;"></div>
+
         <!-- Question -->
         <div class="question-display">
             <div class="question-label">כמה זה?</div>
@@ -1910,6 +2440,9 @@
 
         <!-- Answer Options -->
         <div class="answer-grid" id="practice-answers"></div>
+
+        <!-- Power-Up Bar -->
+        <div class="powerup-bar" id="powerup-bar" style="display:none;"></div>
     </div>
 </div>
 
@@ -2009,6 +2542,55 @@
     </div>
 </div>
 
+<!-- ====== SCREEN: Boss Select ====== -->
+<div id="screen-boss-select" class="screen">
+    <div class="card text-center">
+        <div class="title-lg mb-1">⚔️ קרב בוסים</div>
+        <div class="subtitle">בחר בוס להילחם בו!</div>
+        <div class="boss-grid" id="boss-grid"></div>
+        <button class="btn btn-outline btn-block mt-1" id="btn-boss-back">← חזרה</button>
+    </div>
+</div>
+
+<!-- ====== SCREEN: Progress Journal ====== -->
+<div id="screen-journal" class="screen">
+    <div class="card text-center">
+        <div class="title-lg mb-1">📔 יומן התקדמות</div>
+        <div id="journal-content"></div>
+        <button class="btn btn-outline btn-block mt-1" id="btn-journal-back">← חזרה</button>
+    </div>
+</div>
+
+<!-- ====== SCREEN: Parent Snapshot ====== -->
+<div id="screen-parent" class="screen">
+    <div class="card text-center">
+        <div class="title-lg mb-1">👨‍👩‍👦 דוח להורים</div>
+        <div id="parent-content"></div>
+        <button class="btn btn-outline btn-block mt-1" id="btn-parent-back">← חזרה</button>
+    </div>
+</div>
+
+<!-- ====== Parent Lock Overlay ====== -->
+<div class="parent-lock-overlay" id="parent-lock-overlay" style="display:none;">
+    <div class="parent-lock-box">
+        <div style="font-size:2.5rem;margin-bottom:0.5rem;">🔒</div>
+        <div style="font-weight:700;font-size:1rem;margin-bottom:0.5rem;">אזור הורים</div>
+        <div style="font-size:0.8rem;color:var(--text-secondary);margin-bottom:0.5rem;">הכנס קוד כדי לצפות</div>
+        <input type="password" class="parent-code-input" id="parent-code-input" maxlength="4" placeholder="••••" autocomplete="off">
+        <div id="parent-code-error" style="color:var(--color-error);font-size:0.75rem;min-height:1.2rem;"></div>
+        <div style="display:flex;gap:0.5rem;margin-top:0.5rem;">
+            <button class="btn btn-primary" id="btn-parent-unlock" style="flex:1;">כניסה</button>
+            <button class="btn btn-outline" id="btn-parent-cancel" style="flex:1;">ביטול</button>
+        </div>
+    </div>
+</div>
+
+<!-- ====== Mastery Upgrade Popup ====== -->
+<div id="mastery-upgrade-overlay" style="display:none;"></div>
+
+<!-- ====== Strategy Hint Container ====== -->
+<div id="strategy-hint-container" style="display:none;"></div>
+
 <!-- ====== Hint Overlay (Focus Mode) ====== -->
 <div class="hint-overlay" id="hint-overlay">
     <div class="hint-popup">
@@ -2101,7 +2683,12 @@ const ACHIEVEMENTS = [
     { id: 'daily_streak_7', icon: '\uD83D\uDD25', name: 'שבוע של חימום!', desc: '7 חימומים יומיים ברצף' },
     { id: 'mastery_upgrade', icon: '\uD83D\uDCC8', name: 'שיפור!', desc: 'שיפרת צבע של תרגיל' },
     { id: 'all_green', icon: '\uD83C\uDF1F', name: 'הכל ירוק!', desc: 'כל לוח הכפל ירוק' },
-    { id: 'genius_variety', icon: '\uD83E\uDDE9', name: 'מגוון!', desc: '5 סוגי שאלות שונים במצב מחוננים' }
+    { id: 'genius_variety', icon: '\uD83E\uDDE9', name: 'מגוון!', desc: '5 סוגי שאלות שונים במצב מחוננים' },
+    { id: 'boss_first', icon: '⚔️', name: 'גיבור!', desc: 'ניצחת את הבוס הראשון' },
+    { id: 'boss_5', icon: '🗡️', name: 'לוחם!', desc: 'ניצחת 5 בוסים' },
+    { id: 'boss_all', icon: '👑', name: 'אלוף הבוסים!', desc: 'ניצחת את כל הבוסים' },
+    { id: 'powerup_first', icon: '🛡️', name: 'כוח-על!', desc: 'השתמשת בכוח-על לראשונה' },
+    { id: 'thousand_correct', icon: '💎', name: 'אלף!', desc: 'ענית נכון על 1000 שאלות' }
 ];
 
 const DIFFICULTY_CONFIG = {
@@ -2179,6 +2766,136 @@ const DAILY_BOOST_CONFIG = {
     subsequentBonusRatio: 0.3
 };
 
+// ====== FRUSTRATION GUARD CONFIG ======
+const FRUSTRATION_GUARD_CONFIG = {
+    consecutiveErrorsForEasy: 3,     // After 3 errors, insert easy question
+    consecutiveErrorsForHint: 2,     // After 2 errors on SAME fact, show strategy hint
+    successStreakForHarder: 5,        // After 5 correct, increase difficulty
+    easyQuestionCooldown: 2,          // Min questions between easy insertions
+    maxEasyInserts: 3                 // Max easy questions per session
+};
+
+// ====== BOSS BATTLE CONFIG ======
+const BOSS_CONFIG = {
+    questionsPerBoss: 10,
+    bossHP: 10,
+    damagePerCorrect: 1,
+    bonusCoins: 50,
+    bonusBadgePrefix: 'boss_'
+};
+
+const BOSS_DATA = [
+    { table: 2, name: 'דוב הכפל', emoji: '🐻', color: '#8BC34A' },
+    { table: 3, name: 'דרקון השלשות', emoji: '🐉', color: '#FF5722' },
+    { table: 4, name: 'רוח הרביעיות', emoji: '👻', color: '#9C27B0' },
+    { table: 5, name: 'נמר החמישיות', emoji: '🐯', color: '#FF9800' },
+    { table: 6, name: 'תמנון השישיות', emoji: '🐙', color: '#E91E63' },
+    { table: 7, name: 'מפלצת השביעיות', emoji: '👾', color: '#673AB7' },
+    { table: 8, name: 'דינוזאור השמיניות', emoji: '🦖', color: '#4CAF50' },
+    { table: 9, name: 'פניקס התשיעיות', emoji: '🔥', color: '#F44336' },
+    { table: 10, name: 'רובוט העשיריות', emoji: '🤖', color: '#2196F3' },
+    { table: 11, name: 'חד-קרן 11', emoji: '🦄', color: '#E040FB' },
+    { table: 12, name: 'אלוף הכפל', emoji: '👑', color: '#FFD700' }
+];
+
+// ====== POWER-UP CONFIG ======
+const POWERUP_CONFIG = {
+    shield:    { name: 'מגן', emoji: '🛡️', desc: 'מגן על הרצף מטעות אחת', cost: 30 },
+    scanner:   { name: 'סורק 50/50', emoji: '🔍', desc: 'מסיר 2 תשובות שגויות', cost: 25 },
+    timeBoost: { name: 'זמן+', emoji: '⏰', desc: '+15 שניות לטיימר', cost: 20 },
+    hint:      { name: 'רמז לייזר', emoji: '💡', desc: 'מראה רמז אסטרטגי', cost: 35 },
+    doubleXP:  { name: 'כפול!', emoji: '✨', desc: 'XP כפול לשאלה הבאה', cost: 40 }
+};
+
+// ====== EXPANDED TEXT BANK ======
+const TEXT_BANK = {
+    correct: [
+        'מעולה! 🌟', 'נכון! 👏', 'יופי! ⭐', 'מדהים! 🎉', 'בול! 🎯',
+        'אלוף! 🏆', 'וואו! 🚀', 'מושלם! 💯', 'נהדר! ✨', 'כל הכבוד! 👑',
+        'בדיוק! 🎪', 'פצצה! 💥', 'חזק! 💪', 'סופר! 🦸', 'גאון! 🧠',
+        'רקטה! 🚀', 'מטורף! 🤩', 'תותח! 🎆', 'נינג\'ה! 🥷', 'יאללה! 🔥',
+        'כוכב! ⭐', 'יש! 🙌', 'בום! 💣', 'ברק! ⚡', 'קסם! ✨'
+    ],
+    wrong: [
+        'לא נורא, ננסה שוב! 💪', 'קרוב! נסה שוב 🎯', 'עוד קצת... 🌈', 'לא מוותרים! 🦾',
+        'בפעם הבאה! ✨', 'כמעט! 🤏', 'זה בסדר, ממשיכים! 🚀', 'טעויות מחזקות! 💪',
+        'לומדים מטעויות! 📚', 'אתה מתקרב! 🎯', 'ניסיון טוב! 👍', 'לא עצוב, רק ממשיכים! 😊',
+        'תנסה שוב, אתה יכול! 💫', 'כל טעות היא צעד קדימה! 🪜', 'אל תוותר! 🦁',
+        'זה חלק מהדרך! 🛤️', 'בפעם הבאה תצליח! 🌟', 'חשוב שניסית! 🏅',
+        'גם אלופים טועים! 🏆', 'ממשיכים הלאה! ➡️'
+    ],
+    streak: [
+        'רצף מדהים! 🔥🔥🔥', 'אש! אתה בוער! 🔥', 'בלתי ניתן לעצירה! 💪',
+        'מכונת כפל! ⚡', 'סופר סטריק! 🌟', 'כוח! אל תעצור! 🚀',
+        'רצף חם! 🌋', 'להבה! 🔥', 'קומבו מטורף! 💥', 'רצף אלוף! 🏆',
+        'על גלגל! 🎡', 'מושלם בזה אחר זה! ✨', 'טייס אוטומטי! ✈️',
+        'לא עוצר! 🏃', 'רוכב גל! 🌊', 'שובר שיאים! 📈',
+        'מפלצת כפל! 👾', 'ברק! ⚡⚡', 'חום לוהט! 🌡️', 'ללא מעצורים! 🏎️'
+    ],
+    improvement: [
+        'שיפור מדהים! 📈', 'התקדמות יפה! 🌱', 'גדל מיום ליום! 🌻',
+        'המאמץ משתלם! 💎', 'רואים שיפור! 👀', 'הולך ומשתפר! 📊',
+        'צמיחה! 🌿', 'קפיצה קדימה! 🦘', 'ההשקעה שווה! 💰',
+        'התרגיל הזה כבר קל לך! 🎓', 'רמה חדשה! 🆙', 'התקדמת מאוד! 🚀',
+        'ההתמדה משתלמת! 🏋️', 'מתחיל לשלוט! 👊', 'זה כבר בכיס! 🎒',
+        'כוח של תרגול! 💪', 'מתקדם בבטחון! 🛡️', 'זה רק ההתחלה! 🌅',
+        'בדרך לירוק! 🟢', 'התרגיל הזה נכנע! 🏳️'
+    ],
+    bossDefeated: [
+        'ניצחת את הבוס! 🎉', 'הבוס הובס! 💪', 'אלוף! הבוס נפל! 👑',
+        'ניצחון מוחץ! 🏆', 'גיבור! 🦸', 'הבוס ברח! 🏃',
+        'כבשת אותו! ⚔️', 'ניצחון מתוק! 🍬', 'הכוח איתך! 💫',
+        'אי אפשר לעצור אותך! 🚀', 'מפלה לבוס! 😤', 'הבוס לא עמד בך! 💥',
+        'שליט חדש! 👑', 'נהרסת אותו! 🔨', 'הודעת לו מי הבוס! 😎',
+        'חזק מהבוס! 🦾', 'סיימת איתו! ✅', 'בדרך לבוס הבא! ➡️',
+        'כובש עולמות! 🌍', 'לוחם כפל אמיתי! ⚔️'
+    ],
+    encouragement: [
+        'אתה יכול! 💪', 'קדימה, עוד ניסיון! 🚀', 'אל תוותר! 🦁',
+        'כל ניסיון מקרב אותך! 🎯', 'אני מאמין בך! ⭐', 'זה יבוא! 🌈',
+        'עוד קצת מאמץ! 🏋️', 'הגדולים לא מוותרים! 👑', 'אתה חזק! 💪',
+        'עוד פעם אחת! ☝️', 'תאמין בעצמך! 🌟', 'הדרך לא ארוכה! 🛤️',
+        'אתה יותר חזק ממה שאתה חושב! 🦸', 'זה לא קל, אבל אתה מסוגל! 💎',
+        'בוא ננצח את זה ביחד! 🤝', 'נסה קצת אחרת הפעם 🤔',
+        'תנשום, תחשוב, ותנסה שוב! 🧘', 'כל אלוף טעה הרבה בדרך! 🏆',
+        'תרגול עושה מושלם! 📚', 'אתה מתקדם גם כשזה לא מרגיש ככה! 📈'
+    ],
+    missionComplete: [
+        'משימה הושלמה! 🎯', 'עשית את זה! 🏆', 'משימה בכיס! ✅',
+        'סיימת את המשימה! 🎉', 'אלוף המשימות! 👑', 'מושלם! 💯',
+        'הצלחת במשימה! 🌟', 'משימה = הצלחה! ✨', 'בול במטרה! 🎯',
+        'המשימה הסתיימה בהצלחה! 🚀'
+    ],
+    dailyBoost: [
+        'בוקר טוב, אלוף! ☀️', 'מוכן לחימום? 🔥', 'בוא נתחיל את היום! 🌅',
+        'זמן חימום! ⏰', 'קדימה, מתחילים! 🚀', 'חימום של אלופים! 💪',
+        'יום חדש, הצלחה חדשה! 🌟', 'מתחילים בכוח! ⚡', 'בוא נחמם את המוח! 🧠',
+        'עוד יום, עוד הצלחה! 📈'
+    ],
+    focusMode: [
+        'בוא נתחזק! 💪', 'מתמקדים בחולשות! 🎯', 'תרגול ממוקד! 🔍',
+        'מחזקים את הקשה! 🏋️', 'עובדים על שיפור! 📈', 'התרגילים האלה ייכנעו! ⚔️',
+        'מתגברים על הקשיים! 🧗', 'בואו נהפוך אדומים לירוקים! 🔴➡️🟢',
+        'עוד קצת ויהיה קל! 🌈', 'הריכוז ישתלם! 💎'
+    ]
+};
+
+// ====== STRATEGY HINTS ======
+const STRATEGY_HINTS = {
+    // Tips per table
+    2: ['כל מספר כפול 2 = המספר ועוד פעם אחת', 'כפל 2 = לספור בקפיצות של 2'],
+    3: ['כפול 3 = כפול 2 ועוד פעם אחת', '3×9 = 27, תחשוב 3 פחות מ-30'],
+    4: ['כפול 4 = כפול 2, ואז כפול 2 שוב!', 'לדוגמה: 4×6 = 2×6=12, ואז 12×2=24'],
+    5: ['כפול 5 = חצי מכפול 10!', 'לדוגמה: 5×8 = חצי מ-80 = 40', 'מספרי כפל 5 תמיד נגמרים ב-0 או 5'],
+    6: ['כפול 6 = כפול 5 + עוד פעם אחת', 'לדוגמה: 6×7 = 5×7=35 + 7 = 42'],
+    7: ['כפול 7 = כפול 5 + כפול 2', 'לדוגמה: 7×8 = 5×8=40 + 2×8=16 = 56'],
+    8: ['כפול 8 = כפול 4, ואז כפול 2!', 'אפשר גם: כפול 10 - כפול 2', 'לדוגמה: 8×7 = 10×7=70 - 2×7=14 = 56'],
+    9: ['כפול 9 = כפול 10 - פעם אחת!', 'לדוגמה: 9×7 = 70-7 = 63', 'טריק: ספרות התשובה תמיד מסתכמות ל-9!'],
+    10: ['כפול 10 = פשוט תוסיף 0!', 'הכי קל - 10×7 = 70'],
+    11: ['כפול 11 (עד 9) = המספר כפול!', 'לדוגמה: 11×4 = 44, 11×7 = 77'],
+    12: ['כפול 12 = כפול 10 + כפול 2', 'לדוגמה: 12×7 = 70+14 = 84']
+};
+
 // ====== DAILY MISSION TEMPLATES ======
 const MISSION_TEMPLATES = [
     { id: 'turn_reds', desc: 'הפוך 2 אדומים לצהובים', icon: '🔴➡️🟡', target: 2, checkField: 'redsImproved' },
@@ -2186,25 +2903,34 @@ const MISSION_TEMPLATES = [
     { id: 'streak_7', desc: 'רצף של 7 תשובות נכונות', icon: '🔥', target: 7, checkField: 'bestStreakToday' },
     { id: 'practice_20', desc: 'ענה על 20 שאלות', icon: '📝', target: 20, checkField: 'questionsToday' },
     { id: 'daily_boost', desc: 'השלם את החימום היומי', icon: '☀️', target: 1, checkField: 'dailyBoostDone' },
-    { id: 'perfect_mini', desc: 'סיים תרגול בלי טעויות', icon: '💯', target: 1, checkField: 'perfectSession' }
+    { id: 'perfect_mini', desc: 'סיים תרגול בלי טעויות', icon: '💯', target: 1, checkField: 'perfectSession' },
+    { id: 'boss_battle', desc: 'נצח בוס אחד', icon: '⚔️', target: 1, checkField: 'bossDefeated' },
+    { id: 'focus_session', desc: 'סיים תרגול חולשות', icon: '🎯', target: 1, checkField: 'focusDone' },
+    { id: 'fast_five', desc: '5 תשובות נכונות תוך 2 שניות', icon: '⚡', target: 5, checkField: 'fastCorrect' },
+    { id: 'variety', desc: 'תרגל 3 מצבים שונים', icon: '🎭', target: 3, checkField: 'modesPlayed' }
 ];
 
 const DEFAULT_DATA = {
-    version: 2,
+    version: 3,
     profile: { name: 'איתמר', avatar: null, createdAt: null },
     stats: {
         totalQuestions: 0, totalCorrect: 0, totalWrong: 0,
         totalStars: 0, totalCoins: 0, totalPoints: 0,
         currentStreak: 0, bestStreak: 0, totalSessions: 0,
         dailyBoostStreak: 0, lastDailyBoostDate: null,
-        focusModeSessions: 0, dailyBoostSessions: 0
+        focusModeSessions: 0, dailyBoostSessions: 0,
+        bossesDefeated: {},      // { table: timestamp }
+        totalBossWins: 0,
+        weeklyMasteryUpgrades: 0,
+        lastWeeklyReset: null
     },
     facts: {},
     currentSession: null,
     achievements: { unlocked: [] },
     daily: {},
     dailyMissions: {},
-    settings: { soundEnabled: true, maxMultiplier: 12, answerCount: 4, geniusHighScore: 0 }
+    powerups: { shield: 1, scanner: 1, timeBoost: 1, hint: 1, doubleXP: 0 },
+    settings: { soundEnabled: true, maxMultiplier: 10, answerCount: 8, geniusHighScore: 0, parentCode: '1234' }
 };
 
 // ====== STORAGE ======
@@ -2244,20 +2970,19 @@ const DataMigration = {
         if (!data.version || data.version < 2) {
             this._migrateV1toV2(data);
         }
+        if (data.version < 3) {
+            this._migrateV2toV3(data);
+        }
     },
     _migrateV1toV2(data) {
         data.version = 2;
-        // Stats
         if (!data.stats.dailyBoostStreak) data.stats.dailyBoostStreak = 0;
         if (!data.stats.lastDailyBoostDate) data.stats.lastDailyBoostDate = null;
         if (!data.stats.focusModeSessions) data.stats.focusModeSessions = 0;
         if (!data.stats.dailyBoostSessions) data.stats.dailyBoostSessions = 0;
-        // Settings
         if (!data.settings) data.settings = {};
         if (!data.settings.geniusHighScore) data.settings.geniusHighScore = 0;
-        // Daily missions
         if (!data.dailyMissions) data.dailyMissions = {};
-        // Upgrade existing daily entries
         Object.keys(data.daily).forEach(dk => {
             const d = data.daily[dk];
             if (d.dailyBoostCompleted === undefined) d.dailyBoostCompleted = false;
@@ -2266,17 +2991,30 @@ const DataMigration = {
             if (!d.masteryChanges) d.masteryChanges = [];
         });
         Storage.save();
+    },
+    _migrateV2toV3(data) {
+        data.version = 3;
+        // New stats
+        if (!data.stats.bossesDefeated) data.stats.bossesDefeated = {};
+        if (!data.stats.totalBossWins) data.stats.totalBossWins = 0;
+        if (!data.stats.weeklyMasteryUpgrades) data.stats.weeklyMasteryUpgrades = 0;
+        if (!data.stats.lastWeeklyReset) data.stats.lastWeeklyReset = null;
+        // Power-ups
+        if (!data.powerups) data.powerups = { shield: 1, scanner: 1, timeBoost: 1, hint: 1, doubleXP: 0 };
+        // Settings
+        if (!data.settings.parentCode) data.settings.parentCode = '1234';
+        Storage.save();
     }
 };
 
 function getMaxMultiplier() {
     const data = Storage.load();
-    return (data.settings && data.settings.maxMultiplier) || 12;
+    return (data.settings && data.settings.maxMultiplier) || 10;
 }
 
 function getAnswerCount() {
     const data = Storage.load();
-    return (data.settings && data.settings.answerCount) || 4;
+    return (data.settings && data.settings.answerCount) || 8;
 }
 
 // ====== SOUND ENGINE (Video-Game Style) ======
@@ -3668,6 +4406,680 @@ const DailyMission = {
     }
 };
 
+// ====== BOSS BATTLE MODULE ======
+const BossBattle = {
+    _currentBoss: null,
+    _bossHP: 0,
+    _bossMaxHP: 0,
+
+    getBossForTable(table) {
+        return BOSS_DATA.find(b => b.table === table) || null;
+    },
+
+    isDefeated(table) {
+        const data = Storage.load();
+        return !!(data.stats.bossesDefeated && data.stats.bossesDefeated[table]);
+    },
+
+    start(table) {
+        const boss = this.getBossForTable(table);
+        if (!boss) return;
+        this._currentBoss = boss;
+        this._bossHP = BOSS_CONFIG.bossHP;
+        this._bossMaxHP = BOSS_CONFIG.bossHP;
+
+        App.isBossBattle = true;
+        App.bossTable = table;
+        App.selectedNumbers = [table];
+        App.sessionDifficulty = 'hard';
+        App.sessionStars = 0;
+        App.sessionCoins = 0;
+        App.currentStreak = 0;
+        App.sessionResults = [];
+        App.sessionIndex = 0;
+
+        // Generate questions for this table
+        const maxN = getMaxMultiplier();
+        const questions = [];
+        for (let i = 0; i < BOSS_CONFIG.questionsPerBoss + 5; i++) {
+            const b = Math.floor(Math.random() * maxN) + 1;
+            questions.push(QGen.generate(SR.factKey(table, b), 'hard'));
+        }
+        App.sessionQuestions = questions;
+
+        // Show boss UI
+        const barContainer = document.getElementById('boss-bar-container');
+        if (barContainer) {
+            barContainer.style.display = '';
+            document.getElementById('boss-current-emoji').textContent = boss.emoji;
+            document.getElementById('boss-current-name').textContent = boss.name;
+            this._updateHealthBar();
+        }
+
+        // Mode badge
+        const badge = document.getElementById('practice-mode-badge');
+        if (badge) {
+            badge.textContent = `⚔️ ${boss.name}`;
+            badge.style.display = '';
+            badge.style.background = 'linear-gradient(135deg, #FF5252, #FF1744)';
+        }
+
+        // Timer
+        document.getElementById('practice-timer-section').style.display = '';
+        App.timerRemaining = 120; // 2 minutes for boss
+        updateTimerDisplay();
+        startTimer();
+
+        // Small delay to let screen exit animation complete
+        setTimeout(() => {
+            App.navigateTo('screen-practice');
+            showQuestion();
+        }, 100);
+    },
+
+    onCorrectAnswer() {
+        if (!this._currentBoss) return;
+        this._bossHP = Math.max(0, this._bossHP - BOSS_CONFIG.damagePerCorrect);
+        this._updateHealthBar();
+
+        if (this._bossHP <= 0) {
+            this._defeatBoss();
+        }
+    },
+
+    onWrongAnswer() {
+        // Boss doesn't heal, just the player loses time
+    },
+
+    _updateHealthBar() {
+        const fill = document.getElementById('boss-health-fill');
+        const text = document.getElementById('boss-hp-text');
+        if (fill) {
+            const pct = (this._bossHP / this._bossMaxHP) * 100;
+            fill.style.width = pct + '%';
+        }
+        if (text) text.textContent = `${this._bossHP}/${this._bossMaxHP} HP`;
+    },
+
+    _defeatBoss() {
+        if (!this._currentBoss) return;
+        const table = this._currentBoss.table;
+        const boss = this._currentBoss;
+
+        // Record defeat
+        Storage.update(d => {
+            if (!d.stats.bossesDefeated) d.stats.bossesDefeated = {};
+            d.stats.bossesDefeated[table] = Date.now();
+            d.stats.totalBossWins = (d.stats.totalBossWins || 0) + 1;
+            d.stats.totalCoins += BOSS_CONFIG.bonusCoins;
+            d.stats.totalPoints += BOSS_CONFIG.bonusCoins * 2;
+        });
+
+        // Boss defeat animation
+        const bossEmoji = document.getElementById('boss-current-emoji');
+        if (bossEmoji) bossEmoji.classList.add('boss-defeat-anim');
+
+        SoundEngine.play('perfect');
+        const msg = TEXT_BANK.bossDefeated[Math.floor(Math.random() * TEXT_BANK.bossDefeated.length)];
+        showRewardPopup(boss.emoji, msg, `+${BOSS_CONFIG.bonusCoins} 🪙`);
+
+        // End session after short delay
+        setTimeout(() => endSession('bossDefeated'), 1500);
+    },
+
+    cleanup() {
+        this._currentBoss = null;
+        this._bossHP = 0;
+        const barContainer = document.getElementById('boss-bar-container');
+        if (barContainer) barContainer.style.display = 'none';
+    },
+
+    showBossSelectScreen() {
+        const grid = document.getElementById('boss-grid');
+        if (!grid) return;
+        grid.innerHTML = '';
+        BOSS_DATA.forEach(boss => {
+            const defeated = this.isDefeated(boss.table);
+            const card = document.createElement('div');
+            card.className = 'boss-card' + (defeated ? ' defeated' : '');
+            card.dataset.table = boss.table;
+            card.innerHTML = `
+                <span class="boss-card-emoji">${boss.emoji}</span>
+                <div class="boss-card-name">${boss.name}</div>
+                <div class="boss-card-status">${defeated ? '✅ נוצח!' : '⚔️ הילחם!'}</div>
+            `;
+            card.addEventListener('click', () => this.start(boss.table));
+            grid.appendChild(card);
+        });
+        App.navigateTo('screen-boss-select');
+    }
+};
+
+// ====== POWER-UPS MODULE ======
+const PowerUps = {
+    _activeEffects: { shield: false, doubleXP: false },
+
+    getInventory() {
+        const data = Storage.load();
+        if (!data.powerups) data.powerups = { shield: 1, scanner: 1, timeBoost: 1, hint: 1, doubleXP: 0 };
+        return data.powerups;
+    },
+
+    has(type) {
+        return (this.getInventory()[type] || 0) > 0;
+    },
+
+    use(type) {
+        if (!this.has(type)) return false;
+        Storage.update(d => { d.powerups[type]--; });
+        return true;
+    },
+
+    buy(type) {
+        const cost = POWERUP_CONFIG[type]?.cost || 999;
+        const data = Storage.load();
+        if (data.stats.totalCoins < cost) return false;
+        Storage.update(d => {
+            d.stats.totalCoins -= cost;
+            if (!d.powerups) d.powerups = {};
+            d.powerups[type] = (d.powerups[type] || 0) + 1;
+        });
+        return true;
+    },
+
+    activateShield() {
+        if (!this.use('shield')) return false;
+        this._activeEffects.shield = true;
+        SoundEngine.play('achievement');
+        return true;
+    },
+
+    activateScanner() {
+        if (!this.use('scanner')) return false;
+        SoundEngine.play('click');
+        // Remove 2 wrong answers
+        const q = App.sessionQuestions[App.sessionIndex];
+        if (!q) return false;
+        const buttons = Array.from(document.querySelectorAll('.answer-btn:not(.scanner-dimmed)'));
+        const wrongButtons = buttons.filter(b => {
+            const val = b.dataset.option;
+            if (q.type === 'standard' || q.type === 'reverse' || q.type === 'sequence') {
+                return parseInt(val) !== q.correct;
+            }
+            if (q.type === 'trueFalse' || q.type === 'comparison' || q.type === 'reverseMatch') {
+                return parseInt(val) !== q.correctIdx;
+            }
+            return val !== q.correct;
+        });
+        // Dim 2 random wrong ones
+        const toDim = wrongButtons.sort(() => Math.random() - 0.5).slice(0, 2);
+        toDim.forEach(b => b.classList.add('scanner-dimmed'));
+        return true;
+    },
+
+    activateTimeBoost() {
+        if (!this.use('timeBoost')) return false;
+        App.timerRemaining += 15;
+        updateTimerDisplay();
+        SoundEngine.play('streak');
+        return true;
+    },
+
+    activateHint() {
+        if (!this.use('hint')) return false;
+        const q = App.sessionQuestions[App.sessionIndex];
+        if (!q) return false;
+        StrategyHints.showForFact(q.a, q.b);
+        return true;
+    },
+
+    activateDoubleXP() {
+        if (!this.use('doubleXP')) return false;
+        this._activeEffects.doubleXP = true;
+        SoundEngine.play('achievement');
+        return true;
+    },
+
+    consumeShield() {
+        if (this._activeEffects.shield) {
+            this._activeEffects.shield = false;
+            return true; // Shield absorbed the error
+        }
+        return false;
+    },
+
+    consumeDoubleXP() {
+        if (this._activeEffects.doubleXP) {
+            this._activeEffects.doubleXP = false;
+            return 2; // multiplier
+        }
+        return 1;
+    },
+
+    renderBar() {
+        const bar = document.getElementById('powerup-bar');
+        if (!bar) return;
+        const inv = this.getInventory();
+        const showBar = App.isGenius || App.isChallenge || App.isBossBattle;
+        if (!showBar) { bar.style.display = 'none'; return; }
+        bar.style.display = '';
+        bar.innerHTML = '';
+        const types = ['shield', 'scanner', 'timeBoost', 'hint', 'doubleXP'];
+        types.forEach(type => {
+            const cfg = POWERUP_CONFIG[type];
+            const count = inv[type] || 0;
+            const btn = document.createElement('button');
+            btn.className = 'powerup-btn';
+            btn.disabled = count <= 0;
+            btn.dataset.powerup = type;
+            btn.innerHTML = `<span class="pu-icon">${cfg.emoji}</span><span class="pu-count">${count}</span>`;
+            btn.title = cfg.desc;
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                this._activate(type);
+                this.renderBar(); // refresh counts
+            });
+            bar.appendChild(btn);
+        });
+    },
+
+    _activate(type) {
+        switch (type) {
+            case 'shield': this.activateShield(); break;
+            case 'scanner': this.activateScanner(); break;
+            case 'timeBoost': this.activateTimeBoost(); break;
+            case 'hint': this.activateHint(); break;
+            case 'doubleXP': this.activateDoubleXP(); break;
+        }
+    },
+
+    cleanup() {
+        this._activeEffects = { shield: false, doubleXP: false };
+        const bar = document.getElementById('powerup-bar');
+        if (bar) bar.style.display = 'none';
+    }
+};
+
+// ====== STRATEGY HINTS MODULE ======
+const StrategyHints = {
+    _wrongPerFact: {},  // factKey -> count of consecutive wrong
+
+    reset() {
+        this._wrongPerFact = {};
+    },
+
+    recordWrong(factKey) {
+        this._wrongPerFact[factKey] = (this._wrongPerFact[factKey] || 0) + 1;
+        return this._wrongPerFact[factKey];
+    },
+
+    recordCorrect(factKey) {
+        this._wrongPerFact[factKey] = 0;
+    },
+
+    shouldShowHint(factKey) {
+        return (this._wrongPerFact[factKey] || 0) >= FRUSTRATION_GUARD_CONFIG.consecutiveErrorsForHint;
+    },
+
+    showForFact(a, b) {
+        // Find strategy hint for the relevant table
+        const table = Math.min(a, b); // Use the smaller number as the table
+        const hints = STRATEGY_HINTS[table] || STRATEGY_HINTS[Math.max(a, b)] || [];
+        if (hints.length === 0) return;
+
+        const hint = hints[Math.floor(Math.random() * hints.length)];
+        const result = a * b;
+
+        const container = document.getElementById('practice-strategy-hint');
+        if (container) {
+            container.style.display = '';
+            container.innerHTML = `
+                <div class="strategy-hint-bar">
+                    <span class="hint-icon">💡</span>
+                    <span class="hint-text">${hint}<br><strong>${a}×${b} = ${result}</strong></span>
+                </div>
+            `;
+            // Auto-hide after 5 seconds
+            setTimeout(() => { container.style.display = 'none'; }, 5000);
+        }
+    },
+
+    showVisualHint(a, b) {
+        const result = a * b;
+        let html = `<div class="hint-title">💡 ${a} × ${b} = ${result}</div>`;
+        html += '<div class="hint-visual">';
+        // Build visual array
+        html += '<div class="hint-array">';
+        for (let r = 0; r < a; r++) {
+            html += '<div class="hint-row">';
+            for (let c = 0; c < b; c++) {
+                html += '<div class="hint-dot"></div>';
+            }
+            html += '</div>';
+        }
+        html += '</div>';
+        html += `<div class="hint-count">${a} שורות × ${b} עמודות = ${result}</div>`;
+        html += '</div>';
+
+        // Strategy tip
+        const table = Math.min(a, b);
+        const hints = STRATEGY_HINTS[table] || STRATEGY_HINTS[Math.max(a, b)] || [];
+        if (hints.length > 0) {
+            html += `<div style="color:var(--color-neon-blue);font-size:0.85rem;margin-top:0.5rem;">💡 ${hints[0]}</div>`;
+        }
+
+        showHintOverlay(html);
+    },
+
+    hideInlineHint() {
+        const container = document.getElementById('practice-strategy-hint');
+        if (container) container.style.display = 'none';
+    }
+};
+
+// ====== FRUSTRATION GUARD MODULE ======
+const FrustrationGuard = {
+    _consecutiveErrors: 0,
+    _consecutiveCorrect: 0,
+    _easyInserted: 0,
+    _lastEasyAt: -999,
+
+    reset() {
+        this._consecutiveErrors = 0;
+        this._consecutiveCorrect = 0;
+        this._easyInserted = 0;
+        this._lastEasyAt = -999;
+    },
+
+    recordAnswer(isCorrect) {
+        if (isCorrect) {
+            this._consecutiveCorrect++;
+            this._consecutiveErrors = 0;
+        } else {
+            this._consecutiveErrors++;
+            this._consecutiveCorrect = 0;
+        }
+    },
+
+    shouldInsertEasyQuestion() {
+        if (this._consecutiveErrors < FRUSTRATION_GUARD_CONFIG.consecutiveErrorsForEasy) return false;
+        if (this._easyInserted >= FRUSTRATION_GUARD_CONFIG.maxEasyInserts) return false;
+        if (App.sessionIndex - this._lastEasyAt < FRUSTRATION_GUARD_CONFIG.easyQuestionCooldown) return false;
+        return true;
+    },
+
+    generateEasyQuestion() {
+        this._easyInserted++;
+        this._lastEasyAt = App.sessionIndex;
+        // Pick a fact the child knows well (green mastery)
+        const data = Storage.load();
+        const maxN = getMaxMultiplier();
+        const greenFacts = [];
+        for (let i = 2; i <= maxN; i++) {
+            for (let j = 2; j <= maxN; j++) {
+                const key = SR.factKey(i, j);
+                if (getMasteryLevel(data.facts[key]) === 'high') greenFacts.push(key);
+            }
+        }
+        if (greenFacts.length === 0) {
+            // Fallback: simple ×2 or ×5 question
+            const a = [2, 5][Math.floor(Math.random() * 2)];
+            const b = Math.floor(Math.random() * 5) + 2;
+            return QGen.generate(SR.factKey(a, b), 'easy');
+        }
+        const key = greenFacts[Math.floor(Math.random() * greenFacts.length)];
+        return QGen.generate(key, 'easy');
+    },
+
+    shouldShowEncouragement() {
+        return this._consecutiveErrors >= FRUSTRATION_GUARD_CONFIG.consecutiveErrorsForEasy;
+    },
+
+    getEncouragementMessage() {
+        return TEXT_BANK.encouragement[Math.floor(Math.random() * TEXT_BANK.encouragement.length)];
+    },
+
+    shouldIncreaseDifficulty() {
+        return this._consecutiveCorrect >= FRUSTRATION_GUARD_CONFIG.successStreakForHarder;
+    }
+};
+
+// ====== PROGRESS JOURNAL MODULE ======
+const ProgressJournal = {
+    show() {
+        const content = document.getElementById('journal-content');
+        if (!content) return;
+
+        const data = Storage.load();
+        const dk = todayKey();
+        const today = data.daily[dk] || {};
+
+        // Get last 7 days
+        const days = [];
+        const dayNames = ['א\'', 'ב\'', 'ג\'', 'ד\'', 'ה\'', 'ו\'', 'ש\''];
+        for (let i = 6; i >= 0; i--) {
+            const d = new Date();
+            d.setDate(d.getDate() - i);
+            const key = d.toISOString().split('T')[0];
+            const dayData = data.daily[key] || {};
+            days.push({
+                label: dayNames[d.getDay()],
+                questions: dayData.questionsAnswered || 0,
+                correct: dayData.correctAnswers || 0,
+                sessions: dayData.sessionsCompleted || 0,
+                isToday: i === 0
+            });
+        }
+
+        const maxQ = Math.max(...days.map(d => d.questions), 1);
+
+        // Total stats
+        const totalDays = Object.keys(data.daily).filter(k => data.daily[k].questionsAnswered > 0).length;
+        const avgAccuracy = data.stats.totalQuestions > 0 ? Math.round((data.stats.totalCorrect / data.stats.totalQuestions) * 100) : 0;
+
+        // Find strongest and weakest tables
+        const maxN = getMaxMultiplier();
+        const tableScores = {};
+        for (let t = 2; t <= maxN; t++) {
+            let correct = 0, total = 0;
+            for (let j = 2; j <= maxN; j++) {
+                const fact = data.facts[SR.factKey(t, j)];
+                if (fact) { correct += fact.correct || 0; total += fact.attempts || 0; }
+            }
+            tableScores[t] = total > 0 ? Math.round((correct / total) * 100) : 0;
+        }
+        const sorted = Object.entries(tableScores).sort((a, b) => b[1] - a[1]);
+        const strongest = sorted[0];
+        const weakest = sorted.filter(s => s[1] > 0).pop() || sorted[sorted.length - 1];
+
+        // Dynamic message
+        let message = '';
+        if (today.questionsAnswered > 20) message = TEXT_BANK.improvement[Math.floor(Math.random() * TEXT_BANK.improvement.length)];
+        else if (totalDays >= 7) message = 'שבוע של תרגול! ההתמדה משתלמת! 🏆';
+        else if (data.stats.dailyBoostStreak >= 3) message = `רצף של ${data.stats.dailyBoostStreak} ימים! אל תשבור! 🔥`;
+        else message = 'כל יום של תרגול מקרב אותך לשליטה מלאה! 💪';
+
+        content.innerHTML = `
+            <div class="journal-message">${message}</div>
+
+            <div class="journal-section">
+                <div class="title-sm" style="margin-bottom:0.3rem;">📊 סטטיסטיקות</div>
+                <div class="journal-stat-grid">
+                    <div class="journal-stat">
+                        <div class="js-value" style="color:var(--color-primary)">${data.stats.totalQuestions}</div>
+                        <div class="js-label">שאלות סה"כ</div>
+                    </div>
+                    <div class="journal-stat">
+                        <div class="js-value" style="color:var(--color-success)">${avgAccuracy}%</div>
+                        <div class="js-label">דיוק ממוצע</div>
+                    </div>
+                    <div class="journal-stat">
+                        <div class="js-value" style="color:var(--color-star)">${data.stats.bestStreak}</div>
+                        <div class="js-label">רצף שיא</div>
+                    </div>
+                    <div class="journal-stat">
+                        <div class="js-value" style="color:var(--color-coin)">${totalDays}</div>
+                        <div class="js-label">ימי תרגול</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="journal-section">
+                <div class="title-sm" style="margin-bottom:0.3rem;">📅 השבוע שלי</div>
+                <div class="journal-weekly-chart">
+                    ${days.map(d => `
+                        <div style="flex:1;text-align:center;">
+                            <div class="journal-bar" style="height:${Math.max(4, (d.questions / maxQ) * 70)}px;${d.isToday ? 'background:var(--gradient-solar);' : ''}"></div>
+                            <div class="journal-bar-label">${d.label}</div>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+
+            <div class="journal-section">
+                <div class="title-sm" style="margin-bottom:0.3rem;">💪 חוזקות וחולשות</div>
+                ${strongest ? `<div class="progress-msg" style="color:var(--color-success)">🏆 הלוח הכי חזק: ${strongest[0]} (${strongest[1]}% דיוק)</div>` : ''}
+                ${weakest && weakest[0] !== strongest?.[0] ? `<div class="progress-msg" style="color:var(--color-warning)">🎯 לוח לשיפור: ${weakest[0]} (${weakest[1]}% דיוק)</div>` : ''}
+            </div>
+        `;
+
+        App.navigateTo('screen-journal');
+    }
+};
+
+// ====== PARENT SNAPSHOT MODULE ======
+const ParentSnapshot = {
+    _unlocked: false,
+
+    requestAccess() {
+        document.getElementById('parent-lock-overlay').style.display = '';
+        document.getElementById('parent-code-input').value = '';
+        document.getElementById('parent-code-error').textContent = '';
+        document.getElementById('parent-code-input').focus();
+    },
+
+    tryUnlock() {
+        const input = document.getElementById('parent-code-input');
+        const code = input.value.trim();
+        const data = Storage.load();
+        const correctCode = data.settings.parentCode || '1234';
+
+        if (code === correctCode) {
+            this._unlocked = true;
+            document.getElementById('parent-lock-overlay').style.display = 'none';
+            this.show();
+        } else {
+            document.getElementById('parent-code-error').textContent = 'קוד שגוי, נסה שוב';
+            input.value = '';
+            input.focus();
+        }
+    },
+
+    cancelLock() {
+        document.getElementById('parent-lock-overlay').style.display = 'none';
+    },
+
+    show() {
+        const content = document.getElementById('parent-content');
+        if (!content) return;
+
+        const data = Storage.load();
+        const maxN = getMaxMultiplier();
+
+        // Collect all facts with accuracy
+        const allFacts = [];
+        for (let i = 2; i <= maxN; i++) {
+            for (let j = 2; j <= maxN; j++) {
+                const key = SR.factKey(i, j);
+                const fact = data.facts[key];
+                if (fact && fact.attempts > 0) {
+                    const acc = Math.round((fact.correct / fact.attempts) * 100);
+                    const level = getMasteryLevel(fact);
+                    allFacts.push({ a: i, b: j, key, acc, level, attempts: fact.attempts, correct: fact.correct });
+                }
+            }
+        }
+
+        // Sort by accuracy (ascending = weakest first)
+        const weakest = allFacts.filter(f => f.level !== 'high').sort((a, b) => a.acc - b.acc).slice(0, 5);
+        // Most improved (based on daily changes)
+        const dk = todayKey();
+        const recentChanges = [];
+        // Look at last 7 days
+        for (let i = 0; i < 7; i++) {
+            const d = new Date();
+            d.setDate(d.getDate() - i);
+            const key = d.toISOString().split('T')[0];
+            const day = data.daily[key];
+            if (day && day.masteryChanges) {
+                recentChanges.push(...day.masteryChanges);
+            }
+        }
+
+        // Question type strengths (for genius mode)
+        const totalSessions = data.stats.totalSessions || 0;
+        const avgAccuracy = data.stats.totalQuestions > 0 ? Math.round((data.stats.totalCorrect / data.stats.totalQuestions) * 100) : 0;
+        const totalDays = Object.keys(data.daily).filter(k => data.daily[k].questionsAnswered > 0).length;
+        const bossesWon = data.stats.totalBossWins || 0;
+        const geniusHS = data.settings.geniusHighScore || 0;
+
+        const colorMap = { low: '#FF5252', mid: '#FFD740', high: '#00E676', none: '#666' };
+        const levelLabel = { low: 'חלש', mid: 'בינוני', high: 'חזק', none: 'לא תורגל' };
+
+        content.innerHTML = `
+            <div class="journal-stat-grid" style="margin-bottom:1rem;">
+                <div class="journal-stat">
+                    <div class="js-value" style="color:var(--color-primary)">${totalSessions}</div>
+                    <div class="js-label">סה"כ תרגולים</div>
+                </div>
+                <div class="journal-stat">
+                    <div class="js-value" style="color:var(--color-success)">${avgAccuracy}%</div>
+                    <div class="js-label">דיוק ממוצע</div>
+                </div>
+                <div class="journal-stat">
+                    <div class="js-value" style="color:var(--color-coin)">${totalDays}</div>
+                    <div class="js-label">ימי תרגול</div>
+                </div>
+                <div class="journal-stat">
+                    <div class="js-value" style="color:var(--color-star)">${geniusHS}</div>
+                    <div class="js-label">שיא מחוננים</div>
+                </div>
+            </div>
+
+            <div class="title-sm" style="margin-bottom:0.5rem;color:#FF8A80;">🔴 5 התרגילים החלשים ביותר</div>
+            <div class="parent-snapshot-grid">
+                ${weakest.length > 0 ? weakest.map(f => `
+                    <div class="parent-fact-item">
+                        <span class="parent-fact-name" dir="ltr">${f.a} × ${f.b}</span>
+                        <span class="parent-fact-accuracy" style="color:${colorMap[f.level]}">${f.acc}% (${f.correct}/${f.attempts})</span>
+                    </div>
+                `).join('') : '<div style="color:var(--text-secondary);font-size:0.8rem;">אין מספיק נתונים עדיין</div>'}
+            </div>
+
+            ${recentChanges.length > 0 ? `
+                <div class="title-sm" style="margin-top:1rem;margin-bottom:0.5rem;color:var(--color-success);">📈 שיפורים אחרונים (7 ימים)</div>
+                <div class="parent-snapshot-grid">
+                    ${recentChanges.slice(0, 5).map(c => {
+                        const {a, b} = SR.parseFact(c.key);
+                        return `<div class="parent-fact-item">
+                            <span class="parent-fact-name" dir="ltr">${a} × ${b}</span>
+                            <span style="color:${colorMap[c.from]}">●</span> ➡️ <span style="color:${colorMap[c.to]}">●</span>
+                        </div>`;
+                    }).join('')}
+                </div>
+            ` : ''}
+
+            <div style="margin-top:1rem;padding:0.75rem;background:rgba(108,99,255,0.1);border-radius:var(--radius-md);font-size:0.8rem;color:var(--text-secondary);text-align:right;">
+                <div>⚔️ בוסים שנוצחו: ${bossesWon} / ${BOSS_DATA.length}</div>
+                <div>🔥 רצף חימום יומי: ${data.stats.dailyBoostStreak || 0}</div>
+                <div>🎯 תרגולי חולשות: ${data.stats.focusModeSessions || 0}</div>
+            </div>
+        `;
+
+        App.navigateTo('screen-parent');
+    }
+};
+
 // ====== ACHIEVEMENT SYSTEM ======
 const AchSys = {
     check(ctx = {}) {
@@ -3711,7 +5123,15 @@ const AchSys = {
                 }
                 return true;
             },
-            genius_variety: () => (ctx.geniusTypesUsed || 0) >= 5
+            genius_variety: () => (ctx.geniusTypesUsed || 0) >= 5,
+            boss_first: () => (s.totalBossWins || 0) >= 1,
+            boss_5: () => (s.totalBossWins || 0) >= 5,
+            boss_all: () => {
+                const defeated = s.bossesDefeated || {};
+                return Object.keys(defeated).length >= BOSS_DATA.length;
+            },
+            powerup_first: () => ctx.usedPowerUp,
+            thousand_correct: () => s.totalCorrect >= 1000
         };
 
         for (const ach of ACHIEVEMENTS) {
@@ -3784,6 +5204,8 @@ const App = {
     geniusScore: 0,
     isFocusMode: false,
     isDailyBoost: false,
+    isBossBattle: false,
+    bossTable: null,
     focusModeFactsBefore: {},
     focusModeImproved: [],
     selectedAvatar: null,
@@ -3858,27 +5280,59 @@ function showFloatingReward(emoji, x, y) {
     el.style.top = y + 'px';
     document.body.appendChild(el);
     el.addEventListener('animationend', () => el.remove());
+    // Reward trail particles
+    const trailColors = { '\u2B50': '#FFD700', '\uD83E\uDE99': '#FFA500', '\uD83D\uDCAB': '#6C63FF' };
+    const color = trailColors[emoji] || 'rgba(108,99,255,0.6)';
+    for (let i = 0; i < 5; i++) {
+        const trail = document.createElement('div');
+        trail.className = 'reward-trail';
+        trail.style.left = (x + (Math.random() - 0.5) * 20) + 'px';
+        trail.style.top = (y + 5) + 'px';
+        trail.style.width = (3 + Math.random() * 4) + 'px';
+        trail.style.height = trail.style.width;
+        trail.style.background = color;
+        trail.style.animationDelay = (i * 0.08) + 's';
+        document.body.appendChild(trail);
+        trail.addEventListener('animationend', () => trail.remove());
+    }
 }
 
 function showConfetti() {
-    const colors = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#96E6A1', '#FFD93D', '#FF8B94', '#C3B1E1', '#6C63FF'];
+    const colors = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#96E6A1', '#FFD93D', '#FF8B94', '#C3B1E1', '#6C63FF', '#00E5FF', '#E040FB'];
+    const shapes = ['\u2605', '\u2665', '', '']; // star, heart, or empty (= square/circle)
     const container = document.getElementById('confetti-container');
     container.innerHTML = '';
-    for (let i = 0; i < 60; i++) {
+    for (let i = 0; i < 80; i++) {
         const p = document.createElement('div');
-        p.className = 'confetti-piece';
-        p.style.cssText = `
-            left:${Math.random()*100}%;
-            background:${colors[Math.floor(Math.random()*colors.length)]};
-            animation-delay:${Math.random()*2}s;
-            animation-duration:${2+Math.random()*3}s;
-            width:${6+Math.random()*8}px;
-            height:${6+Math.random()*8}px;
-            border-radius:${Math.random()>0.5?'50%':'2px'};
-        `;
+        const shape = shapes[Math.floor(Math.random() * shapes.length)];
+        const sway = (Math.random() - 0.5) * 60;
+        if (shape) {
+            p.className = 'confetti-piece-v2';
+            p.textContent = shape;
+            p.style.cssText = `
+                left:${Math.random()*100}%;
+                color:${colors[Math.floor(Math.random()*colors.length)]};
+                font-size:${10+Math.random()*10}px;
+                --sway:${sway}px;
+                animation-delay:${Math.random()*2}s;
+                animation-duration:${2.5+Math.random()*3}s;
+            `;
+        } else {
+            p.className = 'confetti-piece-v2';
+            p.style.cssText = `
+                left:${Math.random()*100}%;
+                background:${colors[Math.floor(Math.random()*colors.length)]};
+                --sway:${sway}px;
+                animation-delay:${Math.random()*2}s;
+                animation-duration:${2.5+Math.random()*3}s;
+                width:${6+Math.random()*8}px;
+                height:${6+Math.random()*8}px;
+                border-radius:${Math.random()>0.5?'50%':'2px'};
+            `;
+        }
         container.appendChild(p);
     }
-    setTimeout(() => { container.innerHTML = ''; }, 5500);
+    setTimeout(() => { container.innerHTML = ''; }, 6000);
 }
 
 function showRewardPopup(icon, title, desc) {
@@ -3894,19 +5348,69 @@ function hideRewardPopup() {
 }
 
 function renderBgDecorations() {
-    const symbols = ['\u2605', '\u2736', '\u2737', '\u25C6', '\u2B50', '\u00D7', '=', '+', '\u2022', '\u2726'];
+    const symbols = ['\u2605', '\u2736', '\u2737', '\u25C6', '\u2B50', '\u00D7', '=', '+', '\u2022', '\u2726', '\uD83C\uDF1F', '\u2728', '\uD83D\uDCAB'];
     const container = document.getElementById('bg-decorations');
     container.innerHTML = '';
-    for (let i = 0; i < 15; i++) {
+    for (let i = 0; i < 20; i++) {
         const el = document.createElement('div');
         el.className = 'bg-symbol';
         el.textContent = symbols[Math.floor(Math.random() * symbols.length)];
         el.style.left = Math.random() * 100 + '%';
         el.style.top = Math.random() * 100 + '%';
-        el.style.fontSize = (1.5 + Math.random() * 2) + 'rem';
+        el.style.fontSize = (1.2 + Math.random() * 2.2) + 'rem';
+        el.style.opacity = (0.04 + Math.random() * 0.06).toFixed(2);
+        const isSlow = i % 3 === 0;
+        el.style.animationName = isSlow ? 'floatSpaceSlow' : 'floatSpace';
         el.style.animationDelay = (Math.random() * 5) + 's';
-        el.style.animationDuration = (6 + Math.random() * 6) + 's';
+        el.style.animationDuration = isSlow ? (18 + Math.random() * 6) + 's' : (6 + Math.random() * 6) + 's';
         container.appendChild(el);
+    }
+}
+
+// Shooting Stars & Comets — disabled to reduce distraction
+function startShootingStars() {}
+function startComets() {}
+
+// ====== VISUAL UPGRADE: Button Particles ======
+function showButtonParticles(btnElement) {
+    const rect = btnElement.getBoundingClientRect();
+    const cx = rect.left + rect.width / 2;
+    const cy = rect.top + rect.height / 2;
+    const particleColors = ['#00E676', '#69F0AE', '#FFD700', '#00E5FF', '#fff'];
+    for (let i = 0; i < 12; i++) {
+        const p = document.createElement('div');
+        p.className = 'btn-particle';
+        const angle = (Math.PI * 2 / 12) * i + (Math.random() - 0.5) * 0.5;
+        const dist = 40 + Math.random() * 50;
+        p.style.left = cx + 'px';
+        p.style.top = cy + 'px';
+        p.style.background = particleColors[Math.floor(Math.random() * particleColors.length)];
+        p.style.setProperty('--px', Math.cos(angle) * dist + 'px');
+        p.style.setProperty('--py', Math.sin(angle) * dist + 'px');
+        p.style.width = (4 + Math.random() * 4) + 'px';
+        p.style.height = p.style.width;
+        document.body.appendChild(p);
+        p.addEventListener('animationend', () => p.remove());
+    }
+}
+
+// ====== VISUAL UPGRADE: Ambient Particles ======
+function createAmbientParticles() {
+    // Remove old ambient particles
+    document.querySelectorAll('.ambient-particle').forEach(p => p.remove());
+    const colors = ['rgba(108,99,255,0.3)', 'rgba(0,229,255,0.25)', 'rgba(224,64,251,0.2)', 'rgba(255,255,255,0.15)'];
+    for (let i = 0; i < 18; i++) {
+        const p = document.createElement('div');
+        p.className = 'ambient-particle';
+        p.style.left = (Math.random() * 100) + '%';
+        p.style.top = (Math.random() * 100) + '%';
+        const size = 2 + Math.random() * 4;
+        p.style.width = size + 'px';
+        p.style.height = size + 'px';
+        p.style.background = colors[Math.floor(Math.random() * colors.length)];
+        p.style.setProperty('--float-dur', (6 + Math.random() * 6) + 's');
+        p.style.animationDelay = (Math.random() * 5) + 's';
+        document.body.appendChild(p);
     }
 }
 
@@ -3951,8 +5455,14 @@ function showWelcomeScreen() {
     App.geniusScore = 0;
     App.isFocusMode = false;
     App.isDailyBoost = false;
+    App.isBossBattle = false;
+    App.bossTable = null;
     App.focusModeFactsBefore = {};
     App.focusModeImproved = [];
+    BossBattle.cleanup();
+    PowerUps.cleanup();
+    FrustrationGuard.reset();
+    StrategyHints.reset();
     document.getElementById('screen-practice').classList.remove('genius-mode');
     document.getElementById('genius-title-bar').style.display = 'none';
     const modeBadge = document.getElementById('practice-mode-badge');
@@ -4044,7 +5554,29 @@ function showWelcomeScreen() {
         document.getElementById('mission-progress-fill').style.width = pct + '%';
         document.getElementById('mission-status').textContent = mission.completed ? '✅ הושלמה!' : `${mission.progress}/${mission.target}`;
         missionCard.style.display = '';
+        if (mission.completed) missionCard.classList.add('completed');
+        else missionCard.classList.remove('completed');
     }
+
+    // Boss wins badge
+    const bossWinsBadge = document.getElementById('boss-wins-badge');
+    if (bossWinsBadge) {
+        const bossWins = data.stats.totalBossWins || 0;
+        if (bossWins > 0) {
+            bossWinsBadge.textContent = `⚔️${bossWins}/${BOSS_DATA.length}`;
+            bossWinsBadge.style.display = 'inline-block';
+            bossWinsBadge.style.cssText = 'display:inline-block;background:rgba(0,0,0,0.2);padding:0.1rem 0.4rem;border-radius:10px;font-size:0.65rem;margin-right:0.3rem;vertical-align:middle;';
+        }
+    }
+
+    // Visual upgrade: Add title shimmer
+    const greetEl = document.getElementById('welcome-greeting');
+    if (greetEl && !greetEl.classList.contains('title-shimmer')) {
+        greetEl.classList.add('title-shimmer');
+    }
+
+    // Visual upgrade: Ambient particles
+    createAmbientParticles();
 
     App.navigateTo('screen-welcome');
     if (SoundEngine.ctx && SoundEngine.ctx.state === 'running') {
@@ -4479,6 +6011,20 @@ function showQuestion() {
         }
     }
 
+    // PowerUps bar
+    PowerUps.renderBar();
+
+    // Easy boost question visual feedback
+    if (q._isEasyBoost) {
+        const qDisplay = document.querySelector('.question-display');
+        if (qDisplay) qDisplay.classList.add('easy-boost-question');
+        const bubble = document.getElementById('practice-bubble');
+        if (bubble) bubble.textContent = FrustrationGuard.getEncouragementMessage();
+    } else {
+        const qDisplay = document.querySelector('.question-display');
+        if (qDisplay) qDisplay.classList.remove('easy-boost-question');
+    }
+
     App.questionStartTime = Date.now();
     App.isProcessing = false;
     updatePracticeBubble();
@@ -4527,14 +6073,50 @@ function handleAnswerClick(e) {
     // Notify GeniusQGen for adaptive difficulty
     if (App.isGenius) GeniusQGen.recordAnswer(isCorrect);
 
+    // Notify FrustrationGuard and StrategyHints
+    FrustrationGuard.recordAnswer(isCorrect);
+    if (isCorrect) {
+        StrategyHints.recordCorrect(q.factKey);
+    }
+
+    // Shield power-up: absorb error
+    if (!isCorrect && PowerUps.consumeShield()) {
+        isCorrect = true; // Shield absorbed the error!
+        showFloatingReward('🛡️', window.innerWidth / 2, window.innerHeight / 3);
+    }
+
+    // Hide any inline strategy hint
+    StrategyHints.hideInlineHint();
+
     // Mark buttons
     document.querySelectorAll('.answer-btn').forEach(b => b.classList.add('disabled'));
+
+    // Visual upgrade: Ripple effect on click
+    const ripple = document.createElement('span');
+    ripple.className = 'btn-ripple';
+    const btnRect = btn.getBoundingClientRect();
+    const rippleSize = Math.max(btnRect.width, btnRect.height);
+    ripple.style.width = ripple.style.height = rippleSize + 'px';
+    ripple.style.left = (e.clientX - btnRect.left - rippleSize / 2) + 'px';
+    ripple.style.top = (e.clientY - btnRect.top - rippleSize / 2) + 'px';
+    btn.appendChild(ripple);
+    ripple.addEventListener('animationend', () => ripple.remove());
 
     if (isCorrect) {
         btn.classList.add('correct');
         SoundEngine.play('correct');
         showPhotoFeedback(true);
         App.currentStreak++;
+
+        // Visual upgrade: screen flash + particles
+        const card = btn.closest('.card');
+        if (card) {
+            card.classList.remove('screen-flash-correct');
+            void card.offsetWidth;
+            card.classList.add('screen-flash-correct');
+            setTimeout(() => card.classList.remove('screen-flash-correct'), 500);
+        }
+        showButtonParticles(btn);
 
         // True/False: if answered "not true" correctly, show bonus follow-up
         if (q.type === 'trueFalse' && !q.isTrue && q.followUpOptions && !q._isFollowUp) {
@@ -4563,6 +6145,16 @@ function handleAnswerClick(e) {
         const masteryLevel = beforeLevel;
         const qType = q.type || 'standard';
         let pointsEarned = Scorer.calcPoints(qType, App.sessionDifficulty, masteryLevel, responseMs, true);
+
+        // DoubleXP power-up
+        const xpMultiplier = PowerUps.consumeDoubleXP();
+        if (xpMultiplier > 1) {
+            pointsEarned *= xpMultiplier;
+            showFloatingReward('✨×2', window.innerWidth / 2, window.innerHeight / 4);
+        }
+
+        // Boss Battle: damage boss
+        if (App.isBossBattle) BossBattle.onCorrectAnswer();
 
         let starsEarned = 1;
         let coinsEarned = 1;
@@ -4635,6 +6227,15 @@ function handleAnswerClick(e) {
         SoundEngine.play('wrong');
         showPhotoFeedback(false);
 
+        // Visual upgrade: screen flash red + card shake
+        const card2 = btn.closest('.card');
+        if (card2) {
+            card2.classList.remove('screen-flash-wrong', 'card-shake');
+            void card2.offsetWidth;
+            card2.classList.add('screen-flash-wrong', 'card-shake');
+            setTimeout(() => card2.classList.remove('screen-flash-wrong', 'card-shake'), 500);
+        }
+
         // Show correct answer for standard/reverse types
         if (cfg.showCorrect && (q.type === 'standard' || q.type === 'reverse' || !q.type)) {
             let foundCorrectBtn = false;
@@ -4671,20 +6272,33 @@ function handleAnswerClick(e) {
 
         SR.updateFact(q.factKey, 0, responseMs);
 
-        // Focus mode: track wrong count per fact for hints
+        // Strategy Hints: track wrong per fact
+        const wrongCount = StrategyHints.recordWrong(q.factKey);
+
+        // Focus mode: track wrong count per fact for visual hints
         if (App.isFocusMode && typeof FocusMode !== 'undefined') {
             if (!FocusMode._wrongCountPerFact[q.factKey]) FocusMode._wrongCountPerFact[q.factKey] = 0;
             FocusMode._wrongCountPerFact[q.factKey]++;
             if (FocusMode._wrongCountPerFact[q.factKey] >= FOCUS_CONFIG.hintsAfterWrongCount) {
                 const { a: ha, b: hb } = SR.parseFact(q.factKey);
-                showHintOverlay(FocusMode.generateHint(ha, hb));
+                StrategyHints.showVisualHint(ha, hb);
             }
+        } else if (StrategyHints.shouldShowHint(q.factKey)) {
+            // Show strategy hint after consecutive errors on same fact
+            const { a: ha, b: hb } = SR.parseFact(q.factKey);
+            StrategyHints.showVisualHint(ha, hb);
         }
 
-        // Frustration shield: 3 consecutive errors -> encouragement
-        const recentErrors = App.sessionResults.slice(-(SCORING_CONFIG.frustrationShield.consecutiveErrorsForHelp - 1));
-        if (recentErrors.length >= SCORING_CONFIG.frustrationShield.consecutiveErrorsForHelp - 1 && recentErrors.every(r => !r.correct)) {
+        // Frustration Guard: encouragement after consecutive errors
+        if (FrustrationGuard.shouldShowEncouragement()) {
             showEncouragementBubble();
+        }
+
+        // Frustration Guard: insert easy question after error streak
+        if (FrustrationGuard.shouldInsertEasyQuestion()) {
+            const easyQ = FrustrationGuard.generateEasyQuestion();
+            easyQ._isEasyBoost = true; // Mark for visual feedback
+            App.sessionQuestions.splice(App.sessionIndex + 2, 0, easyQ);
         }
 
         // Re-insert question later in session
@@ -4735,15 +6349,50 @@ function showTrueFalseFollowUp(originalQ) {
 // Mastery upgrade celebration
 function showMasteryUpgrade(factKey, from, to) {
     const colorMap = { low: '🔴', mid: '🟡', high: '🟢', none: '⬜' };
+    const { a, b } = SR.parseFact(factKey);
+    const msg = TEXT_BANK.improvement[Math.floor(Math.random() * TEXT_BANK.improvement.length)];
+
+    // Floating reward
     showFloatingReward(`${colorMap[from]}➡️${colorMap[to]}`, window.innerWidth / 2, window.innerHeight / 3);
+
+    // Full celebration popup
+    const overlay = document.getElementById('mastery-upgrade-overlay');
+    if (overlay) {
+        overlay.style.display = '';
+        overlay.innerHTML = `
+            <div class="mastery-upgrade-overlay" onclick="hideMasteryUpgradePopup()"></div>
+            <div class="mastery-upgrade-popup">
+                <div class="mu-icon">${colorMap[from]}➡️${colorMap[to]}</div>
+                <div class="mu-title">${msg}</div>
+                <div class="mu-fact" dir="ltr">${a} × ${b}</div>
+                <div class="mu-bonus">+${Scorer.calcImprovementBonus(from, to)} XP  |  +${Math.round(Scorer.calcImprovementBonus(from, to) / 2)} 🪙</div>
+            </div>
+        `;
+        SoundEngine.play('achievement');
+        // Track weekly upgrades
+        Storage.update(d => { d.stats.weeklyMasteryUpgrades = (d.stats.weeklyMasteryUpgrades || 0) + 1; });
+        // Visual upgrade: animate the mastery cell in the board
+        const masteryCell = document.querySelector(`.mastery-cell[data-fact="${factKey}"]`);
+        if (masteryCell) {
+            masteryCell.classList.add('mastery-leveling');
+            setTimeout(() => masteryCell.classList.remove('mastery-leveling'), 1000);
+        }
+        // Auto-close after 2.5 seconds
+        setTimeout(() => hideMasteryUpgradePopup(), 2500);
+    }
 }
 
-// Encouragement bubble (frustration shield)
+function hideMasteryUpgradePopup() {
+    const overlay = document.getElementById('mastery-upgrade-overlay');
+    if (overlay) { overlay.style.display = 'none'; overlay.innerHTML = ''; }
+}
+
+// Encouragement bubble (frustration shield) - using expanded text bank
 function showEncouragementBubble() {
-    const msgs = ['לא נורא, בוא ננסה שוב! 💪', 'אתה יכול! קדימה! 🚀', 'טעויות זה חלק מהלמידה! 🌟', 'בפעם הבאה יהיה יותר קל! ✨'];
+    const msg = FrustrationGuard.getEncouragementMessage();
     const bubble = document.getElementById('practice-bubble');
     if (bubble) {
-        bubble.textContent = msgs[Math.floor(Math.random() * msgs.length)];
+        bubble.textContent = msg;
         bubble.classList.add('encouragement-flash');
         setTimeout(() => bubble.classList.remove('encouragement-flash'), 2000);
     }
@@ -4800,6 +6449,12 @@ function updateTimerDisplay() {
 // ====== SCREEN: SUMMARY ======
 function endSession(reason) {
     stopTimer();
+
+    // Cleanup modules
+    BossBattle.cleanup();
+    PowerUps.cleanup();
+    FrustrationGuard.reset();
+    StrategyHints.reset();
 
     // Stop genius mode visuals & music
     if (App.isGenius) {
@@ -4862,13 +6517,28 @@ function endSession(reason) {
     // Update daily mission progress
     const dk = todayKey();
     const dailyData = Storage.load().daily[dk] || {};
+    // Count modes played today
+    const modesPlayedSet = new Set();
+    if (App.isGenius) modesPlayedSet.add('genius');
+    if (App.isFocusMode) modesPlayedSet.add('focus');
+    if (App.isDailyBoost) modesPlayedSet.add('daily');
+    if (App.isBossBattle) modesPlayedSet.add('boss');
+    if (App.isChallenge) modesPlayedSet.add('challenge');
+    if (!App.isGenius && !App.isFocusMode && !App.isDailyBoost && !App.isBossBattle && !App.isChallenge) modesPlayedSet.add('normal');
+
+    const fastCorrectCount = results.filter(r => r.correct && r.responseMs < 2000).length;
+
     DailyMission.updateProgress({
         redsImproved: (dailyData.masteryChanges || []).filter(c => c.from === 'low').length,
         geniusCorrect: App.isGenius ? App.geniusScore : 0,
         bestStreakToday: Storage.load().stats.bestStreak,
         questionsToday: dailyData.questionsAnswered || 0,
         dailyBoostDone: dailyData.dailyBoostCompleted ? 1 : 0,
-        perfectSession: isPerfect && total >= 5 ? 1 : 0
+        perfectSession: isPerfect && total >= 5 ? 1 : 0,
+        bossDefeated: reason === 'bossDefeated' ? 1 : 0,
+        focusDone: App.isFocusMode ? 1 : 0,
+        fastCorrect: fastCorrectCount,
+        modesPlayed: modesPlayedSet.size
     });
 
     // Check achievements
@@ -4896,7 +6566,43 @@ function endSession(reason) {
         summaryPhoto.style.animation = '';
     }
 
-    if (App.isGenius) {
+    if (App.isBossBattle && reason === 'bossDefeated') {
+        // Boss defeated summary
+        const boss = BOSS_DATA.find(b => b.table === App.bossTable);
+        icon.textContent = boss ? boss.emoji : '⚔️';
+        title.textContent = TEXT_BANK.bossDefeated[Math.floor(Math.random() * TEXT_BANK.bossDefeated.length)];
+        subtitle.textContent = boss ? `ניצחת את ${boss.name}!` : 'ניצחון!';
+        showConfetti();
+        SoundEngine.play('perfect');
+
+        const statsGrid = document.getElementById('summary-stats');
+        statsGrid.innerHTML = `
+            <div style="grid-column: 1 / -1; text-align: center;">
+                <div style="font-size:3rem;margin-bottom:0.3rem;">${boss ? boss.emoji : '⚔️'}</div>
+                <div style="font-weight:700;color:var(--color-success);font-size:1.1rem;">${boss ? boss.name : 'בוס'} הובס!</div>
+            </div>
+            <div class="summary-stat">
+                <div class="summary-stat-value" style="color:var(--color-success)">${correct}</div>
+                <div class="summary-stat-label">נכון</div>
+            </div>
+            <div class="summary-stat">
+                <div class="summary-stat-value" style="color:var(--color-coin)">+${BOSS_CONFIG.bonusCoins} 🪙</div>
+                <div class="summary-stat-label">בונוס</div>
+            </div>
+        `;
+    } else if (App.isBossBattle) {
+        // Boss not defeated (timeout)
+        const boss = BOSS_DATA.find(b => b.table === App.bossTable);
+        icon.textContent = '😤';
+        title.textContent = 'לא נורא!';
+        subtitle.textContent = `${boss ? boss.name : 'הבוס'} שרד הפעם, נסה שוב!`;
+        SoundEngine.play('correct');
+        const statsGrid = document.getElementById('summary-stats');
+        statsGrid.innerHTML = `
+            <div class="summary-stat"><div class="summary-stat-value" style="color:var(--color-success)">${correct}</div><div class="summary-stat-label">נכון</div></div>
+            <div class="summary-stat"><div class="summary-stat-value" style="color:var(--color-error)">${wrong}</div><div class="summary-stat-label">לא נכון</div></div>
+        `;
+    } else if (App.isGenius) {
         // Genius mode summary
         icon.textContent = '\uD83E\uDDE0';
         if (App.geniusScore >= 30) {
@@ -5443,9 +7149,23 @@ document.addEventListener('click', (e) => {
     if (id === 'btn-genius') { SoundEngine.play('navigate'); startGeniusMode(); }
     if (id === 'btn-daily-boost') { SoundEngine.play('navigate'); DailyBoost.start(); }
     if (id === 'btn-focus-mode') { SoundEngine.play('navigate'); FocusMode.start(); }
+    if (id === 'btn-boss-battle') { SoundEngine.play('navigate'); BossBattle.showBossSelectScreen(); }
     if (id === 'btn-achievements') { SoundEngine.play('navigate'); showAchievementsScreen(); }
     if (id === 'btn-mastery') { SoundEngine.play('navigate'); showMasteryScreen(); }
+    if (id === 'btn-journal') { SoundEngine.play('navigate'); ProgressJournal.show(); }
+    if (id === 'btn-parent-snapshot') { SoundEngine.play('click'); ParentSnapshot.requestAccess(); }
     if (id === 'hint-dismiss') { hideHintOverlay(); }
+
+    // Boss select screen
+    if (id === 'btn-boss-back') showWelcomeScreen();
+
+    // Journal screen
+    if (id === 'btn-journal-back') showWelcomeScreen();
+
+    // Parent snapshot
+    if (id === 'btn-parent-back') showWelcomeScreen();
+    if (id === 'btn-parent-unlock') ParentSnapshot.tryUnlock();
+    if (id === 'btn-parent-cancel') ParentSnapshot.cancelLock();
 
     // Number selection
     if (e.target.closest('#number-grid')) handleNumberClick(e);
@@ -5573,20 +7293,22 @@ document.addEventListener('DOMContentLoaded', () => {
     DataMigration.run();
     ensureToday();
     renderBgDecorations();
+    startShootingStars();
+    startComets();
     renderAvatarScreen();
 
     // Ensure settings field exists in stored data
     const data = Storage.load();
     if (!data.settings) {
-        data.settings = { soundEnabled: true, maxMultiplier: 12 };
+        data.settings = { soundEnabled: true, maxMultiplier: 10 };
         Storage.save();
     }
     if (data.settings && !data.settings.maxMultiplier) {
-        data.settings.maxMultiplier = 12;
+        data.settings.maxMultiplier = 10;
         Storage.save();
     }
     if (data.settings && !data.settings.answerCount) {
-        data.settings.answerCount = 4;
+        data.settings.answerCount = 8;
         Storage.save();
     }
 
