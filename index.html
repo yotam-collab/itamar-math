@@ -624,6 +624,11 @@
         }
         .timer-fill.warning { background: linear-gradient(90deg, var(--color-warning), #FF9100); box-shadow: 0 0 8px rgba(255, 215, 64, 0.5); }
         .timer-fill.danger { background: linear-gradient(90deg, var(--color-error), #FF1744); box-shadow: 0 0 8px rgba(255, 82, 82, 0.5); animation: timerPulse 0.5s ease infinite; }
+        /* Per-question timer */
+        .question-timer-bar { height: 6px; background: rgba(255,255,255,0.1); border-radius: 3px; margin: 0.3rem 0 0.5rem; overflow: hidden; }
+        .question-timer-fill { height: 100%; width: 100%; background: linear-gradient(90deg, var(--color-teal), var(--color-primary)); border-radius: 3px; transition: width linear; }
+        .question-timer-fill.qt-warning { background: linear-gradient(90deg, var(--color-warning), #FF9100); }
+        .question-timer-fill.qt-danger { background: linear-gradient(90deg, var(--color-error), #FF1744); animation: timerPulse 0.5s ease infinite; }
         .timer-display {
             text-align: center;
             font-size: 1.3rem;
@@ -1240,6 +1245,8 @@
         .mastery-cell.mastery-low { background: rgba(255, 82, 82, 0.25); color: #FF8A80; border-color: rgba(255, 82, 82, 0.3); }
         .mastery-cell.mastery-mid { background: rgba(255, 215, 64, 0.2); color: #FFD740; border-color: rgba(255, 215, 64, 0.3); }
         .mastery-cell.mastery-high { background: rgba(0, 230, 118, 0.2); color: #69F0AE; border-color: rgba(0, 230, 118, 0.3); animation: cellGlow 3s ease-in-out infinite alternate; }
+        .mastery-cell.mastery-slow { background: rgba(255, 165, 0, 0.2); color: #FFB347; border-color: rgba(255, 165, 0, 0.3); animation: cellSlow 2s ease-in-out infinite alternate; }
+        @keyframes cellSlow { 0% { box-shadow: 0 0 4px rgba(255,165,0,0.2); } 100% { box-shadow: 0 0 10px rgba(255,165,0,0.4); } }
         @keyframes cellGlow {
             0% { box-shadow: 0 0 4px rgba(0, 230, 118, 0.2); }
             100% { box-shadow: 0 0 10px rgba(0, 230, 118, 0.4); }
@@ -1439,6 +1446,21 @@
         @keyframes geniusBtnPulse {
             0%, 100% { box-shadow: 0 0 20px rgba(255, 215, 0, 0.3), 0 4px 15px rgba(255, 165, 0, 0.2); }
             50% { box-shadow: 0 0 30px rgba(255, 215, 0, 0.5), 0 4px 20px rgba(255, 165, 0, 0.4); }
+        }
+
+        /* Quick Recall button */
+        .btn-recall {
+            background: linear-gradient(135deg, var(--color-teal), #20C997);
+            color: #fff;
+            font-weight: 700;
+            font-size: 1.05rem;
+            border: none;
+            box-shadow: 0 5px 0 #0ca678, 0 8px 20px rgba(56, 217, 169, 0.35);
+        }
+        .btn-recall:hover {
+            box-shadow: 0 5px 0 #0ca678, 0 12px 28px rgba(56, 217, 169, 0.5);
+            transform: translateY(-3px);
+            filter: brightness(1.1);
         }
 
         .genius-mode .card {
@@ -2433,6 +2455,7 @@
         <div class="flex-col gap-1 mt-3">
             <button class="btn btn-daily-boost btn-lg btn-block" id="btn-daily-boost">☀️  החימום של היום <span class="daily-boost-badge" id="daily-boost-badge"></span></button>
             <button class="btn btn-genius btn-block" id="btn-genius">🧠  אלוף המחוננים <span class="genius-hs-inline" id="genius-highscore-welcome" style="display:none;">🏆 <span id="genius-highscore-val">0</span></span></button>
+            <button class="btn btn-recall btn-block" id="btn-quick-recall">⚡  שליפה מהירה</button>
             <button class="btn btn-primary btn-lg btn-block" id="btn-start-practice">🎯  תרגול חדש</button>
             <button class="btn btn-outline btn-block" id="btn-focus-mode">🎯  תרגול חולשות חכם</button>
             <button class="btn btn-outline btn-block" id="btn-review-mistakes">🔄  חזרה על טעויות</button>
@@ -2538,6 +2561,13 @@
             <div class="timer-display" id="practice-timer-display">1:00</div>
             <div class="timer-container">
                 <div class="timer-fill" id="practice-timer-fill" style="width:100%"></div>
+            </div>
+        </div>
+
+        <!-- Per-question timer bar -->
+        <div id="question-timer-section" style="display:none;">
+            <div class="question-timer-bar">
+                <div class="question-timer-fill" id="question-timer-fill"></div>
             </div>
         </div>
 
@@ -2827,11 +2857,11 @@ const ACHIEVEMENTS = [
 ];
 
 const DIFFICULTY_CONFIG = {
-    easy:      { questions: 10, distractorMode: 'far', multiplier: 1,   timer: false, showCorrect: true,  retryWrong: true },
-    normal:    { questions: 15, distractorMode: 'mixed', multiplier: 1.5, timer: false, showCorrect: true,  retryWrong: true },
-    hard:      { questions: 20, distractorMode: 'close', multiplier: 2,   timer: false, showCorrect: 'brief', retryWrong: false },
-    challenge: { questions: 999, distractorMode: 'close', multiplier: 3,  timer: 60,   showCorrect: false, retryWrong: false },
-    genius:    { questions: 999, distractorMode: 'close', multiplier: 4,  timer: 180,  showCorrect: false, retryWrong: false }
+    easy:      { questions: 10, distractorMode: 'far', multiplier: 1,   timer: false, showCorrect: true,  retryWrong: true, questionTimer: 15 },
+    normal:    { questions: 15, distractorMode: 'mixed', multiplier: 1.5, timer: false, showCorrect: true,  retryWrong: true, questionTimer: 12 },
+    hard:      { questions: 20, distractorMode: 'close', multiplier: 2,   timer: false, showCorrect: 'brief', retryWrong: false, questionTimer: 8 },
+    challenge: { questions: 999, distractorMode: 'close', multiplier: 3,  timer: 60,   showCorrect: false, retryWrong: false, questionTimer: 6 },
+    genius:    { questions: 999, distractorMode: 'close', multiplier: 4,  timer: 180,  showCorrect: false, retryWrong: false, questionTimer: false }
 };
 
 // ====== GENIUS QUESTION TYPE CONFIG ======
@@ -2899,6 +2929,16 @@ const DAILY_BOOST_CONFIG = {
     mix: { strong: 0.60, medium: 0.30, weak: 0.10 },
     bonuses: { firstDaily: 100, streak3: 50, streak7: 150, streak14: 300 },
     subsequentBonusRatio: 0.3
+};
+
+// ====== QUICK RECALL CONFIG ======
+const QUICK_RECALL_CONFIG = {
+    questionCount: 25,
+    questionTimerSec: 5,
+    maxSessionMinutes: 3,
+    pointsPerCorrect: { fast: 3, medium: 2, slow: 1 },
+    fastThresholdMs: 2000,
+    mediumThresholdMs: 3500,
 };
 
 // ====== FRUSTRATION GUARD CONFIG ======
@@ -4325,6 +4365,7 @@ const FocusMode = {
                 const fact = data.facts[key];
                 const level = getMasteryLevel(fact);
                 if (level === 'low') weak.push({ key, a: i, b: j, level, priority: 1 });
+                else if (level === 'slow') weak.push({ key, a: i, b: j, level, priority: 1.5 });
                 else if (level === 'mid') weak.push({ key, a: i, b: j, level, priority: 2 });
             }
         }
@@ -4555,6 +4596,89 @@ const DailyMission = {
         } else {
             Storage.update(d => { d.dailyMissions[dk] = mission; });
         }
+    }
+};
+
+// ====== QUICK RECALL MODULE ======
+const QuickRecall = {
+    score: 0,
+    streak: 0,
+    bestStreak: 0,
+    results: [],
+
+    start() {
+        this.score = 0;
+        this.streak = 0;
+        this.bestStreak = 0;
+        this.results = [];
+        App.isQuickRecall = true;
+        App.isDailyBoost = false;
+        App.isFocusMode = false;
+        App.isBossBattle = false;
+        App.isGenius = false;
+        App.sessionDifficulty = 'normal';
+
+        // Generate standard A×B=? questions only
+        const maxN = getMaxMultiplier();
+        const questions = [];
+        const used = new Set();
+        for (let i = 0; i < QUICK_RECALL_CONFIG.questionCount; i++) {
+            let a, b, attempts = 0;
+            do {
+                a = Math.floor(Math.random() * maxN) + 1;
+                b = Math.floor(Math.random() * maxN) + 1;
+                attempts++;
+            } while (used.has(a + 'x' + b) && attempts < 50);
+            used.add(a + 'x' + b);
+            const key = SR.factKey(a, b);
+            const q = QGen.generate(key, 'hard');
+            // Force standard type
+            if (q.type !== 'standard') {
+                const correct = a * b;
+                const distractors = QGen._buildDistractors(a, b, correct, 'hard', 7);
+                const options = [correct, ...distractors.slice(0, 7)];
+                QGen.shuffle(options);
+                questions.push({ type: 'standard', factKey: key, a, b, correct, options, correctIdx: options.indexOf(correct) });
+            } else {
+                questions.push(q);
+            }
+        }
+
+        App.sessionQuestions = questions;
+        App.sessionIndex = 0;
+        App.sessionResults = [];
+        App.sessionStars = 0;
+        App.sessionCoins = 0;
+        App.currentStreak = 0;
+        App.isProcessing = false;
+
+        // Session timer
+        const timerSection = document.getElementById('practice-timer-section');
+        timerSection.style.display = '';
+        App.timerRemaining = QUICK_RECALL_CONFIG.maxSessionMinutes * 60;
+        updateTimerDisplay();
+        startTimer();
+
+        // Mode badge
+        const badge = document.getElementById('practice-mode-badge');
+        if (badge) { badge.textContent = '\u26A1 \u05E9\u05DC\u05D9\u05E4\u05D4 \u05DE\u05D4\u05D9\u05E8\u05D4'; badge.style.display = ''; }
+
+        SoundEngine.play('launch');
+        App.navigateTo('screen-practice');
+        showQuestion();
+    },
+
+    scoreAnswer(responseMs, correct) {
+        if (!correct) { this.streak = 0; return 0; }
+        this.streak++;
+        if (this.streak > this.bestStreak) this.bestStreak = this.streak;
+        const cfg = QUICK_RECALL_CONFIG;
+        let pts;
+        if (responseMs < cfg.fastThresholdMs) pts = cfg.pointsPerCorrect.fast;
+        else if (responseMs < cfg.mediumThresholdMs) pts = cfg.pointsPerCorrect.medium;
+        else pts = cfg.pointsPerCorrect.slow;
+        this.score += pts;
+        return pts;
     }
 };
 
@@ -5605,6 +5729,7 @@ function showWelcomeScreen() {
     SpaceMusic.stop();
     App.isGenius = false;
     App.geniusScore = 0;
+    App.isQuickRecall = false;
     App.isFocusMode = false;
     App.isDailyBoost = false;
     App.isBossBattle = false;
@@ -6038,7 +6163,10 @@ function showQuestion() {
     const cfg = DIFFICULTY_CONFIG[App.sessionDifficulty];
 
     // Progress display
-    if (App.isGenius) {
+    if (App.isQuickRecall) {
+        document.getElementById('practice-question-num').textContent = `⚡ ${QuickRecall.score}`;
+        document.getElementById('practice-progress').style.width = ((App.sessionIndex / App.sessionQuestions.length) * 100) + '%';
+    } else if (App.isGenius) {
         document.getElementById('practice-question-num').textContent = `ניקוד: ${App.geniusScore}`;
         document.getElementById('practice-progress').style.width = '0%';
     } else {
@@ -6179,12 +6307,20 @@ function showQuestion() {
 
     App.questionStartTime = Date.now();
     App.isProcessing = false;
+
+    // Per-question timer
+    const qtCfg = DIFFICULTY_CONFIG[App.sessionDifficulty];
+    const qtSec = App.isQuickRecall ? QUICK_RECALL_CONFIG.questionTimerSec : qtCfg.questionTimer;
+    if (qtSec) startQuestionTimer(qtSec);
+    else stopQuestionTimer();
+
     updatePracticeBubble();
 }
 
 function handleAnswerClick(e) {
     const btn = e.target.closest('[data-option]');
     if (!btn || App.isProcessing) return;
+    stopQuestionTimer();
     App.isProcessing = true;
 
     const q = App.sessionQuestions[App.sessionIndex];
@@ -6276,7 +6412,10 @@ function handleAnswerClick(e) {
             return; // Don't advance yet - follow-up will handle it
         }
 
-        if (App.isGenius) {
+        if (App.isQuickRecall) {
+            const pts = QuickRecall.scoreAnswer(responseMs, true);
+            showFloatingReward(`+${pts}`, window.innerWidth / 2, window.innerHeight / 3);
+        } else if (App.isGenius) {
             const pts = q.points || 1;
             App.geniusScore += pts;
             triggerGeniusSparkles();
@@ -6502,7 +6641,7 @@ function showTrueFalseFollowUp(originalQ) {
 
 // Mastery upgrade celebration
 function showMasteryUpgrade(factKey, from, to) {
-    const colorMap = { low: '🔴', mid: '🟡', high: '🟢', none: '⬜' };
+    const colorMap = { low: '🔴', mid: '🟡', slow: '🐢', high: '🟢', none: '⬜' };
     const { a, b } = SR.parseFact(factKey);
     const msg = TEXT_BANK.improvement[Math.floor(Math.random() * TEXT_BANK.improvement.length)];
 
@@ -6600,9 +6739,105 @@ function updateTimerDisplay() {
     else if (App.timerRemaining <= warnAt) fill.classList.add('warning');
 }
 
+// ====== PER-QUESTION TIMER ======
+let _questionTimerInterval = null;
+let _questionTimerStart = 0;
+let _questionTimerDuration = 0;
+
+function startQuestionTimer(seconds) {
+    stopQuestionTimer();
+    const section = document.getElementById('question-timer-section');
+    const fill = document.getElementById('question-timer-fill');
+    section.style.display = '';
+    fill.style.transition = 'none';
+    fill.style.width = '100%';
+    fill.className = 'question-timer-fill';
+    void fill.offsetWidth; // force reflow
+    fill.style.transition = `width ${seconds}s linear`;
+    fill.style.width = '0%';
+    _questionTimerStart = Date.now();
+    _questionTimerDuration = seconds * 1000;
+    _questionTimerInterval = setInterval(() => {
+        const elapsed = Date.now() - _questionTimerStart;
+        const remaining = _questionTimerDuration - elapsed;
+        const pct = remaining / _questionTimerDuration;
+        // Color stages
+        fill.classList.remove('qt-warning', 'qt-danger');
+        if (pct < 0.25) fill.classList.add('qt-danger');
+        else if (pct < 0.5) fill.classList.add('qt-warning');
+        if (remaining <= 0) {
+            stopQuestionTimer();
+            handleQuestionTimeout();
+        }
+    }, 250);
+}
+
+function stopQuestionTimer() {
+    if (_questionTimerInterval) { clearInterval(_questionTimerInterval); _questionTimerInterval = null; }
+    const section = document.getElementById('question-timer-section');
+    if (section) section.style.display = 'none';
+}
+
+function handleQuestionTimeout() {
+    if (App.isProcessing) return;
+    App.isProcessing = true;
+    const q = App.sessionQuestions[App.sessionIndex];
+    if (!q) { App.isProcessing = false; return; }
+    const responseMs = Date.now() - App.questionStartTime;
+    const cfg = DIFFICULTY_CONFIG[App.sessionDifficulty];
+
+    // Flash timeout feedback
+    SoundEngine.play('wrong');
+    showPhotoFeedback(false);
+    const card = document.querySelector('#screen-practice .card');
+    if (card) {
+        card.classList.remove('screen-flash-wrong', 'card-shake');
+        void card.offsetWidth;
+        card.classList.add('screen-flash-wrong', 'card-shake');
+        setTimeout(() => card.classList.remove('screen-flash-wrong', 'card-shake'), 500);
+    }
+
+    // Show correct answer
+    if (q.type === 'standard' || q.type === 'reverse' || !q.type) {
+        const correctVal = q.type === 'reverse' ? q.correct : (q.a * q.b);
+        document.querySelectorAll('.answer-btn').forEach(b => {
+            if (parseInt(b.dataset.option) === correctVal) b.classList.add('reveal-correct');
+        });
+    }
+
+    // Update stats as wrong
+    App.currentStreak = 0;
+    Storage.update(data => {
+        data.stats.totalWrong++;
+        data.stats.totalQuestions++;
+        data.stats.currentStreak = 0;
+        const dk = todayKey();
+        if (data.daily[dk]) data.daily[dk].questionsAnswered++;
+    });
+    SR.updateFact(q.factKey, 0, responseMs);
+
+    // Quick Recall scoring
+    if (App.isQuickRecall) { QuickRecall.scoreAnswer(responseMs, false); }
+
+    App.sessionResults.push({ factKey: q.factKey, correct: false, responseMs, chosen: 'timeout' });
+
+    // Re-insert for retry if configured
+    if (cfg.retryWrong) {
+        const reinsertAt = App.sessionIndex + 3 + Math.floor(Math.random() * 3);
+        const insertIdx = Math.min(reinsertAt, App.sessionQuestions.length);
+        App.sessionQuestions.splice(insertIdx, 0, QGen.generate(q.factKey, App.sessionDifficulty));
+    }
+
+    setTimeout(() => {
+        App.sessionIndex++;
+        showQuestion();
+    }, 1200);
+}
+
 // ====== SCREEN: SUMMARY ======
 function endSession(reason) {
     stopTimer();
+    stopQuestionTimer();
 
     // Cleanup modules
     BossBattle.cleanup();
@@ -6674,11 +6909,12 @@ function endSession(reason) {
     // Count modes played today
     const modesPlayedSet = new Set();
     if (App.isGenius) modesPlayedSet.add('genius');
+    if (App.isQuickRecall) modesPlayedSet.add('recall');
     if (App.isFocusMode) modesPlayedSet.add('focus');
     if (App.isDailyBoost) modesPlayedSet.add('daily');
     if (App.isBossBattle) modesPlayedSet.add('boss');
     if (App.isChallenge) modesPlayedSet.add('challenge');
-    if (!App.isGenius && !App.isFocusMode && !App.isDailyBoost && !App.isBossBattle && !App.isChallenge) modesPlayedSet.add('normal');
+    if (!App.isGenius && !App.isFocusMode && !App.isDailyBoost && !App.isBossBattle && !App.isChallenge && !App.isQuickRecall) modesPlayedSet.add('normal');
 
     const fastCorrectCount = results.filter(r => r.correct && r.responseMs < 2000).length;
 
@@ -6755,6 +6991,49 @@ function endSession(reason) {
         statsGrid.innerHTML = `
             <div class="summary-stat"><div class="summary-stat-value" style="color:var(--color-success)">${correct}</div><div class="summary-stat-label">נכון</div></div>
             <div class="summary-stat"><div class="summary-stat-value" style="color:var(--color-error)">${wrong}</div><div class="summary-stat-label">לא נכון</div></div>
+        `;
+    } else if (App.isQuickRecall) {
+        // Quick Recall summary
+        icon.textContent = '\u26A1';
+        const fastCount = results.filter(r => r.correct && r.responseMs < QUICK_RECALL_CONFIG.fastThresholdMs).length;
+        const fastPct = total > 0 ? Math.round((fastCount / total) * 100) : 0;
+        if (QuickRecall.score >= 50) {
+            title.textContent = '\u05D1\u05D6\u05E7 \u05E9\u05DC\u05D9\u05E4\u05D4!';
+            subtitle.textContent = '\u05DE\u05D4\u05D9\u05E8\u05D5\u05EA \u05DE\u05D8\u05D5\u05E8\u05E4\u05EA!';
+            showConfetti();
+            SoundEngine.play('perfect');
+        } else if (QuickRecall.score >= 30) {
+            title.textContent = '\u05DE\u05D4\u05D9\u05E8!';
+            subtitle.textContent = '\u05DB\u05DC \u05D4\u05DB\u05D1\u05D5\u05D3!';
+            SoundEngine.play('achievement');
+        } else {
+            title.textContent = '\u05E0\u05D9\u05E1\u05D9\u05D5\u05DF \u05D8\u05D5\u05D1!';
+            subtitle.textContent = '\u05EA\u05EA\u05D0\u05DE\u05DF \u05DC\u05E9\u05DC\u05D5\u05E3 \u05DE\u05D4\u05E8 \u05D9\u05D5\u05EA\u05E8!';
+            SoundEngine.play('correct');
+        }
+        if (reason === 'timeout') subtitle.textContent = '\u05E0\u05D2\u05DE\u05E8 \u05D4\u05D6\u05DE\u05DF!';
+        const statsGrid = document.getElementById('summary-stats');
+        statsGrid.innerHTML = `
+            <div style="grid-column: 1 / -1; text-align: center;">
+                <div class="genius-summary-label">\u05E0\u05D9\u05E7\u05D5\u05D3</div>
+                <div class="genius-summary-score">\u26A1 ${QuickRecall.score}</div>
+            </div>
+            <div class="summary-stat">
+                <div class="summary-stat-value" style="color:var(--color-success)">${correct}</div>
+                <div class="summary-stat-label">\u05E0\u05DB\u05D5\u05DF</div>
+            </div>
+            <div class="summary-stat">
+                <div class="summary-stat-value" style="color:var(--color-error)">${wrong}</div>
+                <div class="summary-stat-label">\u05DC\u05D0 \u05E0\u05DB\u05D5\u05DF</div>
+            </div>
+            <div class="summary-stat">
+                <div class="summary-stat-value" style="color:var(--color-teal)">${fastPct}%</div>
+                <div class="summary-stat-label">\u05E9\u05DC\u05D9\u05E4\u05D4 \u05DE\u05D4\u05D9\u05E8\u05D4</div>
+            </div>
+            <div class="summary-stat">
+                <div class="summary-stat-value" style="color:var(--color-star)">\uD83D\uDD25 ${QuickRecall.bestStreak}</div>
+                <div class="summary-stat-label">\u05E8\u05E6\u05E3 \u05E9\u05D9\u05D0</div>
+            </div>
         `;
     } else if (App.isGenius) {
         // Genius mode summary
@@ -6889,7 +7168,7 @@ function endSession(reason) {
 
     // Focus mode improved facts
     if (App.isFocusMode && App.focusModeImproved.length > 0) {
-        const colorMap = { low: '🔴', mid: '🟡', high: '🟢', none: '⬜' };
+        const colorMap = { low: '🔴', mid: '🟡', slow: '🐢', high: '🟢', none: '⬜' };
         achDiv.innerHTML += `<div class="title-md mt-2">📈 תרגילים שהשתפרו:</div>`;
         App.focusModeImproved.forEach(imp => {
             const { a, b } = SR.parseFact(imp.key);
@@ -7078,12 +7357,19 @@ function updatePracticeBubble() {
 function getMasteryLevel(fact) {
     if (!fact || fact.attempts === 0) return 'none';
     const accuracy = fact.correct / fact.attempts;
-    // Also consider recent streak: if last 3 are correct, boost the rating
     const recentHistory = fact.history || [];
     const last3 = recentHistory.slice(-3);
     const recentCorrect = last3.filter(h => h.correct).length;
 
-    if (accuracy >= 0.8 && recentCorrect >= 2) return 'high';
+    if (accuracy >= 0.8 && recentCorrect >= 2) {
+        // Check if recent correct answers are slow (>5s avg) — knows but calculates
+        const recentCorrectEntries = last3.filter(h => h.correct && h.ms);
+        if (recentCorrectEntries.length >= 2) {
+            const avgMs = recentCorrectEntries.reduce((s, h) => s + h.ms, 0) / recentCorrectEntries.length;
+            if (avgMs > 5000) return 'slow';
+        }
+        return 'high';
+    }
     if (accuracy >= 0.8) return 'high';
     if (accuracy >= 0.5) return 'mid';
     return 'low';
@@ -7092,6 +7378,7 @@ function getMasteryLevel(fact) {
 function getMasteryColor(level) {
     switch (level) {
         case 'high': return { bg: '#C6F6D5', text: '#276749' };
+        case 'slow': return { bg: '#FFECD2', text: '#E65100' };
         case 'mid': return { bg: '#FEFCBF', text: '#975A16' };
         case 'low': return { bg: '#FEB2B2', text: '#9B2C2C' };
         default: return { bg: '#E2E8F0', text: '#A0AEC0' };
@@ -7134,7 +7421,7 @@ function renderMasteryGrid() {
         grid.appendChild(hdr);
     }
 
-    let countHigh = 0, countMid = 0, countLow = 0, countNone = 0;
+    let countHigh = 0, countMid = 0, countLow = 0, countNone = 0, countSlow = 0;
 
     // Rows
     for (let r = 1; r <= maxN; r++) {
@@ -7167,6 +7454,7 @@ function renderMasteryGrid() {
 
             // Count for summary
             if (level === 'high') countHigh++;
+            else if (level === 'slow') countSlow++;
             else if (level === 'mid') countMid++;
             else if (level === 'low') countLow++;
             else countNone++;
@@ -7176,7 +7464,7 @@ function renderMasteryGrid() {
     // Summary text
     const total = 144;
     const summaryEl = document.getElementById('mastery-summary');
-    summaryEl.textContent = `\u2705 ${countHigh} \u05E9\u05D5\u05DC\u05D8  |  \uD83D\uDFE1 ${countMid} \u05D1\u05D9\u05E0\u05D5\u05E0\u05D9  |  \uD83D\uDD34 ${countLow} \u05DC\u05D7\u05D9\u05D6\u05D5\u05E7  |  \u2B1C ${countNone} \u05DC\u05D0 \u05EA\u05D5\u05E8\u05D2\u05DC`;
+    summaryEl.textContent = `\u2705 ${countHigh} \u05E9\u05D5\u05DC\u05D8  |  \uD83D\uDC22 ${countSlow} \u05DC\u05E9\u05DC\u05D9\u05E4\u05D4  |  \uD83D\uDFE1 ${countMid} \u05D1\u05D9\u05E0\u05D5\u05E0\u05D9  |  \uD83D\uDD34 ${countLow} \u05DC\u05D7\u05D9\u05D6\u05D5\u05E7  |  \u2B1C ${countNone} \u05DC\u05D0 \u05EA\u05D5\u05E8\u05D2\u05DC`;
 }
 
 function showMasteryDetail(key, row, col) {
@@ -7217,10 +7505,11 @@ function showMasteryDetail(key, row, col) {
     const colors = getMasteryColor(level);
     barFill.style.background = level === 'none' ? '#CBD5E0' :
                                level === 'low' ? '#FC8181' :
-                               level === 'mid' ? '#F6E05E' : '#68D391';
+                               level === 'mid' ? '#F6E05E' :
+                               level === 'slow' ? '#FFB347' : '#68D391';
 
     const levelEl = document.getElementById('mastery-detail-level');
-    const levelNames = { high: '\u2705 \u05E9\u05D5\u05DC\u05D8!', mid: '\uD83D\uDFE1 \u05D1\u05D9\u05E0\u05D5\u05E0\u05D9', low: '\uD83D\uDD34 \u05E6\u05E8\u05D9\u05DA \u05D7\u05D9\u05D6\u05D5\u05E7', none: '\u2B1C \u05DC\u05D0 \u05EA\u05D5\u05E8\u05D2\u05DC \u05E2\u05D3\u05D9\u05D9\u05DF' };
+    const levelNames = { high: '\u2705 \u05E9\u05D5\u05DC\u05D8!', slow: '\uD83D\uDC22 \u05D9\u05D5\u05D3\u05E2 \u05D0\u05D1\u05DC \u05D0\u05D9\u05D8\u05D9', mid: '\uD83D\uDFE1 \u05D1\u05D9\u05E0\u05D5\u05E0\u05D9', low: '\uD83D\uDD34 \u05E6\u05E8\u05D9\u05DA \u05D7\u05D9\u05D6\u05D5\u05E7', none: '\u2B1C \u05DC\u05D0 \u05EA\u05D5\u05E8\u05D2\u05DC \u05E2\u05D3\u05D9\u05D9\u05DF' };
     levelEl.textContent = levelNames[level] || levelNames.none;
     levelEl.style.color = colors.text;
 
@@ -7301,6 +7590,7 @@ document.addEventListener('click', (e) => {
         App.isChallenge = true;
     }
     if (id === 'btn-genius') { SoundEngine.play('navigate'); startGeniusMode(); }
+    if (id === 'btn-quick-recall') { SoundEngine.play('navigate'); QuickRecall.start(); }
     if (id === 'btn-daily-boost') { SoundEngine.play('navigate'); DailyBoost.start(); }
     if (id === 'btn-focus-mode') { SoundEngine.play('navigate'); FocusMode.start(); }
     if (id === 'btn-boss-battle') { SoundEngine.play('navigate'); BossBattle.showBossSelectScreen(); }
