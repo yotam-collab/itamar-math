@@ -2413,160 +2413,381 @@
             height: 100dvh;
             padding: 0;
         }
+        /* ====== MARIO WORLD MAP ====== */
+        @keyframes mapPulse {
+            0%, 100% { transform: translate(-50%, -50%) scale(1.2); box-shadow: 0 0 15px #FFD43B, 0 0 35px rgba(255,212,59,0.5); }
+            50% { transform: translate(-50%, -50%) scale(1.35); box-shadow: 0 0 28px #FFD43B, 0 0 55px rgba(255,212,59,0.7); }
+        }
+        @keyframes flagWave {
+            0%, 100% { transform: rotate(-5deg); }
+            50% { transform: rotate(5deg); }
+        }
+        @keyframes avatarBounce {
+            0%, 100% { transform: translate(-50%, -100%) translateY(0); }
+            50% { transform: translate(-50%, -100%) translateY(-8px); }
+        }
+        @keyframes floatEmoji {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-6px); }
+        }
+        @keyframes mapShimmer {
+            0% { background-position: -200% center; }
+            100% { background-position: 200% center; }
+        }
+        @keyframes lavaGlow {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 0.8; }
+        }
+        @keyframes cloudFloat {
+            0% { transform: translateX(0); }
+            50% { transform: translateX(15px); }
+            100% { transform: translateX(0); }
+        }
+        @keyframes waterShimmer {
+            0% { opacity: 0.3; }
+            33% { opacity: 0.6; }
+            66% { opacity: 0.3; }
+            100% { opacity: 0.5; }
+        }
+        @keyframes castleGlow {
+            0%, 100% { filter: drop-shadow(0 0 8px rgba(255,215,0,0.4)); }
+            50% { filter: drop-shadow(0 0 16px rgba(255,215,0,0.7)); }
+        }
+        @keyframes nodePopIn {
+            0% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
+            70% { transform: translate(-50%, -50%) scale(1.15); }
+            100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+        }
         .map-header {
             text-align: center;
-            padding: 1.2rem 1rem 0.6rem;
+            padding: 1rem 1rem 0.4rem;
             flex-shrink: 0;
+            position: relative;
+            z-index: 5;
         }
         .map-title {
             font-family: 'Fredoka', sans-serif;
-            font-size: 1.4rem;
+            font-size: 1.35rem;
             font-weight: 700;
-            background: linear-gradient(135deg, #FFD43B, #FF6B6B);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+            color: #FFD43B;
+            text-shadow: 2px 2px 0 #c73e1d, 3px 3px 0 #9b2e14, 0 0 20px rgba(255,212,59,0.3);
+            letter-spacing: 0.5px;
         }
         .map-subtitle {
             font-size: 0.85rem;
-            color: var(--text-secondary);
-            margin-top: 0.2rem;
+            color: #aaa;
+            margin-top: 0.15rem;
         }
+        .map-world-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: 8px;
+            padding: 4px 14px;
+            border-radius: 12px;
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.12);
+            font-size: 12px;
+            color: #999;
+        }
+        .map-world-dot {
+            width: 10px; height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+        .map-world-dot.active { opacity: 1; }
+        .map-world-dot.inactive { opacity: 0.3; }
         .map-container {
             flex: 1;
             overflow-y: auto;
             overflow-x: hidden;
-            padding: 0.5rem 1rem 1rem;
+            padding: 0;
             -webkit-overflow-scrolling: touch;
             scroll-behavior: smooth;
         }
-        .map-tier {
-            border-radius: var(--radius-lg);
-            padding: 0.8rem;
-            margin-bottom: 0.8rem;
+        /* Tier zones with scene backgrounds */
+        .map-tier-zone {
             position: relative;
+            margin-bottom: 0;
+            overflow: hidden;
+            border-radius: 18px;
+            border: 2px solid rgba(255,255,255,0.06);
         }
-        .map-tier-basis { background: rgba(81, 207, 102, 0.08); border: 1px solid rgba(81, 207, 102, 0.2); }
-        .map-tier-advanced { background: rgba(77, 171, 247, 0.08); border: 1px solid rgba(77, 171, 247, 0.2); }
-        .map-tier-champion { background: rgba(255, 212, 59, 0.08); border: 1px solid rgba(255, 212, 59, 0.2); }
-        .map-tier-label {
+        .scene-forest {
+            background: linear-gradient(180deg, #0d3b0d 0%, #1a5c1a 20%, #2d7a2d 40%, #1a5c1a 60%, #0d3b0d 80%, #072807 100%);
+        }
+        .scene-ocean {
+            background: linear-gradient(180deg, #051937 0%, #0a2a5e 15%, #0d47a1 30%, #1565c0 50%, #0d47a1 70%, #0a2a5e 85%, #051937 100%);
+        }
+        .scene-volcano {
+            background: linear-gradient(180deg, #1a0000 0%, #4a0000 15%, #7b0000 30%, #bf360c 45%, #e65100 55%, #bf360c 70%, #7b0000 85%, #4a0000 100%);
+        }
+        .map-tier-label-mario {
+            position: relative;
+            z-index: 5;
+            text-align: center;
+            padding: 14px 0 8px;
+        }
+        .map-tier-label-mario .label-box {
+            display: inline-block;
             font-family: 'Fredoka', sans-serif;
-            font-size: 0.85rem;
+            font-size: 15px;
             font-weight: 700;
-            margin-bottom: 0.6rem;
-            text-align: center;
+            color: white;
+            padding: 6px 20px;
+            border-radius: 14px;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+            letter-spacing: 0.5px;
         }
-        .map-nodes {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 0.4rem;
-        }
-        .map-node {
-            width: 44px;
-            height: 44px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.75rem;
-            font-weight: 700;
-            border: 2px solid rgba(255,255,255,0.15);
-            background: rgba(255,255,255,0.05);
-            color: var(--text-secondary);
-            transition: all 0.3s ease;
+        .label-forest { background: linear-gradient(135deg, #2E7D32, #388E3C); border: 2px solid #4CAF50; }
+        .label-ocean { background: linear-gradient(135deg, #0D47A1, #1565C0); border: 2px solid #2196F3; }
+        .label-volcano { background: linear-gradient(135deg, #BF360C, #E65100); border: 2px solid #FF6D00; }
+        /* Path area */
+        .mario-path-area {
             position: relative;
-            cursor: default;
+            width: 100%;
+            min-height: 360px;
+            padding: 10px 0;
         }
-        .map-node.completed {
-            color: #fff;
-            border-color: transparent;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-        }
-        .map-node.completed::after {
-            content: '✓';
+        .mario-path-svg {
             position: absolute;
-            bottom: -4px;
-            right: -4px;
-            background: #2d2d4e;
-            border-radius: 50%;
-            width: 16px;
-            height: 16px;
-            font-size: 0.5rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #51CF66;
-            border: 1px solid #51CF66;
-        }
-        .map-node.current {
-            transform: scale(1.2);
-            border: 3px solid #FFD43B;
-            box-shadow: 0 0 16px rgba(255, 212, 59, 0.5), 0 0 32px rgba(255, 212, 59, 0.2);
-            animation: mapPulse 2s ease-in-out infinite;
+            top: 0; left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
             z-index: 2;
-            color: #FFD43B;
-            font-size: 0.85rem;
         }
-        .map-node.locked {
-            opacity: 0.3;
-            filter: grayscale(0.5);
-        }
-        .map-tier-gate {
-            text-align: center;
-            padding: 0.5rem 0;
-            font-size: 1.2rem;
-            position: relative;
-        }
-        .map-tier-gate::before,
-        .map-tier-gate::after {
-            content: '';
+        .road-path-shadow { fill: none; stroke: rgba(0,0,0,0.4); stroke-width: 20; stroke-linecap: round; stroke-linejoin: round; }
+        .road-path { fill: none; stroke-width: 14; stroke-linecap: round; stroke-linejoin: round; }
+        .road-path-center { fill: none; stroke-dasharray: 8 12; stroke-width: 2; stroke-linecap: round; }
+        .road-forest { stroke: #5D4037; }
+        .road-forest-center { stroke: rgba(255,255,255,0.2); }
+        .road-ocean { stroke: #37474F; }
+        .road-ocean-center { stroke: rgba(255,255,255,0.15); }
+        .road-volcano { stroke: #4E342E; }
+        .road-volcano-center { stroke: rgba(255,200,100,0.2); }
+        /* Mario-style level nodes */
+        .mario-node {
             position: absolute;
-            top: 50%;
-            width: 30%;
-            height: 1px;
-            background: rgba(255,255,255,0.1);
+            width: 46px; height: 46px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Fredoka', sans-serif;
+            font-size: 15px;
+            font-weight: 700;
+            transform: translate(-50%, -50%);
+            z-index: 4;
+            cursor: default;
+            transition: all 0.3s ease;
         }
-        .map-tier-gate::before { right: 5%; }
-        .map-tier-gate::after { left: 5%; }
-        .map-tier-gate.unlocked { opacity: 1; }
-        .map-tier-gate.gate-locked { opacity: 0.4; }
-        @keyframes mapPulse {
-            0%, 100% { box-shadow: 0 0 16px rgba(255, 212, 59, 0.5), 0 0 32px rgba(255, 212, 59, 0.2); }
-            50% { box-shadow: 0 0 24px rgba(255, 212, 59, 0.7), 0 0 48px rgba(255, 212, 59, 0.3); }
+        .mario-node.completed {
+            background: linear-gradient(145deg, #66BB6A, #43A047);
+            color: white;
+            border: 3px solid #2E7D32;
+            box-shadow: 0 4px 10px rgba(46,125,50,0.5), inset 0 2px 3px rgba(255,255,255,0.3), inset 0 -2px 3px rgba(0,0,0,0.2);
         }
-        @keyframes nodePopIn {
-            0% { transform: scale(0); opacity: 0; }
-            70% { transform: scale(1.15); }
-            100% { transform: scale(1); opacity: 1; }
+        .mario-node.current {
+            background: linear-gradient(145deg, #1a1a2e, #2d2d4e);
+            color: #FFD43B;
+            border: 3px solid #FFD43B;
+            animation: mapPulse 2s ease-in-out infinite;
+            z-index: 6;
         }
-        .map-node.pop-in {
+        .mario-node.locked {
+            background: linear-gradient(145deg, #616161, #424242);
+            color: rgba(255,255,255,0.25);
+            border: 2px solid rgba(100,100,100,0.3);
+            opacity: 0.4;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.4);
+        }
+        .mario-node.pop-in {
             animation: nodePopIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
         }
-        .map-node.current.pop-in {
+        .mario-node.current.pop-in {
             animation: nodePopIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) both, mapPulse 2s ease-in-out infinite;
         }
-        .map-footer {
-            flex-shrink: 0;
-            padding: 0.8rem 1rem 1.2rem;
-            text-align: center;
-            background: linear-gradient(to top, rgba(26,26,46,0.95), transparent);
+        .flag-marker {
+            position: absolute;
+            top: -18px; left: 50%;
+            transform: translateX(-50%);
+            font-size: 16px;
+            animation: flagWave 2s ease-in-out infinite;
+            filter: drop-shadow(0 1px 2px rgba(0,0,0,0.5));
         }
-        .map-level-objectives {
-            margin-bottom: 0.6rem;
-            text-align: right;
+        .map-avatar {
+            position: absolute;
+            font-size: 28px;
+            z-index: 10;
+            animation: avatarBounce 1.5s ease-in-out infinite;
+            filter: drop-shadow(0 3px 6px rgba(0,0,0,0.5));
+            pointer-events: none;
+        }
+        /* Castle gates between tiers */
+        .map-castle-gate {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 14px 0;
+            position: relative;
+            z-index: 5;
+        }
+        .map-castle-gate-icon {
+            font-size: 40px;
+            animation: castleGlow 3s ease-in-out infinite;
+            position: relative;
+        }
+        .map-castle-gate-lock {
+            position: absolute;
+            font-size: 16px;
+            top: -5px;
+            right: -10px;
+        }
+        .map-castle-gate-label {
+            font-family: 'Fredoka', sans-serif;
+            font-size: 12px;
+            color: #FFD43B;
+            margin-top: 4px;
+            text-align: center;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+        }
+        /* Boss castle at level 30 */
+        .map-boss-castle {
+            position: absolute;
+            z-index: 5;
+            text-align: center;
+        }
+        .map-boss-castle .castle-emoji {
+            font-size: 38px;
+            animation: castleGlow 2s ease-in-out infinite;
+            display: block;
+        }
+        .map-boss-castle .boss-label {
+            font-family: 'Fredoka', sans-serif;
+            font-size: 10px;
+            color: #FFD43B;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
+            margin-top: 2px;
+        }
+        /* Decorations */
+        .map-decoration {
+            position: absolute;
+            animation: floatEmoji 3.5s ease-in-out infinite;
+            pointer-events: none;
+            z-index: 1;
+            filter: drop-shadow(0 2px 3px rgba(0,0,0,0.4));
+        }
+        .map-cloud {
+            position: absolute;
+            font-size: 24px;
+            opacity: 0.3;
+            animation: cloudFloat 8s ease-in-out infinite;
+            pointer-events: none;
+            z-index: 1;
+        }
+        .map-water-effect {
+            position: absolute;
+            bottom: 0; left: 0; right: 0;
+            height: 40px;
+            background: linear-gradient(180deg, transparent, rgba(33,150,243,0.15));
+            animation: waterShimmer 4s ease-in-out infinite;
+            pointer-events: none; z-index: 1;
+        }
+        .map-lava-effect {
+            position: absolute;
+            bottom: 0; left: 0; right: 0;
+            height: 30px;
+            background: linear-gradient(180deg, transparent, rgba(255,87,34,0.2));
+            animation: lavaGlow 3s ease-in-out infinite;
+            pointer-events: none; z-index: 1;
+        }
+        /* Footer */
+        .map-footer {
+            position: relative;
+            flex-shrink: 0;
+            padding: 0 16px 16px;
+            z-index: 100;
+            background: linear-gradient(180deg, transparent 0%, var(--bg-primary) 18%, var(--bg-primary) 100%);
+            padding-top: 30px;
+        }
+        .map-objectives-box {
+            background: rgba(30,30,60,0.9);
+            border: 2px solid rgba(255,212,59,0.2);
+            border-radius: 14px;
+            padding: 14px 16px;
+            margin-bottom: 12px;
+            backdrop-filter: blur(12px);
+            position: relative;
+            overflow: hidden;
+        }
+        .map-objectives-box::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #FFD43B, #FF922B, #FFD43B);
+            background-size: 200% auto;
+            animation: mapShimmer 3s linear infinite;
+        }
+        .map-objectives-title {
+            font-family: 'Fredoka', sans-serif;
+            font-size: 15px;
+            font-weight: 600;
+            color: #FFD43B;
+            margin-bottom: 10px;
         }
         .map-obj-item {
             display: flex;
+            justify-content: space-between;
             align-items: center;
-            gap: 0.4rem;
-            font-size: 0.72rem;
-            color: var(--text-secondary);
-            padding: 0.15rem 0;
+            padding: 5px 0;
         }
-        .map-obj-item.obj-done { color: #51CF66; text-decoration: line-through; opacity: 0.7; }
-        .map-obj-icon { width: 20px; text-align: center; }
-        .map-obj-progress { margin-right: auto; font-size: 0.6rem; opacity: 0.6; direction: ltr; }
+        .map-obj-text {
+            font-family: 'Rubik', sans-serif;
+            font-size: 13px;
+            color: #ccc;
+        }
+        .map-obj-counter {
+            font-family: 'Fredoka', sans-serif;
+            font-size: 13px;
+            color: #888;
+            direction: ltr;
+            background: rgba(255,255,255,0.06);
+            padding: 2px 10px;
+            border-radius: 8px;
+            border: 1px solid rgba(255,255,255,0.08);
+        }
+        .map-obj-item.obj-done .map-obj-text { color: #51CF66; text-decoration: line-through; }
+        .map-obj-item.obj-done .map-obj-counter { color: #51CF66; border-color: rgba(81,207,102,0.3); }
+        .map-go-button {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 14px;
+            background: linear-gradient(135deg, #7B2FF7, #9B59B6, #7B2FF7);
+            background-size: 200% auto;
+            color: white;
+            font-family: 'Fredoka', sans-serif;
+            font-size: 20px;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 6px 20px rgba(123,47,247,0.4), inset 0 1px 2px rgba(255,255,255,0.2), 0 2px 4px rgba(0,0,0,0.3);
+            transition: all 0.2s ease;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+            letter-spacing: 1px;
+            position: relative;
+            overflow: hidden;
+        }
+        .map-go-button::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%;
+            width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+            animation: mapShimmer 3s ease-in-out infinite;
+        }
+        .map-go-button:active { transform: translateY(1px); }
 
         /* ====== LEVEL-UP CELEBRATION OVERLAY ====== */
         .level-up-overlay {
@@ -2704,13 +2925,14 @@
     <div class="map-header">
         <div class="map-title">🗺️ מסע הכפל של איתמר</div>
         <div class="map-subtitle" id="map-subtitle">שלב 1 / 30</div>
+        <div class="map-world-indicator" id="map-world-indicator"></div>
     </div>
     <div class="map-container" id="map-container">
         <div id="map-path-container"></div>
     </div>
     <div class="map-footer">
-        <div class="map-level-objectives" id="map-objectives"></div>
-        <button class="btn btn-primary btn-lg" id="btn-map-continue" style="width:100%;max-width:320px;">▶ קדימה!</button>
+        <div class="map-objectives-box" id="map-objectives"></div>
+        <button class="map-go-button" id="btn-map-continue">▶ קדימה!</button>
     </div>
 </div>
 
@@ -6957,90 +7179,270 @@ function showMapScreen() {
     const subtitle = document.getElementById('map-subtitle');
     if (subtitle) subtitle.textContent = `שלב ${currentLevel} / 30`;
 
+    // Update world indicator
+    const worldIndicator = document.getElementById('map-world-indicator');
+    if (worldIndicator) {
+        const currentTierIdx = currentLevel <= 10 ? 0 : currentLevel <= 20 ? 1 : 2;
+        const worlds = [
+            { color: '#4CAF50', name: 'עולם 1' },
+            { color: '#2196F3', name: 'עולם 2' },
+            { color: '#FF6D00', name: 'עולם 3' }
+        ];
+        worldIndicator.innerHTML = worlds.map((w, i) =>
+            `<span class="map-world-dot ${i <= currentTierIdx ? 'active' : 'inactive'}" style="background:${w.color}"></span>` +
+            `<span style="font-size:12px;color:${i <= currentTierIdx ? '#ccc' : '#666'}">${w.name}</span>` +
+            (i < 2 ? '<span style="color:#555;margin:0 2px">|</span>' : '')
+        ).join('');
+    }
+
     const container = document.getElementById('map-path-container');
     if (!container) return;
     container.innerHTML = '';
 
+    // Mario World tier definitions
     const tierDefs = [
-        { key: 'basis',    label: '🌱 בסיס',    cssClass: 'map-tier-basis',    color: '#51CF66', range: [1, 10] },
-        { key: 'advanced', label: '⚡ מתקדם',    cssClass: 'map-tier-advanced', color: '#4DABF7', range: [11, 20] },
-        { key: 'champion', label: '👑 אלוף',     cssClass: 'map-tier-champion', color: '#FFD43B', range: [21, 30] }
+        {
+            key: 'basis', label: '🌱 עולם 1: יער הידע 🌳', sceneClass: 'scene-forest',
+            labelClass: 'label-forest', roadClass: 'road-forest', roadCenterClass: 'road-forest-center',
+            range: [1, 10],
+            decorations: [
+                { emoji: '🌳', left: 8, top: 88, size: 28, delay: 0 },
+                { emoji: '🌲', left: 90, top: 60, size: 22, delay: 0.5 },
+                { emoji: '🌳', left: 5, top: 40, size: 24, delay: 1 },
+                { emoji: '🌱', left: 92, top: 25, size: 20, delay: 1.5 },
+                { emoji: '🍄', left: 45, top: 62, size: 14, delay: 0.3 },
+                { emoji: '🐛', left: 85, top: 82, size: 14, delay: 0.8 },
+                { emoji: '🌿', left: 15, top: 12, size: 16, delay: 1.2 }
+            ],
+            clouds: [{ left: 75, top: 8, delay: 0 }, { left: 15, top: 5, delay: 2 }],
+            effect: null
+        },
+        {
+            key: 'advanced', label: '⚡ עולם 2: הרי האוקיינוס 🌊', sceneClass: 'scene-ocean',
+            labelClass: 'label-ocean', roadClass: 'road-ocean', roadCenterClass: 'road-ocean-center',
+            range: [11, 20],
+            decorations: [
+                { emoji: '🌊', left: 88, top: 88, size: 22, delay: 0.2 },
+                { emoji: '🏔️', left: 8, top: 60, size: 24, delay: 0.7 },
+                { emoji: '⚡', left: 90, top: 42, size: 18, delay: 1.1 },
+                { emoji: '🌊', left: 8, top: 22, size: 22, delay: 0.4 },
+                { emoji: '🏔️', left: 88, top: 15, size: 20, delay: 1.4 },
+                { emoji: '🐚', left: 50, top: 60, size: 14, delay: 0.9 },
+                { emoji: '🐠', left: 15, top: 80, size: 16, delay: 1.6 },
+                { emoji: '🐙', left: 42, top: 38, size: 14, delay: 0.5 }
+            ],
+            clouds: [{ left: 60, top: 5, delay: 1 }],
+            effect: 'water'
+        },
+        {
+            key: 'champion', label: '👑 עולם 3: טירת הניצחון 🌋', sceneClass: 'scene-volcano',
+            labelClass: 'label-volcano', roadClass: 'road-volcano', roadCenterClass: 'road-volcano-center',
+            range: [21, 30],
+            decorations: [
+                { emoji: '🌋', left: 8, top: 90, size: 24, delay: 0.3 },
+                { emoji: '🔥', left: 90, top: 60, size: 20, delay: 0.8 },
+                { emoji: '🌋', left: 5, top: 42, size: 22, delay: 1.3 },
+                { emoji: '👑', left: 92, top: 22, size: 20, delay: 0.5 },
+                { emoji: '💎', left: 12, top: 18, size: 18, delay: 1 },
+                { emoji: '🗝️', left: 50, top: 65, size: 14, delay: 0.6 },
+                { emoji: '⚔️', left: 45, top: 88, size: 14, delay: 1.7 },
+                { emoji: '🧨', left: 88, top: 82, size: 16, delay: 0.2 }
+            ],
+            clouds: [],
+            effect: 'lava'
+        }
     ];
 
+    // Node positions (snake path, 10 nodes per tier)
+    // Odd-tier path: right-to-left snaking
+    const nodePositionsRL = [
+        { left: 77, top: 92 }, { left: 58, top: 82 }, { left: 35, top: 73 },
+        { left: 24, top: 65 }, { left: 30, top: 55 }, { left: 50, top: 50 },
+        { left: 70, top: 46 }, { left: 77, top: 38 }, { left: 55, top: 28 },
+        { left: 33, top: 20 }
+    ];
+    // Even-tier path: left-to-right snaking
+    const nodePositionsLR = [
+        { left: 23, top: 92 }, { left: 40, top: 82 }, { left: 60, top: 73 },
+        { left: 77, top: 65 }, { left: 70, top: 55 }, { left: 50, top: 50 },
+        { left: 30, top: 46 }, { left: 23, top: 38 }, { left: 45, top: 28 },
+        { left: 65, top: 20 }
+    ];
+
+    // SVG path for snaking road (RL direction)
+    const svgPathRL = 'M300,355 C300,340 300,320 230,305 C160,290 90,280 90,260 C90,240 160,225 230,210 C300,195 300,175 300,160 C300,145 300,125 230,110 C160,95 90,80 90,60 C90,45 120,35 160,30';
+    // SVG path (LR direction)
+    const svgPathLR = 'M90,355 C90,340 90,320 160,305 C230,290 300,280 300,260 C300,240 230,225 160,210 C90,195 90,175 90,160 C90,145 90,125 160,110 C230,95 300,80 300,60 C300,45 270,35 230,30';
+    // Volcano tier has slightly more height
+    const svgPathRLVolcano = 'M300,375 C300,360 300,340 230,325 C160,310 90,295 90,275 C90,255 160,240 230,225 C300,210 300,190 300,175 C300,160 300,140 230,125 C160,110 90,95 90,75 C90,55 130,40 190,35';
+
     tierDefs.forEach((tier, tierIdx) => {
-        // Tier gate between sections
+        // Castle gate between tiers
         if (tierIdx > 0) {
-            const gate = document.createElement('div');
             const gateUnlocked = currentLevel >= tier.range[0];
-            gate.className = 'map-tier-gate ' + (gateUnlocked ? 'unlocked' : 'gate-locked');
-            gate.textContent = gateUnlocked ? '🚪 ✨' : '🔒';
+            const prevScene = tierIdx === 1 ? '#072807' : '#051937';
+            const nextScene = tierIdx === 1 ? '#051937' : '#4a0000';
+            const gate = document.createElement('div');
+            gate.className = 'map-castle-gate';
+            gate.style.background = `linear-gradient(180deg, ${prevScene} 0%, ${nextScene} 100%)`;
+            gate.innerHTML = `
+                <div style="text-align:center;">
+                    <div class="map-castle-gate-icon" style="display:inline-block;position:relative;">
+                        🏰${gateUnlocked ? '' : '<span class="map-castle-gate-lock">🔒</span>'}
+                    </div>
+                    <div class="map-castle-gate-label">${gateUnlocked ? '✨ נפתח!' : 'השלם עולם ' + tierIdx + ' לפתוח'}</div>
+                </div>
+            `;
             container.appendChild(gate);
         }
 
-        const tierSection = document.createElement('div');
-        tierSection.className = 'map-tier ' + tier.cssClass;
+        // Tier zone
+        const zone = document.createElement('div');
+        zone.className = 'map-tier-zone ' + tier.sceneClass;
 
-        const tierLabel = document.createElement('div');
-        tierLabel.className = 'map-tier-label';
-        tierLabel.style.color = tier.color;
-        tierLabel.textContent = tier.label;
-        tierSection.appendChild(tierLabel);
+        // Water/lava effect
+        if (tier.effect === 'water') zone.innerHTML = '<div class="map-water-effect"></div>';
+        else if (tier.effect === 'lava') zone.innerHTML = '<div class="map-lava-effect"></div>';
 
-        const nodesContainer = document.createElement('div');
-        nodesContainer.className = 'map-nodes';
+        // Tier label
+        const label = document.createElement('div');
+        label.className = 'map-tier-label-mario';
+        label.innerHTML = `<div class="label-box ${tier.labelClass}">${tier.label}</div>`;
+        zone.appendChild(label);
 
-        for (let lvl = tier.range[0]; lvl <= tier.range[1]; lvl++) {
-            const node = document.createElement('div');
+        // Path area
+        const isVolcano = tierIdx === 2;
+        const pathHeight = isVolcano ? 400 : 380;
+        const pathArea = document.createElement('div');
+        pathArea.className = 'mario-path-area';
+        pathArea.style.height = pathHeight + 'px';
+
+        // SVG road
+        const positions = tierIdx === 1 ? nodePositionsLR : nodePositionsRL;
+        const svgPath = isVolcano ? svgPathRLVolcano : (tierIdx === 1 ? svgPathLR : svgPathRL);
+        const viewBoxH = isVolcano ? 400 : 380;
+
+        const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        svg.setAttribute('class', 'mario-path-svg');
+        svg.setAttribute('viewBox', `0 0 390 ${viewBoxH}`);
+        svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+
+        // Shadow
+        const shadowPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        shadowPath.setAttribute('class', 'road-path-shadow');
+        shadowPath.setAttribute('d', svgPath);
+        svg.appendChild(shadowPath);
+
+        // Road surface
+        const roadPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        roadPath.setAttribute('class', 'road-path ' + tier.roadClass);
+        roadPath.setAttribute('d', svgPath);
+        svg.appendChild(roadPath);
+
+        // Center dashes
+        const centerPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        centerPath.setAttribute('class', 'road-path-center ' + tier.roadCenterClass);
+        centerPath.setAttribute('d', svgPath);
+        svg.appendChild(centerPath);
+
+        pathArea.appendChild(svg);
+
+        // Level nodes
+        for (let i = 0; i < 10; i++) {
+            const lvl = tier.range[0] + i;
+            const pos = positions[i];
             const isCompleted = completedLevels.includes(lvl);
             const isCurrent = lvl === currentLevel;
             const isLocked = lvl > currentLevel;
             const levelData = TIER_LEVELS[lvl - 1];
 
-            node.className = 'map-node pop-in'
+            const node = document.createElement('div');
+            node.className = 'mario-node pop-in'
                 + (isCompleted ? ' completed' : '')
                 + (isCurrent ? ' current' : '')
                 + (isLocked ? ' locked' : '');
 
-            // Stagger animation
-            node.style.animationDelay = ((lvl - tier.range[0]) * 0.04) + 's';
+            node.style.left = pos.left + '%';
+            node.style.top = pos.top + '%';
+            node.style.animationDelay = (i * 0.04) + 's';
 
             if (isCompleted) {
-                node.style.background = tier.color;
+                node.innerHTML = '✓<div class="flag-marker">🚩</div>';
+            } else if (isCurrent) {
+                node.textContent = levelData ? levelData.icon : lvl;
+            } else {
+                node.textContent = lvl;
             }
 
-            node.textContent = isCurrent ? levelData.icon : lvl;
+            pathArea.appendChild(node);
 
+            // Avatar bouncing above current node
             if (isCurrent) {
-                node.title = levelData.name;
+                const avatar = document.createElement('div');
+                avatar.className = 'map-avatar';
+                avatar.style.left = pos.left + '%';
+                avatar.style.top = (pos.top - 5) + '%';
+                avatar.textContent = '🧒';
+                pathArea.appendChild(avatar);
             }
-
-            nodesContainer.appendChild(node);
         }
 
-        tierSection.appendChild(nodesContainer);
-        container.appendChild(tierSection);
+        // Boss castle at level 30 position
+        if (tierIdx === 2) {
+            const bossCastle = document.createElement('div');
+            bossCastle.className = 'map-boss-castle';
+            bossCastle.style.left = '42%';
+            bossCastle.style.top = '5%';
+            bossCastle.innerHTML = '<span class="castle-emoji">🏰🔥</span><div class="boss-label">👾 בוס סופי!</div>';
+            pathArea.appendChild(bossCastle);
+        }
+
+        // Decorations
+        tier.decorations.forEach(dec => {
+            const d = document.createElement('div');
+            d.className = 'map-decoration';
+            d.style.left = dec.left + '%';
+            d.style.top = dec.top + '%';
+            d.style.fontSize = dec.size + 'px';
+            d.style.animationDelay = dec.delay + 's';
+            d.textContent = dec.emoji;
+            pathArea.appendChild(d);
+        });
+
+        // Clouds
+        tier.clouds.forEach(cl => {
+            const c = document.createElement('div');
+            c.className = 'map-cloud';
+            c.style.left = cl.left + '%';
+            c.style.top = cl.top + '%';
+            c.style.animationDelay = cl.delay + 's';
+            c.textContent = '☁️';
+            pathArea.appendChild(c);
+        });
+
+        zone.appendChild(pathArea);
+        container.appendChild(zone);
     });
 
-    // Render current level objectives in footer
+    // Render objectives in footer
     const objContainer = document.getElementById('map-objectives');
     if (objContainer) {
         objContainer.innerHTML = '';
         const objectives = LevelProgression.getObjectivesStatus();
         if (objectives && objectives.length > 0) {
-            const objTitle = document.createElement('div');
-            objTitle.style.cssText = 'font-size:0.75rem;font-weight:700;color:#FFD43B;margin-bottom:0.3rem;';
             const levelData = TIER_LEVELS[currentLevel - 1];
-            objTitle.textContent = `📋 משימות שלב ${currentLevel}: ${levelData ? levelData.name : ''}`;
-            objContainer.appendChild(objTitle);
+            const title = document.createElement('div');
+            title.className = 'map-objectives-title';
+            title.textContent = `📋 משימות שלב ${currentLevel}: ${levelData ? levelData.name : ''}`;
+            objContainer.appendChild(title);
 
             objectives.forEach(obj => {
-                const item = document.createElement('div');
                 const done = obj.progress >= obj.target;
+                const item = document.createElement('div');
                 item.className = 'map-obj-item' + (done ? ' obj-done' : '');
                 item.innerHTML = `
-                    <span class="map-obj-icon">${done ? '✅' : obj.icon}</span>
-                    <span>${obj.desc}</span>
-                    <span class="map-obj-progress">${obj.progress}/${obj.target}</span>
+                    <span class="map-obj-text">${done ? '✅' : obj.icon} ${obj.desc}</span>
+                    <span class="map-obj-counter">${obj.progress}/${obj.target}</span>
                 `;
                 objContainer.appendChild(item);
             });
@@ -7049,9 +7451,9 @@ function showMapScreen() {
 
     App.navigateTo('screen-map');
 
-    // Auto-scroll to current level node after a short delay
+    // Auto-scroll to current level tier
     setTimeout(() => {
-        const currentNode = container.querySelector('.map-node.current');
+        const currentNode = container.querySelector('.mario-node.current');
         if (currentNode) {
             currentNode.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
