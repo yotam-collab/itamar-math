@@ -1072,10 +1072,10 @@
         }
         .feedback-photo-container.visible { display: flex; }
         .feedback-photo-container.visible.correct-feedback {
-            animation: feedbackZoomCorrect 0.7s cubic-bezier(0.34, 1.56, 0.64, 1);
+            animation: feedbackZoomCorrect 2s ease forwards;
         }
         .feedback-photo-container.visible.wrong-feedback {
-            animation: feedbackShakeWrong 0.7s ease;
+            animation: feedbackShakeWrong 2.5s ease forwards;
         }
         .feedback-photo {
             width: 150px;
@@ -1123,20 +1123,23 @@
         }
         @keyframes feedbackZoomCorrect {
             0% { transform: scale(0.1) rotate(-15deg); opacity: 0; }
-            50% { transform: scale(1.15) rotate(5deg); opacity: 1; }
-            70% { transform: scale(0.95) rotate(-2deg); opacity: 1; }
-            100% { transform: scale(1) rotate(0deg); opacity: 1; }
+            20% { transform: scale(1.15) rotate(5deg); opacity: 1; }
+            30% { transform: scale(0.95) rotate(-2deg); opacity: 1; }
+            40% { transform: scale(1) rotate(0deg); opacity: 1; }
+            80% { transform: scale(1) rotate(0deg); opacity: 1; }
+            100% { transform: scale(0.8) rotate(5deg); opacity: 0; }
         }
         @keyframes feedbackShakeWrong {
             0% { transform: scale(0.5); opacity: 0; }
-            30% { transform: scale(1.05); opacity: 1; }
-            40% { transform: translateX(-12px); }
-            50% { transform: translateX(12px); }
-            60% { transform: translateX(-8px); }
-            70% { transform: translateX(8px); }
-            80% { transform: translateX(-4px); }
-            90% { transform: translateX(4px); }
-            100% { transform: translateX(0); opacity: 1; }
+            12% { transform: scale(1.05); opacity: 1; }
+            16% { transform: translateX(-12px); opacity: 1; }
+            20% { transform: translateX(12px); opacity: 1; }
+            24% { transform: translateX(-8px); opacity: 1; }
+            28% { transform: translateX(8px); opacity: 1; }
+            32% { transform: translateX(-4px); opacity: 1; }
+            36% { transform: translateX(0); opacity: 1; }
+            80% { transform: translateX(0); opacity: 1; }
+            100% { transform: translateX(0); opacity: 0; }
         }
         @keyframes energyRingExpand {
             0% { transform: scale(0.5); opacity: 1; }
@@ -8792,7 +8795,7 @@ function showPhotoFeedback(correct) {
     setTimeout(() => {
         container.classList.remove('visible', 'correct-feedback', 'wrong-feedback');
         container.querySelectorAll('.feedback-starburst').forEach(el => el.remove());
-    }, correct ? 750 : 1300);
+    }, correct ? 2000 : 2500);
 }
 
 function updatePracticeBubble() {
