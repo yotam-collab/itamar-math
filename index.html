@@ -8186,7 +8186,7 @@ function endSession(reason) {
     const summaryPhoto = document.getElementById('summary-photo');
     // Show the correct/happy photo for good results, wrong/encourage photo for poor results
     if (summaryPhoto) {
-        summaryPhoto.src = accuracy >= 50 ? 'images/correct.jpg' : 'images/wrong.jpg';
+        summaryPhoto.src = randomPhoto(accuracy >= 50);
         summaryPhoto.style.display = '';
         // Re-trigger animation
         summaryPhoto.style.animation = 'none';
@@ -8546,12 +8546,20 @@ const ENCOURAGEMENTS_CORRECT = ['אלוף!', 'מדהים!', 'יופי!', 'נהד
 const ENCOURAGEMENTS_WRONG = ['לא נורא!', 'בפעם הבאה!', 'ממשיכים!', 'אפשר לתקן!', 'נסה שוב!'];
 const PRACTICE_BUBBLES = ['קדימה!', 'אתה יכול!', 'בוא!', 'יאללה!', 'קל!'];
 
+const PHOTOS_CORRECT = ['images/correct.jpg', 'images/correct2.png', 'images/correct3.png', 'images/correct4.png'];
+const PHOTOS_WRONG = ['images/wrong.jpg', 'images/wrong2.png', 'images/wrong3.png', 'images/wrong4.png', 'images/wrong5.png'];
+
+function randomPhoto(correct) {
+    const arr = correct ? PHOTOS_CORRECT : PHOTOS_WRONG;
+    return arr[Math.floor(Math.random() * arr.length)];
+}
+
 function showPhotoFeedback(correct) {
     const container = document.getElementById('feedback-photo-container');
     const photo = document.getElementById('feedback-photo');
     const text = document.getElementById('feedback-text');
 
-    photo.src = correct ? 'images/correct.jpg' : 'images/wrong.jpg';
+    photo.src = randomPhoto(correct);
     photo.onerror = function() {
         container.classList.remove('visible', 'correct-feedback', 'wrong-feedback');
     };
