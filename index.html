@@ -1927,6 +1927,15 @@
         .boss-card .boss-card-emoji { font-size: 2rem; display: block; margin-bottom: 0.3rem; }
         .boss-card .boss-card-name { font-size: 0.8rem; font-weight: 700; }
         .boss-card .boss-card-status { font-size: 0.65rem; color: var(--text-secondary); margin-top: 0.2rem; }
+        .boss-card.locked { opacity: 0.45; pointer-events: none; filter: grayscale(0.6); position: relative; }
+        .boss-card.locked .boss-card-emoji { filter: blur(1px); }
+        .boss-card.locked::after { content: '🔒'; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 1.5rem; }
+        .boss-card .boss-card-unlock { font-size: 0.55rem; color: #FFD43B; margin-top: 0.15rem; }
+        .boss-card .boss-card-desc { font-size: 0.55rem; color: var(--text-secondary); margin-top: 0.15rem; opacity: 0.8; }
+        .boss-card.new-boss { border-color: #FFD43B; box-shadow: 0 0 8px rgba(255, 212, 59, 0.3); }
+        .boss-card.new-boss::before { content: 'חדש!'; position: absolute; top: -6px; right: -6px; background: #FFD43B; color: #1a1a2e; font-size: 0.5rem; font-weight: 700; padding: 2px 6px; border-radius: 8px; }
+        .boss-tier-section { margin-bottom: 1rem; }
+        .boss-tier-header { font-family: 'Fredoka', sans-serif; font-size: 0.9rem; font-weight: 700; margin-bottom: 0.5rem; text-align: right; padding-right: 0.3rem; }
 
         /* ====== Power-Ups ====== */
         .powerup-bar {
@@ -2158,6 +2167,45 @@
             background: rgba(0,230,118,0.08);
         }
 
+        /* ====== Level Objectives Card ====== */
+        .level-objectives-card {
+            background: rgba(255, 212, 59, 0.06);
+            border: 1px solid rgba(255, 212, 59, 0.2);
+            border-radius: var(--radius-md);
+            padding: 0.75rem 1rem;
+            margin-top: 0.5rem;
+            text-align: right;
+        }
+        .level-objectives-card .mission-header {
+            margin-bottom: 0.4rem;
+        }
+        .level-obj-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.2rem;
+            margin-bottom: 0.4rem;
+        }
+        .level-obj-item {
+            display: flex;
+            align-items: center;
+            gap: 0.35rem;
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+        }
+        .level-obj-item.obj-complete {
+            color: #51CF66;
+            text-decoration: line-through;
+            opacity: 0.7;
+        }
+        .level-obj-item-icon { width: 18px; text-align: center; font-size: 0.75rem; }
+        .level-obj-item-progress { margin-right: auto; font-size: 0.6rem; opacity: 0.6; direction: ltr; }
+        .level-obj-progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #FFD43B, #FFA726);
+            border-radius: 3px;
+            transition: width 0.5s ease;
+        }
+
         /* ====== 50/50 Scanner Effect ====== */
         .answer-btn.scanner-dimmed {
             opacity: 0.25;
@@ -2348,6 +2396,231 @@
             100% { width: 100%; }
         }
 
+        /* ====== MAP SCREEN ====== */
+        #screen-map {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            height: 100dvh;
+            padding: 0;
+        }
+        .map-header {
+            text-align: center;
+            padding: 1.2rem 1rem 0.6rem;
+            flex-shrink: 0;
+        }
+        .map-title {
+            font-family: 'Fredoka', sans-serif;
+            font-size: 1.4rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #FFD43B, #FF6B6B);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .map-subtitle {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-top: 0.2rem;
+        }
+        .map-container {
+            flex: 1;
+            overflow-y: auto;
+            overflow-x: hidden;
+            padding: 0.5rem 1rem 1rem;
+            -webkit-overflow-scrolling: touch;
+            scroll-behavior: smooth;
+        }
+        .map-tier {
+            border-radius: var(--radius-lg);
+            padding: 0.8rem;
+            margin-bottom: 0.8rem;
+            position: relative;
+        }
+        .map-tier-basis { background: rgba(81, 207, 102, 0.08); border: 1px solid rgba(81, 207, 102, 0.2); }
+        .map-tier-advanced { background: rgba(77, 171, 247, 0.08); border: 1px solid rgba(77, 171, 247, 0.2); }
+        .map-tier-champion { background: rgba(255, 212, 59, 0.08); border: 1px solid rgba(255, 212, 59, 0.2); }
+        .map-tier-label {
+            font-family: 'Fredoka', sans-serif;
+            font-size: 0.85rem;
+            font-weight: 700;
+            margin-bottom: 0.6rem;
+            text-align: center;
+        }
+        .map-nodes {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 0.4rem;
+        }
+        .map-node {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: 700;
+            border: 2px solid rgba(255,255,255,0.15);
+            background: rgba(255,255,255,0.05);
+            color: var(--text-secondary);
+            transition: all 0.3s ease;
+            position: relative;
+            cursor: default;
+        }
+        .map-node.completed {
+            color: #fff;
+            border-color: transparent;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
+        .map-node.completed::after {
+            content: '✓';
+            position: absolute;
+            bottom: -4px;
+            right: -4px;
+            background: #2d2d4e;
+            border-radius: 50%;
+            width: 16px;
+            height: 16px;
+            font-size: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #51CF66;
+            border: 1px solid #51CF66;
+        }
+        .map-node.current {
+            transform: scale(1.2);
+            border: 3px solid #FFD43B;
+            box-shadow: 0 0 16px rgba(255, 212, 59, 0.5), 0 0 32px rgba(255, 212, 59, 0.2);
+            animation: mapPulse 2s ease-in-out infinite;
+            z-index: 2;
+            color: #FFD43B;
+            font-size: 0.85rem;
+        }
+        .map-node.locked {
+            opacity: 0.3;
+            filter: grayscale(0.5);
+        }
+        .map-tier-gate {
+            text-align: center;
+            padding: 0.5rem 0;
+            font-size: 1.2rem;
+            position: relative;
+        }
+        .map-tier-gate::before,
+        .map-tier-gate::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            width: 30%;
+            height: 1px;
+            background: rgba(255,255,255,0.1);
+        }
+        .map-tier-gate::before { right: 5%; }
+        .map-tier-gate::after { left: 5%; }
+        .map-tier-gate.unlocked { opacity: 1; }
+        .map-tier-gate.gate-locked { opacity: 0.4; }
+        @keyframes mapPulse {
+            0%, 100% { box-shadow: 0 0 16px rgba(255, 212, 59, 0.5), 0 0 32px rgba(255, 212, 59, 0.2); }
+            50% { box-shadow: 0 0 24px rgba(255, 212, 59, 0.7), 0 0 48px rgba(255, 212, 59, 0.3); }
+        }
+        @keyframes nodePopIn {
+            0% { transform: scale(0); opacity: 0; }
+            70% { transform: scale(1.15); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .map-node.pop-in {
+            animation: nodePopIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+        }
+        .map-node.current.pop-in {
+            animation: nodePopIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) both, mapPulse 2s ease-in-out infinite;
+        }
+        .map-footer {
+            flex-shrink: 0;
+            padding: 0.8rem 1rem 1.2rem;
+            text-align: center;
+            background: linear-gradient(to top, rgba(26,26,46,0.95), transparent);
+        }
+        .map-level-objectives {
+            margin-bottom: 0.6rem;
+            text-align: right;
+        }
+        .map-obj-item {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            font-size: 0.72rem;
+            color: var(--text-secondary);
+            padding: 0.15rem 0;
+        }
+        .map-obj-item.obj-done { color: #51CF66; text-decoration: line-through; opacity: 0.7; }
+        .map-obj-icon { width: 20px; text-align: center; }
+        .map-obj-progress { margin-right: auto; font-size: 0.6rem; opacity: 0.6; direction: ltr; }
+
+        /* ====== LEVEL-UP CELEBRATION OVERLAY ====== */
+        .level-up-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.85);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            animation: fadeIn 0.3s ease;
+        }
+        .level-up-card {
+            background: var(--bg-card);
+            border: 2px solid #FFD43B;
+            border-radius: var(--radius-lg);
+            padding: 2rem;
+            text-align: center;
+            max-width: 340px;
+            width: 90%;
+            animation: levelUpBounce 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+            box-shadow: 0 0 40px rgba(255, 212, 59, 0.3);
+        }
+        @keyframes levelUpBounce {
+            0% { transform: scale(0.3) rotate(-10deg); opacity: 0; }
+            50% { transform: scale(1.08) rotate(2deg); }
+            100% { transform: scale(1) rotate(0); opacity: 1; }
+        }
+        .level-up-icon { font-size: 3rem; animation: levelUpSpin 1s ease-in-out; }
+        @keyframes levelUpSpin {
+            0% { transform: rotateY(0); }
+            100% { transform: rotateY(360deg); }
+        }
+        .level-up-title {
+            font-family: 'Fredoka', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin: 0.5rem 0;
+            background: linear-gradient(135deg, #FFD43B, #FF6B6B);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .level-up-rewards {
+            display: flex;
+            justify-content: center;
+            gap: 1.2rem;
+            margin: 0.8rem 0;
+            font-size: 0.9rem;
+        }
+        .level-up-btn {
+            margin-top: 1rem;
+            padding: 0.6rem 2rem;
+            background: linear-gradient(135deg, #FFD43B, #FFA726);
+            color: #1a1a2e;
+            border: none;
+            border-radius: var(--radius-md);
+            font-family: 'Fredoka', sans-serif;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
         /* ====== Enhanced Welcome Entry ====== */
         #screen-welcome.screen-enter .itamar-photo-welcome {
             animation: splashPhotoEntry 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) 0.05s both !important;
@@ -2417,6 +2690,21 @@
     </div>
 </div>
 
+<!-- ====== SCREEN: Map ====== -->
+<div id="screen-map" class="screen">
+    <div class="map-header">
+        <div class="map-title">🗺️ מסע הכפל של איתמר</div>
+        <div class="map-subtitle" id="map-subtitle">שלב 1 / 30</div>
+    </div>
+    <div class="map-container" id="map-container">
+        <div id="map-path-container"></div>
+    </div>
+    <div class="map-footer">
+        <div class="map-level-objectives" id="map-objectives"></div>
+        <button class="btn btn-primary btn-lg" id="btn-map-continue" style="width:100%;max-width:320px;">▶ קדימה!</button>
+    </div>
+</div>
+
 <!-- ====== SCREEN: Welcome ====== -->
 <div id="screen-welcome" class="screen">
     <div class="card text-center">
@@ -2452,6 +2740,15 @@
             <div class="mission-status" id="mission-status"></div>
         </div>
 
+        <div class="level-objectives-card" id="level-objectives-card" style="display:none;">
+            <div class="mission-header">
+                <span id="level-obj-icon">📋</span>
+                <span class="mission-title">משימות שלב <span id="level-obj-num">1</span></span>
+            </div>
+            <div class="level-obj-list" id="level-obj-list"></div>
+            <div class="mission-progress-bar"><div class="level-obj-progress-fill" id="level-obj-fill" style="width:0%"></div></div>
+        </div>
+
         <div class="flex-col gap-1 mt-3">
             <button class="btn btn-daily-boost btn-lg btn-block" id="btn-daily-boost">☀️  החימום של היום <span class="daily-boost-badge" id="daily-boost-badge"></span></button>
             <button class="btn btn-genius btn-block" id="btn-genius">🧠  אלוף המחוננים <span class="genius-hs-inline" id="genius-highscore-welcome" style="display:none;">🏆 <span id="genius-highscore-val">0</span></span></button>
@@ -2464,6 +2761,7 @@
             <button class="btn btn-outline btn-block" id="btn-achievements">🏆  הישגים</button>
             <button class="btn btn-outline btn-block" id="btn-mastery">📊  לוח השליטה שלי</button>
             <button class="btn btn-outline btn-block" id="btn-journal">📔  יומן התקדמות</button>
+            <button class="btn btn-outline btn-block" id="btn-open-map" style="border-color:rgba(255,212,59,0.4);color:#FFD43B;">🗺️  מפת ההתקדמות</button>
             <button class="btn btn-outline btn-block" id="btn-parent-snapshot" style="font-size:0.75rem;opacity:0.6;">👨‍👩‍👦  דוח להורים</button>
         </div>
         <!-- Settings Toggles -->
@@ -2711,8 +3009,21 @@
 <div id="screen-boss-select" class="screen">
     <div class="card text-center">
         <div class="title-lg mb-1">⚔️ קרב בוסים</div>
-        <div class="subtitle">בחר בוס להילחם בו!</div>
-        <div class="boss-grid" id="boss-grid"></div>
+        <div class="subtitle" id="boss-select-subtitle">בחר בוס להילחם בו!</div>
+        <div id="boss-tiers-container">
+            <div class="boss-tier-section" id="boss-tier-basis">
+                <div class="boss-tier-header" style="color:#51CF66">🌱 בוסי בסיס</div>
+                <div class="boss-grid" id="boss-grid-basis"></div>
+            </div>
+            <div class="boss-tier-section" id="boss-tier-advanced">
+                <div class="boss-tier-header" style="color:#4DABF7">⚡ בוסים מתקדמים</div>
+                <div class="boss-grid" id="boss-grid-advanced"></div>
+            </div>
+            <div class="boss-tier-section" id="boss-tier-champion">
+                <div class="boss-tier-header" style="color:#FFD43B">👑 בוסי אלוף</div>
+                <div class="boss-grid" id="boss-grid-champion"></div>
+            </div>
+        </div>
         <button class="btn btn-outline btn-block mt-1" id="btn-boss-back">← חזרה</button>
     </div>
 </div>
@@ -2815,15 +3126,235 @@ const AVATARS = [
     { id: 'athlete', emoji: '\uD83C\uDFC6', name: 'אלוף' }
 ];
 
-const LEVELS = [
-    { level: 1, name: 'מתחיל', minPoints: 0, color: '#4CAF50' },
-    { level: 2, name: 'לומד', minPoints: 100, color: '#2196F3' },
-    { level: 3, name: 'מתרגל', minPoints: 300, color: '#9C27B0' },
-    { level: 4, name: 'מתקדם', minPoints: 600, color: '#FF9800' },
-    { level: 5, name: 'מומחה', minPoints: 1000, color: '#F44336' },
-    { level: 6, name: 'אלוף', minPoints: 2000, color: '#FFD700' },
-    { level: 7, name: 'מלך הכפל', minPoints: 5000, color: '#E91E63' }
+// ====== 30-LEVEL TIERED PROGRESSION SYSTEM ======
+const TIERS = {
+    basis:    { id: 'basis',    name: 'בסיס',   icon: '🌱', color: '#51CF66', gradient: 'linear-gradient(135deg, #40C057, #69DB7C)', range: [1, 10] },
+    advanced: { id: 'advanced', name: 'מתקדם',  icon: '⚡', color: '#4DABF7', gradient: 'linear-gradient(135deg, #339AF0, #74C0FC)', range: [11, 20] },
+    champion: { id: 'champion', name: 'אלוף',   icon: '👑', color: '#FFD43B', gradient: 'linear-gradient(135deg, #FCC419, #FFE066)', range: [21, 30] }
+};
+
+const TIER_LEVELS = [
+    // === TIER: בסיס (Base) — Levels 1-10 — NO question timers ===
+    { level: 1,  name: 'צעד ראשון',    icon: '🌱', tier: 'basis',    xpRequired: 0,     color: '#69DB7C', timerOverrides: { easy: false, normal: false, hard: false, challenge: false, genius: false } },
+    { level: 2,  name: 'גילוי',        icon: '🔍', tier: 'basis',    xpRequired: 80,    color: '#63D97A', timerOverrides: { easy: false, normal: false, hard: false, challenge: false, genius: false } },
+    { level: 3,  name: 'צומח',         icon: '🌿', tier: 'basis',    xpRequired: 200,   color: '#5DD478', timerOverrides: { easy: false, normal: false, hard: false, challenge: false, genius: false } },
+    { level: 4,  name: 'מתאמן',        icon: '💪', tier: 'basis',    xpRequired: 400,   color: '#57CF76', timerOverrides: { easy: false, normal: false, hard: false, challenge: false, genius: false } },
+    { level: 5,  name: 'שולט',         icon: '🎯', tier: 'basis',    xpRequired: 700,   color: '#51CF66', timerOverrides: { easy: false, normal: false, hard: false, challenge: false, genius: false } },
+    { level: 6,  name: 'בטוח',         icon: '🛡️', tier: 'basis',    xpRequired: 1100,  color: '#4BC462', timerOverrides: { easy: false, normal: false, hard: false, challenge: false, genius: false } },
+    { level: 7,  name: 'מהיר',         icon: '🏃', tier: 'basis',    xpRequired: 1600,  color: '#45B95E', timerOverrides: { easy: false, normal: false, hard: false, challenge: false, genius: false } },
+    { level: 8,  name: 'חזק',          icon: '⭐', tier: 'basis',    xpRequired: 2200,  color: '#3FAE5A', timerOverrides: { easy: false, normal: false, hard: false, challenge: false, genius: false } },
+    { level: 9,  name: 'מומחה בסיס',   icon: '🏅', tier: 'basis',    xpRequired: 3000,  color: '#39A356', timerOverrides: { easy: false, normal: false, hard: false, challenge: false, genius: false } },
+    { level: 10, name: 'מוכן למתקדם!', icon: '🚀', tier: 'basis',    xpRequired: 4000,  color: '#339852', timerOverrides: { easy: false, normal: false, hard: false, challenge: false, genius: false } },
+    // === TIER: מתקדם (Advanced) — Levels 11-20 — Moderate timers ===
+    { level: 11, name: 'מתקדם חדש',    icon: '⚡', tier: 'advanced', xpRequired: 5200,  color: '#74C0FC', timerOverrides: { easy: 20, normal: 15, hard: 10, challenge: 6, genius: 12 } },
+    { level: 12, name: 'סופר כוכב',    icon: '🌟', tier: 'advanced', xpRequired: 6600,  color: '#6BB5F5', timerOverrides: { easy: 18, normal: 14, hard: 10, challenge: 6, genius: 11 } },
+    { level: 13, name: 'גיבור',        icon: '🦸', tier: 'advanced', xpRequired: 8200,  color: '#62AAEE', timerOverrides: { easy: 17, normal: 13, hard: 9, challenge: 5, genius: 10 } },
+    { level: 14, name: 'פורץ דרך',     icon: '💫', tier: 'advanced', xpRequired: 10000, color: '#599FE7', timerOverrides: { easy: 16, normal: 12, hard: 9, challenge: 5, genius: 10 } },
+    { level: 15, name: 'נינג\'ה',      icon: '🥷', tier: 'advanced', xpRequired: 12000, color: '#5094E0', timerOverrides: { easy: 15, normal: 12, hard: 8, challenge: 5, genius: 9 } },
+    { level: 16, name: 'מדען',         icon: '🔬', tier: 'advanced', xpRequired: 14500, color: '#4789D9', timerOverrides: { easy: 14, normal: 11, hard: 8, challenge: 5, genius: 9 } },
+    { level: 17, name: 'אסטרונאוט',   icon: '🧑‍🚀', tier: 'advanced', xpRequired: 17500, color: '#3E7ED2', timerOverrides: { easy: 13, normal: 10, hard: 7, challenge: 4, genius: 8 } },
+    { level: 18, name: 'קוסם',         icon: '🧙', tier: 'advanced', xpRequired: 21000, color: '#3573CB', timerOverrides: { easy: 12, normal: 10, hard: 7, challenge: 4, genius: 8 } },
+    { level: 19, name: 'אגדה',         icon: '📜', tier: 'advanced', xpRequired: 25000, color: '#2C68C4', timerOverrides: { easy: 11, normal: 9, hard: 6, challenge: 4, genius: 7 } },
+    { level: 20, name: 'מוכן לאלוף!',  icon: '🔥', tier: 'advanced', xpRequired: 30000, color: '#235DBD', timerOverrides: { easy: 10, normal: 8, hard: 6, challenge: 4, genius: 7 } },
+    // === TIER: אלוף (Champion) — Levels 21-30 — Strict timers ===
+    { level: 21, name: 'אלוף חדש',     icon: '👑', tier: 'champion', xpRequired: 36000,  color: '#FFE066', timerOverrides: { easy: 10, normal: 8, hard: 6, challenge: 4, genius: 7 } },
+    { level: 22, name: 'לוחם',         icon: '⚔️', tier: 'champion', xpRequired: 43000,  color: '#FFD94D', timerOverrides: { easy: 9, normal: 7, hard: 5, challenge: 4, genius: 6 } },
+    { level: 23, name: 'אביר',         icon: '🏰', tier: 'champion', xpRequired: 51000,  color: '#FFD233', timerOverrides: { easy: 9, normal: 7, hard: 5, challenge: 3, genius: 6 } },
+    { level: 24, name: 'שר',           icon: '🎖️', tier: 'champion', xpRequired: 60000,  color: '#FFCB1A', timerOverrides: { easy: 8, normal: 6, hard: 5, challenge: 3, genius: 5 } },
+    { level: 25, name: 'גנרל',         icon: '🎗️', tier: 'champion', xpRequired: 70000,  color: '#FCC419', timerOverrides: { easy: 8, normal: 6, hard: 4, challenge: 3, genius: 5 } },
+    { level: 26, name: 'מושל',         icon: '🏛️', tier: 'champion', xpRequired: 82000,  color: '#F5B800', timerOverrides: { easy: 7, normal: 5, hard: 4, challenge: 3, genius: 5 } },
+    { level: 27, name: 'קיסר',         icon: '👸', tier: 'champion', xpRequired: 96000,  color: '#EDAC00', timerOverrides: { easy: 7, normal: 5, hard: 4, challenge: 3, genius: 4 } },
+    { level: 28, name: 'אגדת הכפל',    icon: '🌠', tier: 'champion', xpRequired: 112000, color: '#E6A000', timerOverrides: { easy: 6, normal: 5, hard: 3, challenge: 3, genius: 4 } },
+    { level: 29, name: 'שר הכפל',      icon: '💎', tier: 'champion', xpRequired: 130000, color: '#DE9400', timerOverrides: { easy: 6, normal: 4, hard: 3, challenge: 2, genius: 4 } },
+    { level: 30, name: 'מלך הכפל!',    icon: '🏆', tier: 'champion', xpRequired: 150000, color: '#D68800', timerOverrides: { easy: 5, normal: 4, hard: 3, challenge: 2, genius: 3 } }
 ];
+
+// ====== PER-LEVEL MISSIONS ======
+const LEVEL_MISSIONS = {
+    1:  { objectives: [
+        { id: 'l1_q10',  desc: 'ענה על 10 שאלות',           icon: '📝', target: 10, field: 'questionsAnswered' },
+        { id: 'l1_c5',   desc: '5 תשובות נכונות',           icon: '✅', target: 5,  field: 'correctAnswers' }
+    ]},
+    2:  { objectives: [
+        { id: 'l2_q20',  desc: 'ענה על 20 שאלות',           icon: '📝', target: 20, field: 'questionsAnswered' },
+        { id: 'l2_s3',   desc: 'רצף של 3 תשובות נכונות',    icon: '🔥', target: 3,  field: 'bestStreak' }
+    ]},
+    3:  { objectives: [
+        { id: 'l3_q30',  desc: 'ענה על 30 שאלות',           icon: '📝', target: 30, field: 'questionsAnswered' },
+        { id: 'l3_s3',   desc: 'רצף של 3 תשובות נכונות',    icon: '🔥', target: 3,  field: 'bestStreak' },
+        { id: 'l3_sess', desc: 'סיים 2 תרגולים',            icon: '🎯', target: 2,  field: 'sessionsCompleted' }
+    ]},
+    4:  { objectives: [
+        { id: 'l4_q40',  desc: 'ענה על 40 שאלות',           icon: '📝', target: 40, field: 'questionsAnswered' },
+        { id: 'l4_s5',   desc: 'רצף של 5 תשובות נכונות',    icon: '🔥', target: 5,  field: 'bestStreak' },
+        { id: 'l4_sess', desc: 'סיים 2 תרגולים',            icon: '🎯', target: 2,  field: 'sessionsCompleted' }
+    ]},
+    5:  { objectives: [
+        { id: 'l5_q50',  desc: 'ענה על 50 שאלות',           icon: '📝', target: 50, field: 'questionsAnswered' },
+        { id: 'l5_s5',   desc: 'רצף של 5 תשובות נכונות',    icon: '🔥', target: 5,  field: 'bestStreak' },
+        { id: 'l5_sess', desc: 'סיים 3 תרגולים',            icon: '🎯', target: 3,  field: 'sessionsCompleted' },
+        { id: 'l5_mast', desc: 'שלוט ב-2 תרגילים חדשים',    icon: '🟢', target: 2,  field: 'newMasteries' }
+    ]},
+    6:  { objectives: [
+        { id: 'l6_q60',  desc: 'ענה על 60 שאלות',           icon: '📝', target: 60, field: 'questionsAnswered' },
+        { id: 'l6_s5',   desc: 'רצף של 5 תשובות נכונות',    icon: '🔥', target: 5,  field: 'bestStreak' },
+        { id: 'l6_boss', desc: 'נצח בוס',                    icon: '⚔️', target: 1,  field: 'bossDefeated' }
+    ]},
+    7:  { objectives: [
+        { id: 'l7_q70',  desc: 'ענה על 70 שאלות',           icon: '📝', target: 70, field: 'questionsAnswered' },
+        { id: 'l7_s7',   desc: 'רצף של 7 תשובות נכונות',    icon: '🔥', target: 7,  field: 'bestStreak' },
+        { id: 'l7_fast', desc: '5 תשובות מהירות',            icon: '⚡', target: 5,  field: 'fastAnswers' }
+    ]},
+    8:  { objectives: [
+        { id: 'l8_q80',  desc: 'ענה על 80 שאלות',           icon: '📝', target: 80, field: 'questionsAnswered' },
+        { id: 'l8_perf', desc: 'תרגול מושלם',               icon: '💯', target: 1,  field: 'perfectSessions' },
+        { id: 'l8_mast', desc: 'שלוט ב-3 תרגילים חדשים',    icon: '🟢', target: 3,  field: 'newMasteries' }
+    ]},
+    9:  { objectives: [
+        { id: 'l9_q90',  desc: 'ענה על 90 שאלות',           icon: '📝', target: 90, field: 'questionsAnswered' },
+        { id: 'l9_s10',  desc: 'רצף של 10 תשובות נכונות',   icon: '🔥', target: 10, field: 'bestStreak' },
+        { id: 'l9_sess', desc: 'סיים 5 תרגולים',            icon: '🎯', target: 5,  field: 'sessionsCompleted' }
+    ]},
+    10: { objectives: [
+        { id: 'l10_q100', desc: 'ענה על 100 שאלות',          icon: '📝', target: 100, field: 'questionsAnswered' },
+        { id: 'l10_s10',  desc: 'רצף של 10 תשובות נכונות',   icon: '🔥', target: 10,  field: 'bestStreak' },
+        { id: 'l10_perf', desc: 'תרגול מושלם',               icon: '💯', target: 1,   field: 'perfectSessions' },
+        { id: 'l10_mast', desc: 'שלוט ב-5 תרגילים חדשים',    icon: '🟢', target: 5,   field: 'newMasteries' }
+    ]},
+    // === TIER מתקדם ===
+    11: { objectives: [
+        { id: 'l11_q40',  desc: 'ענה על 40 שאלות',           icon: '📝', target: 40, field: 'questionsAnswered' },
+        { id: 'l11_gen5', desc: '5 נכונות במצב מחוננים',     icon: '🧠', target: 5,  field: 'geniusCorrect' },
+        { id: 'l11_s5',   desc: 'רצף של 5 תשובות נכונות',    icon: '🔥', target: 5,  field: 'bestStreak' }
+    ]},
+    12: { objectives: [
+        { id: 'l12_q50',  desc: 'ענה על 50 שאלות',           icon: '📝', target: 50, field: 'questionsAnswered' },
+        { id: 'l12_gen8', desc: '8 נכונות במצב מחוננים',     icon: '🧠', target: 8,  field: 'geniusCorrect' },
+        { id: 'l12_fast', desc: '5 תשובות מהירות',            icon: '⚡', target: 5,  field: 'fastAnswers' }
+    ]},
+    13: { objectives: [
+        { id: 'l13_q60',  desc: 'ענה על 60 שאלות',           icon: '📝', target: 60, field: 'questionsAnswered' },
+        { id: 'l13_boss', desc: 'נצח בוס',                    icon: '⚔️', target: 1,  field: 'bossDefeated' },
+        { id: 'l13_s7',   desc: 'רצף של 7 תשובות נכונות',    icon: '🔥', target: 7,  field: 'bestStreak' }
+    ]},
+    14: { objectives: [
+        { id: 'l14_q60',  desc: 'ענה על 60 שאלות',           icon: '📝', target: 60, field: 'questionsAnswered' },
+        { id: 'l14_gen10',desc: '10 נכונות במצב מחוננים',    icon: '🧠', target: 10, field: 'geniusCorrect' },
+        { id: 'l14_mast', desc: 'שלוט ב-3 תרגילים חדשים',    icon: '🟢', target: 3,  field: 'newMasteries' }
+    ]},
+    15: { objectives: [
+        { id: 'l15_q70',  desc: 'ענה על 70 שאלות',           icon: '📝', target: 70, field: 'questionsAnswered' },
+        { id: 'l15_gen15',desc: '15 נכונות במצב מחוננים',    icon: '🧠', target: 15, field: 'geniusCorrect' },
+        { id: 'l15_boss', desc: 'נצח בוס',                    icon: '⚔️', target: 1,  field: 'bossDefeated' },
+        { id: 'l15_s7',   desc: 'רצף של 7 תשובות נכונות',    icon: '🔥', target: 7,  field: 'bestStreak' }
+    ]},
+    16: { objectives: [
+        { id: 'l16_q70',  desc: 'ענה על 70 שאלות',           icon: '📝', target: 70, field: 'questionsAnswered' },
+        { id: 'l16_perf', desc: 'תרגול מושלם',               icon: '💯', target: 1,  field: 'perfectSessions' },
+        { id: 'l16_fast', desc: '10 תשובות מהירות',           icon: '⚡', target: 10, field: 'fastAnswers' }
+    ]},
+    17: { objectives: [
+        { id: 'l17_q80',  desc: 'ענה על 80 שאלות',           icon: '📝', target: 80, field: 'questionsAnswered' },
+        { id: 'l17_gen20',desc: '20 נכונות במצב מחוננים',    icon: '🧠', target: 20, field: 'geniusCorrect' },
+        { id: 'l17_boss', desc: 'נצח בוס מתקדם',             icon: '⚔️', target: 1,  field: 'bossDefeated' }
+    ]},
+    18: { objectives: [
+        { id: 'l18_q80',  desc: 'ענה על 80 שאלות',           icon: '📝', target: 80, field: 'questionsAnswered' },
+        { id: 'l18_s10',  desc: 'רצף של 10 תשובות נכונות',   icon: '🔥', target: 10, field: 'bestStreak' },
+        { id: 'l18_mast', desc: 'שלוט ב-4 תרגילים חדשים',    icon: '🟢', target: 4,  field: 'newMasteries' }
+    ]},
+    19: { objectives: [
+        { id: 'l19_q90',  desc: 'ענה על 90 שאלות',           icon: '📝', target: 90, field: 'questionsAnswered' },
+        { id: 'l19_gen25',desc: '25 נקודות במצב מחוננים',    icon: '🧠', target: 25, field: 'geniusScore' },
+        { id: 'l19_perf', desc: '2 תרגולים מושלמים',         icon: '💯', target: 2,  field: 'perfectSessions' }
+    ]},
+    20: { objectives: [
+        { id: 'l20_q100', desc: 'ענה על 100 שאלות',          icon: '📝', target: 100, field: 'questionsAnswered' },
+        { id: 'l20_gen50',desc: '50 נקודות במצב מחוננים',    icon: '🧠', target: 50, field: 'geniusScore' },
+        { id: 'l20_perf', desc: '3 תרגולים מושלמים',         icon: '💯', target: 3,  field: 'perfectSessions' },
+        { id: 'l20_mast', desc: 'שלוט ב-5 תרגילים חדשים',    icon: '🟢', target: 5,  field: 'newMasteries' }
+    ]},
+    // === TIER אלוף ===
+    21: { objectives: [
+        { id: 'l21_q50',  desc: 'ענה על 50 שאלות',           icon: '📝', target: 50, field: 'questionsAnswered' },
+        { id: 'l21_fast', desc: '10 תשובות מהירות',           icon: '⚡', target: 10, field: 'fastAnswers' },
+        { id: 'l21_s7',   desc: 'רצף של 7 תשובות נכונות',    icon: '🔥', target: 7,  field: 'bestStreak' }
+    ]},
+    22: { objectives: [
+        { id: 'l22_q60',  desc: 'ענה על 60 שאלות',           icon: '📝', target: 60, field: 'questionsAnswered' },
+        { id: 'l22_boss', desc: 'נצח בוס אלוף',              icon: '⚔️', target: 1,  field: 'bossDefeated' },
+        { id: 'l22_gen10',desc: '10 נכונות במצב מחוננים',    icon: '🧠', target: 10, field: 'geniusCorrect' }
+    ]},
+    23: { objectives: [
+        { id: 'l23_q70',  desc: 'ענה על 70 שאלות',           icon: '📝', target: 70, field: 'questionsAnswered' },
+        { id: 'l23_fast', desc: '15 תשובות מהירות',           icon: '⚡', target: 15, field: 'fastAnswers' },
+        { id: 'l23_perf', desc: 'תרגול מושלם',               icon: '💯', target: 1,  field: 'perfectSessions' }
+    ]},
+    24: { objectives: [
+        { id: 'l24_q80',  desc: 'ענה על 80 שאלות',           icon: '📝', target: 80, field: 'questionsAnswered' },
+        { id: 'l24_gen30',desc: '30 נקודות במצב מחוננים',    icon: '🧠', target: 30, field: 'geniusScore' },
+        { id: 'l24_boss', desc: 'נצח בוס אלוף',              icon: '⚔️', target: 1,  field: 'bossDefeated' }
+    ]},
+    25: { objectives: [
+        { id: 'l25_q80',  desc: 'ענה על 80 שאלות',           icon: '📝', target: 80, field: 'questionsAnswered' },
+        { id: 'l25_fast', desc: '20 תשובות מהירות',           icon: '⚡', target: 20, field: 'fastAnswers' },
+        { id: 'l25_s10',  desc: 'רצף של 10 תשובות נכונות',   icon: '🔥', target: 10, field: 'bestStreak' },
+        { id: 'l25_mast', desc: 'שלוט ב-3 תרגילים חדשים',    icon: '🟢', target: 3,  field: 'newMasteries' }
+    ]},
+    26: { objectives: [
+        { id: 'l26_q90',  desc: 'ענה על 90 שאלות',           icon: '📝', target: 90, field: 'questionsAnswered' },
+        { id: 'l26_gen40',desc: '40 נקודות במצב מחוננים',    icon: '🧠', target: 40, field: 'geniusScore' },
+        { id: 'l26_perf', desc: '2 תרגולים מושלמים',         icon: '💯', target: 2,  field: 'perfectSessions' }
+    ]},
+    27: { objectives: [
+        { id: 'l27_q100', desc: 'ענה על 100 שאלות',          icon: '📝', target: 100, field: 'questionsAnswered' },
+        { id: 'l27_boss', desc: 'נצח 2 בוסים',               icon: '⚔️', target: 2,  field: 'bossDefeated' },
+        { id: 'l27_fast', desc: '25 תשובות מהירות',           icon: '⚡', target: 25, field: 'fastAnswers' }
+    ]},
+    28: { objectives: [
+        { id: 'l28_q100', desc: 'ענה על 100 שאלות',          icon: '📝', target: 100, field: 'questionsAnswered' },
+        { id: 'l28_gen50',desc: '50 נקודות במצב מחוננים',    icon: '🧠', target: 50, field: 'geniusScore' },
+        { id: 'l28_s15',  desc: 'רצף של 15 תשובות נכונות',   icon: '🔥', target: 15, field: 'bestStreak' }
+    ]},
+    29: { objectives: [
+        { id: 'l29_q120', desc: 'ענה על 120 שאלות',          icon: '📝', target: 120, field: 'questionsAnswered' },
+        { id: 'l29_perf', desc: '3 תרגולים מושלמים',         icon: '💯', target: 3,  field: 'perfectSessions' },
+        { id: 'l29_mast', desc: 'שלוט ב-5 תרגילים חדשים',    icon: '🟢', target: 5,  field: 'newMasteries' }
+    ]},
+    30: { objectives: [
+        { id: 'l30_q150', desc: 'ענה על 150 שאלות',          icon: '📝', target: 150, field: 'questionsAnswered' },
+        { id: 'l30_gen75',desc: '75 נקודות במצב מחוננים',    icon: '🧠', target: 75, field: 'geniusScore' },
+        { id: 'l30_perf', desc: '3 תרגולים מושלמים',         icon: '💯', target: 3,  field: 'perfectSessions' },
+        { id: 'l30_mast', desc: 'שלוט ב-5 תרגילים חדשים',    icon: '🟢', target: 5,  field: 'newMasteries' }
+    ]}
+};
+
+// ====== LEVEL REWARDS ======
+const LEVEL_REWARDS = {
+    default:      { coins: 50,   stars: 25,  points: 100 },
+    milestone:    { coins: 100,  stars: 50,  points: 250 },
+    tierComplete: {
+        10: { coins: 200,  stars: 100, points: 500,  title: '🎉 סיימת את שלב הבסיס!' },
+        20: { coins: 500,  stars: 200, points: 1000, title: '🎉 סיימת את השלב המתקדם!' },
+        30: { coins: 1000, stars: 500, points: 2000, title: '🏆 מלך הכפל! סיימת הכל!' }
+    }
+};
+
+// ====== MODE UNLOCKS BY LEVEL ======
+const LEVEL_UNLOCKS = {
+    1:  ['practice', 'daily_boost'],
+    3:  ['focus_mode'],
+    5:  ['boss_battle'],
+    7:  ['quick_recall'],
+    10: ['challenge'],
+    11: ['genius', 'advanced_bosses'],
+    15: ['speed_challenge'],
+    21: ['champion_bosses'],
+    25: ['endurance']
+};
+
+// Legacy compat — old code may reference LEVELS
+const LEVELS = TIER_LEVELS.map(l => ({ level: l.level, name: l.name, minPoints: l.xpRequired, color: l.color }));
 
 const ACHIEVEMENTS = [
     { id: 'first_star', icon: '\u2B50', name: 'כוכב ראשון', desc: 'ענית נכון על שאלה ראשונה' },
@@ -2973,6 +3504,24 @@ const BOSS_DATA = [
     { table: 12, name: 'אלוף הכפל', emoji: '👑', color: '#FFD700' }
 ];
 
+// ====== ADVANCED BOSSES (Multi-table, unlock at מתקדם tier) ======
+const ADVANCED_BOSSES = [
+    { id: 'adv_67',       tables: [6, 7],       name: 'צמד הזאבים',       emoji: '🐺', hp: 15, color: '#9C27B0', unlockLevel: 11, desc: 'כפולות של 6 ו-7 ביחד!' },
+    { id: 'adv_78',       tables: [7, 8],       name: 'דרקון הכאוס',      emoji: '🐲', hp: 15, color: '#E91E63', unlockLevel: 13, desc: 'כפולות של 7 ו-8 ביחד!' },
+    { id: 'adv_89',       tables: [8, 9],       name: 'הנמסיס',           emoji: '💀', hp: 18, color: '#FF5722', unlockLevel: 15, desc: 'כפולות של 8 ו-9 ביחד!' },
+    { id: 'adv_679',      tables: [6, 7, 9],    name: 'הידרה תלת-ראשית',  emoji: '🐍', hp: 20, color: '#673AB7', unlockLevel: 17, desc: 'כפולות של 6, 7 ו-9 ביחד!' },
+    { id: 'adv_all_hard', tables: [6, 7, 8, 9], name: 'שר החושך',         emoji: '🧛', hp: 20, color: '#212121', unlockLevel: 19, desc: 'כל הכפולות הקשות!' }
+];
+
+// ====== CHAMPION BOSSES (Special mechanics, unlock at אלוף tier) ======
+const CHAMPION_BOSSES = [
+    { id: 'champ_speed',     tables: [6, 7, 8, 9],    name: 'ברק המהירות',            emoji: '⚡', hp: 15, color: '#FFD700', unlockLevel: 21, timerOverride: 4, desc: '4 שניות לתשובה!' },
+    { id: 'champ_reverse',   tables: [7, 8, 9],       name: 'מכשף ההיפוך',            emoji: '🧙‍♂️', hp: 18, color: '#7C4DFF', unlockLevel: 23, questionTypes: ['reverse', 'commutative'], desc: 'שאלות הפוכות בלבד!' },
+    { id: 'champ_all',       tables: 'all',            name: 'אלוף העולם',             emoji: '🌍', hp: 25, color: '#00BCD4', unlockLevel: 25, desc: 'כל הכפולות! 25 חיים!' },
+    { id: 'champ_endurance', tables: [6, 7, 8, 9, 12], name: 'מרתון הכפל',             emoji: '🏃‍♂️', hp: 30, color: '#FF6D00', unlockLevel: 27, timerOverride: 3, desc: '30 חיים! 3 שניות!' },
+    { id: 'champ_final',     tables: 'all',            name: 'מלך הכפל האולטימטיבי',   emoji: '👑🔥', hp: 30, color: '#D50000', unlockLevel: 29, timerOverride: 3, questionTypes: ['reverse', 'comparison', 'standard'], desc: 'הבוס האחרון!' }
+];
+
 // ====== POWER-UP CONFIG ======
 const POWERUP_CONFIG = {
     shield:    { name: 'מגן', emoji: '🛡️', desc: 'מגן על הרצף מטעות אחת', cost: 30 },
@@ -3086,7 +3635,7 @@ const MISSION_TEMPLATES = [
 ];
 
 const DEFAULT_DATA = {
-    version: 3,
+    version: 4,
     profile: { name: 'איתמר', avatar: null, createdAt: null },
     stats: {
         totalQuestions: 0, totalCorrect: 0, totalWrong: 0,
@@ -3094,7 +3643,7 @@ const DEFAULT_DATA = {
         currentStreak: 0, bestStreak: 0, totalSessions: 0,
         dailyBoostStreak: 0, lastDailyBoostDate: null,
         focusModeSessions: 0, dailyBoostSessions: 0,
-        bossesDefeated: {},      // { table: timestamp }
+        bossesDefeated: {},      // { table/bossId: timestamp }
         totalBossWins: 0,
         weeklyMasteryUpgrades: 0,
         lastWeeklyReset: null
@@ -3105,7 +3654,15 @@ const DEFAULT_DATA = {
     daily: {},
     dailyMissions: {},
     powerups: { shield: 1, scanner: 1, timeBoost: 1, hint: 1, doubleXP: 0 },
-    settings: { soundEnabled: true, maxMultiplier: 10, answerCount: 8, geniusHighScore: 0, parentCode: '1234' }
+    settings: { soundEnabled: true, maxMultiplier: 10, answerCount: 8, geniusHighScore: 0, parentCode: '1234' },
+    progression: {
+        currentLevel: 1,
+        levelObjectives: {},      // { levelNum: { objectiveId: progress } }
+        completedLevels: [],
+        parentOverrideLevel: null,
+        levelCompletedAt: {},     // { levelNum: timestamp }
+        tierUnlocked: { basis: true, advanced: false, champion: false }
+    }
 };
 
 // ====== STORAGE ======
@@ -3148,6 +3705,9 @@ const DataMigration = {
         if (data.version < 3) {
             this._migrateV2toV3(data);
         }
+        if (data.version < 4) {
+            this._migrateV3toV4(data);
+        }
     },
     _migrateV1toV2(data) {
         data.version = 2;
@@ -3178,6 +3738,33 @@ const DataMigration = {
         if (!data.powerups) data.powerups = { shield: 1, scanner: 1, timeBoost: 1, hint: 1, doubleXP: 0 };
         // Settings
         if (!data.settings.parentCode) data.settings.parentCode = '1234';
+        Storage.save();
+    },
+    _migrateV3toV4(data) {
+        data.version = 4;
+        if (!data.progression) {
+            data.progression = {
+                currentLevel: 1,
+                levelObjectives: {},
+                completedLevels: [],
+                parentOverrideLevel: null,
+                levelCompletedAt: {},
+                tierUnlocked: { basis: true, advanced: false, champion: false }
+            };
+            // Infer starting level from existing totalPoints
+            const pts = data.stats.totalPoints || 0;
+            for (let i = TIER_LEVELS.length - 1; i >= 0; i--) {
+                if (pts >= TIER_LEVELS[i].xpRequired) {
+                    data.progression.currentLevel = TIER_LEVELS[i].level;
+                    for (let j = 1; j < TIER_LEVELS[i].level; j++) {
+                        data.progression.completedLevels.push(j);
+                    }
+                    break;
+                }
+            }
+            if (data.progression.currentLevel >= 11) data.progression.tierUnlocked.advanced = true;
+            if (data.progression.currentLevel >= 21) data.progression.tierUnlocked.champion = true;
+        }
         Storage.save();
     }
 };
@@ -4688,25 +5275,48 @@ const BossBattle = {
     _bossHP: 0,
     _bossMaxHP: 0,
 
+    // Get any boss by ID (searches all boss arrays)
+    getBossById(bossId) {
+        // Basic bosses use table as ID
+        const basic = BOSS_DATA.find(b => b.table == bossId || b.id === bossId);
+        if (basic) return { ...basic, id: basic.id || 'basic_' + basic.table, bossType: 'basic', hp: BOSS_CONFIG.bossHP };
+        const adv = ADVANCED_BOSSES.find(b => b.id === bossId);
+        if (adv) return { ...adv, bossType: 'advanced' };
+        const champ = CHAMPION_BOSSES.find(b => b.id === bossId);
+        if (champ) return { ...champ, bossType: 'champion' };
+        return null;
+    },
+
     getBossForTable(table) {
         return BOSS_DATA.find(b => b.table === table) || null;
     },
 
-    isDefeated(table) {
+    isDefeated(bossId) {
         const data = Storage.load();
-        return !!(data.stats.bossesDefeated && data.stats.bossesDefeated[table]);
+        if (!data.stats.bossesDefeated) return false;
+        // Check by bossId string or by table number (legacy)
+        return !!(data.stats.bossesDefeated[bossId]);
     },
 
-    start(table) {
-        const boss = this.getBossForTable(table);
+    isBossUnlocked(boss) {
+        const data = Storage.load();
+        const currentLevel = data.progression ? data.progression.currentLevel : 1;
+        if (!boss.unlockLevel) return true; // Basic bosses always unlocked (if boss_battle mode is unlocked)
+        return currentLevel >= boss.unlockLevel;
+    },
+
+    start(bossId) {
+        const boss = this.getBossById(bossId);
         if (!boss) return;
+        if (!this.isBossUnlocked(boss)) return;
+
         this._currentBoss = boss;
-        this._bossHP = BOSS_CONFIG.bossHP;
-        this._bossMaxHP = BOSS_CONFIG.bossHP;
+        this._bossHP = boss.hp || BOSS_CONFIG.bossHP;
+        this._bossMaxHP = this._bossHP;
 
         App.isBossBattle = true;
-        App.bossTable = table;
-        App.selectedNumbers = [table];
+        App.bossTable = boss.table || (boss.tables ? boss.tables[0] : 2);
+        App._bossTimerOverride = boss.timerOverride || null;
         App.sessionDifficulty = 'hard';
         App.sessionStars = 0;
         App.sessionCoins = 0;
@@ -4714,14 +5324,26 @@ const BossBattle = {
         App.sessionResults = [];
         App.sessionIndex = 0;
 
-        // Generate questions for this table
-        const maxN = getMaxMultiplier();
-        const questions = [];
-        for (let i = 0; i < BOSS_CONFIG.questionsPerBoss + 5; i++) {
-            const b = Math.floor(Math.random() * maxN) + 1;
-            questions.push(QGen.generate(SR.factKey(table, b), 'hard'));
+        // Generate questions based on boss type
+        if (boss.bossType === 'basic') {
+            // Single-table boss (legacy behavior)
+            const table = boss.table;
+            App.selectedNumbers = [table];
+            const maxN = getMaxMultiplier();
+            const questions = [];
+            for (let i = 0; i < this._bossMaxHP + 5; i++) {
+                const b = Math.floor(Math.random() * maxN) + 1;
+                questions.push(QGen.generate(SR.factKey(table, b), 'hard'));
+            }
+            App.sessionQuestions = questions;
+        } else {
+            // Multi-table boss (advanced/champion)
+            const tables = boss.tables === 'all'
+                ? Array.from({length: 11}, (_, i) => i + 2) // tables 2-12
+                : boss.tables;
+            App.selectedNumbers = tables;
+            App.sessionQuestions = this._generateMultiTableQuestions(tables, this._bossMaxHP + 5, boss.questionTypes);
         }
-        App.sessionQuestions = questions;
 
         // Show boss UI
         const barContainer = document.getElementById('boss-bar-container');
@@ -4737,12 +5359,15 @@ const BossBattle = {
         if (badge) {
             badge.textContent = `⚔️ ${boss.name}`;
             badge.style.display = '';
-            badge.style.background = 'linear-gradient(135deg, #FF5252, #FF1744)';
+            badge.style.background = boss.color
+                ? `linear-gradient(135deg, ${boss.color}, ${boss.color}dd)`
+                : 'linear-gradient(135deg, #FF5252, #FF1744)';
         }
 
-        // Timer
+        // Timer — longer for harder bosses
         document.getElementById('practice-timer-section').style.display = '';
-        App.timerRemaining = 120; // 2 minutes for boss
+        const baseTime = boss.bossType === 'champion' ? 180 : boss.bossType === 'advanced' ? 150 : 120;
+        App.timerRemaining = baseTime;
         updateTimerDisplay();
         startTimer();
 
@@ -4751,6 +5376,61 @@ const BossBattle = {
             App.navigateTo('screen-practice');
             showQuestion();
         }, 100);
+    },
+
+    _generateMultiTableQuestions(tables, count, questionTypes) {
+        const maxN = getMaxMultiplier();
+        const questions = [];
+        const allowedTypes = questionTypes || null;
+
+        for (let i = 0; i < count; i++) {
+            const table = tables[Math.floor(Math.random() * tables.length)];
+            const b = Math.floor(Math.random() * maxN) + 1;
+            const q = QGen.generate(SR.factKey(table, b), 'hard');
+
+            // If boss restricts question types, transform as needed
+            if (allowedTypes && allowedTypes.length > 0) {
+                const chosenType = allowedTypes[Math.floor(Math.random() * allowedTypes.length)];
+                if (chosenType === 'reverse') {
+                    // Reverse: "? × b = result"
+                    q.type = 'reverse';
+                    q.displayA = q.a;
+                    q.displayResult = q.a * q.b;
+                    q.correct = q.b;
+                    q.options = this._buildReverseOptions(q.b, q.a, maxN);
+                    q.correctIdx = q.options.indexOf(q.correct);
+                } else if (chosenType === 'commutative') {
+                    // Show reversed order: b × a instead of a × b
+                    const temp = q.a;
+                    q.a = q.b;
+                    q.b = temp;
+                    q.type = 'commutative';
+                } else if (chosenType === 'comparison') {
+                    q.type = 'comparison';
+                }
+            }
+            questions.push(q);
+        }
+        return questions;
+    },
+
+    _buildReverseOptions(correct, otherFactor, maxN) {
+        const opts = new Set([correct]);
+        // Close distractors
+        if (correct > 1) opts.add(correct - 1);
+        if (correct < maxN) opts.add(correct + 1);
+        if (correct > 2) opts.add(correct - 2);
+        if (correct < maxN - 1) opts.add(correct + 2);
+        opts.add(otherFactor); // common mistake
+        opts.delete(correct);
+        const distractors = [...opts].filter(v => v > 0 && v <= maxN).slice(0, 3);
+        while (distractors.length < 3) {
+            const r = Math.floor(Math.random() * maxN) + 1;
+            if (r !== correct && !distractors.includes(r)) distractors.push(r);
+        }
+        const all = [correct, ...distractors.slice(0, 3)];
+        QGen.shuffle(all);
+        return all;
     },
 
     onCorrectAnswer() {
@@ -4779,16 +5459,25 @@ const BossBattle = {
 
     _defeatBoss() {
         if (!this._currentBoss) return;
-        const table = this._currentBoss.table;
         const boss = this._currentBoss;
+        const bossKey = boss.id || ('basic_' + boss.table);
+
+        // Bonus coins scale with boss difficulty
+        const bonusCoins = boss.bossType === 'champion' ? BOSS_CONFIG.bonusCoins * 3
+                         : boss.bossType === 'advanced' ? BOSS_CONFIG.bonusCoins * 2
+                         : BOSS_CONFIG.bonusCoins;
 
         // Record defeat
         Storage.update(d => {
             if (!d.stats.bossesDefeated) d.stats.bossesDefeated = {};
-            d.stats.bossesDefeated[table] = Date.now();
+            d.stats.bossesDefeated[bossKey] = Date.now();
+            // Legacy: also record by table for basic bosses
+            if (boss.table && boss.bossType === 'basic') {
+                d.stats.bossesDefeated[boss.table] = Date.now();
+            }
             d.stats.totalBossWins = (d.stats.totalBossWins || 0) + 1;
-            d.stats.totalCoins += BOSS_CONFIG.bonusCoins;
-            d.stats.totalPoints += BOSS_CONFIG.bonusCoins * 2;
+            d.stats.totalCoins += bonusCoins;
+            d.stats.totalPoints += bonusCoins * 2;
         });
 
         // Boss defeat animation
@@ -4797,7 +5486,7 @@ const BossBattle = {
 
         SoundEngine.play('perfect');
         const msg = TEXT_BANK.bossDefeated[Math.floor(Math.random() * TEXT_BANK.bossDefeated.length)];
-        showRewardPopup(boss.emoji, msg, `+${BOSS_CONFIG.bonusCoins} 🪙`);
+        showRewardPopup(boss.emoji, msg, `+${bonusCoins} 🪙`);
 
         // End session after short delay
         setTimeout(() => endSession('bossDefeated'), 1500);
@@ -4806,27 +5495,96 @@ const BossBattle = {
     cleanup() {
         this._currentBoss = null;
         this._bossHP = 0;
+        App._bossTimerOverride = null;
         const barContainer = document.getElementById('boss-bar-container');
         if (barContainer) barContainer.style.display = 'none';
     },
 
     showBossSelectScreen() {
-        const grid = document.getElementById('boss-grid');
-        if (!grid) return;
-        grid.innerHTML = '';
-        BOSS_DATA.forEach(boss => {
-            const defeated = this.isDefeated(boss.table);
-            const card = document.createElement('div');
-            card.className = 'boss-card' + (defeated ? ' defeated' : '');
-            card.dataset.table = boss.table;
-            card.innerHTML = `
-                <span class="boss-card-emoji">${boss.emoji}</span>
-                <div class="boss-card-name">${boss.name}</div>
-                <div class="boss-card-status">${defeated ? '✅ נוצח!' : '⚔️ הילחם!'}</div>
-            `;
-            card.addEventListener('click', () => this.start(boss.table));
-            grid.appendChild(card);
-        });
+        const data = Storage.load();
+        const currentLevel = data.progression ? data.progression.currentLevel : 1;
+
+        // Basic bosses grid
+        const gridBasis = document.getElementById('boss-grid-basis');
+        if (gridBasis) {
+            gridBasis.innerHTML = '';
+            BOSS_DATA.forEach(boss => {
+                const bossKey = 'basic_' + boss.table;
+                const defeated = this.isDefeated(boss.table) || this.isDefeated(bossKey);
+                const card = document.createElement('div');
+                card.className = 'boss-card' + (defeated ? ' defeated' : '');
+                card.innerHTML = `
+                    <span class="boss-card-emoji">${boss.emoji}</span>
+                    <div class="boss-card-name">${boss.name}</div>
+                    <div class="boss-card-status">${defeated ? '✅ נוצח!' : '⚔️ הילחם!'}</div>
+                `;
+                card.addEventListener('click', () => this.start(boss.table));
+                gridBasis.appendChild(card);
+            });
+        }
+
+        // Advanced bosses grid
+        const gridAdvanced = document.getElementById('boss-grid-advanced');
+        if (gridAdvanced) {
+            gridAdvanced.innerHTML = '';
+            ADVANCED_BOSSES.forEach(boss => {
+                const unlocked = currentLevel >= boss.unlockLevel;
+                const defeated = this.isDefeated(boss.id);
+                const isNew = unlocked && !defeated && currentLevel <= boss.unlockLevel + 2;
+                const card = document.createElement('div');
+                card.className = 'boss-card' + (defeated ? ' defeated' : '') + (!unlocked ? ' locked' : '') + (isNew ? ' new-boss' : '');
+                card.style.position = 'relative';
+                card.innerHTML = `
+                    <span class="boss-card-emoji">${boss.emoji}</span>
+                    <div class="boss-card-name">${boss.name}</div>
+                    ${unlocked
+                        ? `<div class="boss-card-desc">${boss.desc}</div>
+                           <div class="boss-card-status">${defeated ? '✅ נוצח!' : '⚔️ הילחם!'}</div>`
+                        : `<div class="boss-card-unlock">🔒 רמה ${boss.unlockLevel}</div>`
+                    }
+                `;
+                if (unlocked) {
+                    card.addEventListener('click', () => this.start(boss.id));
+                }
+                gridAdvanced.appendChild(card);
+            });
+        }
+
+        // Champion bosses grid
+        const gridChampion = document.getElementById('boss-grid-champion');
+        if (gridChampion) {
+            gridChampion.innerHTML = '';
+            CHAMPION_BOSSES.forEach(boss => {
+                const unlocked = currentLevel >= boss.unlockLevel;
+                const defeated = this.isDefeated(boss.id);
+                const isNew = unlocked && !defeated && currentLevel <= boss.unlockLevel + 2;
+                const card = document.createElement('div');
+                card.className = 'boss-card' + (defeated ? ' defeated' : '') + (!unlocked ? ' locked' : '') + (isNew ? ' new-boss' : '');
+                card.style.position = 'relative';
+                card.innerHTML = `
+                    <span class="boss-card-emoji">${boss.emoji}</span>
+                    <div class="boss-card-name">${boss.name}</div>
+                    ${unlocked
+                        ? `<div class="boss-card-desc">${boss.desc}</div>
+                           <div class="boss-card-status">${defeated ? '✅ נוצח!' : '⚔️ הילחם!'}</div>`
+                        : `<div class="boss-card-unlock">🔒 רמה ${boss.unlockLevel}</div>`
+                    }
+                `;
+                if (unlocked) {
+                    card.addEventListener('click', () => this.start(boss.id));
+                }
+                gridChampion.appendChild(card);
+            });
+        }
+
+        // Update subtitle with boss count
+        const totalBosses = BOSS_DATA.length + ADVANCED_BOSSES.length + CHAMPION_BOSSES.length;
+        const defeatedCount = [...BOSS_DATA.map(b => this.isDefeated(b.table) || this.isDefeated('basic_' + b.table)),
+                               ...ADVANCED_BOSSES.map(b => this.isDefeated(b.id)),
+                               ...CHAMPION_BOSSES.map(b => this.isDefeated(b.id))].filter(Boolean).length;
+        const subtitle = document.getElementById('boss-select-subtitle');
+        if (subtitle) subtitle.textContent = `נוצחו ${defeatedCount} מתוך ${totalBosses} בוסים`;
+
         App.navigateTo('screen-boss-select');
     }
 };
@@ -5346,11 +6104,44 @@ const ParentSnapshot = {
             ` : ''}
 
             <div style="margin-top:1rem;padding:0.75rem;background:rgba(108,99,255,0.1);border-radius:var(--radius-md);font-size:0.8rem;color:var(--text-secondary);text-align:right;">
-                <div>⚔️ בוסים שנוצחו: ${bossesWon} / ${BOSS_DATA.length}</div>
+                <div>⚔️ בוסים שנוצחו: ${bossesWon} / ${BOSS_DATA.length + ADVANCED_BOSSES.length + CHAMPION_BOSSES.length}</div>
                 <div>🔥 רצף חימום יומי: ${data.stats.dailyBoostStreak || 0}</div>
                 <div>🎯 תרגולי חולשות: ${data.stats.focusModeSessions || 0}</div>
             </div>
+
+            <div style="margin-top:1.2rem;padding:0.75rem;background:rgba(255,212,59,0.1);border:1px solid rgba(255,212,59,0.2);border-radius:var(--radius-md);text-align:right;">
+                <div style="font-family:'Fredoka',sans-serif;font-weight:700;font-size:0.85rem;color:#FFD43B;margin-bottom:0.5rem;">🎮 שינוי רמת השחקן</div>
+                <div style="font-size:0.7rem;color:var(--text-secondary);margin-bottom:0.5rem;">
+                    רמה נוכחית: <strong style="color:#FFD43B;">${data.progression ? data.progression.currentLevel : 1}</strong> / 30
+                    (${TIER_LEVELS[(data.progression ? data.progression.currentLevel : 1) - 1]?.name || ''})
+                </div>
+                <div style="display:flex;gap:0.5rem;align-items:center;justify-content:center;flex-wrap:wrap;">
+                    <select id="parent-level-select" style="background:var(--bg-card);color:var(--text-primary);border:1px solid rgba(255,255,255,0.15);border-radius:var(--radius-sm);padding:0.4rem 0.6rem;font-size:0.75rem;flex:1;min-width:0;">
+                        ${TIER_LEVELS.map(l => {
+                            const tier = l.level <= 10 ? '🌱' : l.level <= 20 ? '⚡' : '👑';
+                            const sel = l.level === (data.progression ? data.progression.currentLevel : 1) ? ' selected' : '';
+                            return `<option value="${l.level}"${sel}>${tier} ${l.level}. ${l.name}</option>`;
+                        }).join('')}
+                    </select>
+                    <button id="btn-parent-set-level" class="btn btn-primary" style="font-size:0.75rem;padding:0.4rem 1rem;white-space:nowrap;">שנה שלב</button>
+                </div>
+            </div>
         `;
+
+        // Add level override handler
+        const setLevelBtn = document.getElementById('btn-parent-set-level');
+        if (setLevelBtn) {
+            setLevelBtn.addEventListener('click', () => {
+                const select = document.getElementById('parent-level-select');
+                const newLevel = parseInt(select.value);
+                if (newLevel >= 1 && newLevel <= 30) {
+                    LevelProgression.setLevelOverride(newLevel);
+                    SoundEngine.play('achievement');
+                    // Refresh the report
+                    this.show();
+                }
+            });
+        }
 
         App.navigateTo('screen-parent');
     }
@@ -5514,16 +6305,242 @@ const App = {
 
 // ====== HELPERS ======
 function getLevel(points) {
-    for (let i = LEVELS.length - 1; i >= 0; i--) {
-        if (points >= LEVELS[i].minPoints) {
-            const cur = LEVELS[i];
-            const next = LEVELS[i + 1];
-            const progress = next ? (points - cur.minPoints) / (next.minPoints - cur.minPoints) : 1;
-            return { ...cur, progress: Math.min(progress, 1), next };
-        }
-    }
-    return { ...LEVELS[0], progress: 0, next: LEVELS[1] };
+    const data = Storage.load();
+    const currentLevel = data.progression ? data.progression.currentLevel : 1;
+    const cur = TIER_LEVELS[currentLevel - 1] || TIER_LEVELS[0];
+    const next = TIER_LEVELS[currentLevel] || null;
+    const tier = TIERS[cur.tier];
+
+    // Progress = objective completion ratio
+    const objectives = (LEVEL_MISSIONS[currentLevel] && LEVEL_MISSIONS[currentLevel].objectives) || [];
+    const objProgress = (data.progression && data.progression.levelObjectives && data.progression.levelObjectives[currentLevel]) || {};
+    const completedObj = objectives.filter(o => (objProgress[o.id] || 0) >= o.target).length;
+    const progress = objectives.length > 0 ? completedObj / objectives.length : 0;
+
+    return {
+        level: currentLevel,
+        name: cur.name,
+        icon: cur.icon,
+        color: cur.color,
+        tier: cur.tier,
+        tierName: tier.name,
+        tierIcon: tier.icon,
+        tierGradient: tier.gradient,
+        progress,
+        next,
+        minPoints: cur.xpRequired,
+        xpRequired: cur.xpRequired,
+        timerOverrides: cur.timerOverrides,
+        objectivesTotal: objectives.length,
+        objectivesCompleted: completedObj,
+        isMaxLevel: currentLevel >= 30
+    };
 }
+
+function getEffectiveQuestionTimer(difficulty) {
+    if (App.isQuickRecall) return QUICK_RECALL_CONFIG.questionTimerSec;
+    const data = Storage.load();
+    const level = data.progression ? data.progression.currentLevel : 1;
+    const levelData = TIER_LEVELS[level - 1] || TIER_LEVELS[0];
+    const override = levelData.timerOverrides[difficulty];
+    return (override !== undefined && override !== false) ? override : false;
+}
+
+// ====== LEVEL PROGRESSION MODULE ======
+const LevelProgression = {
+    updateObjectives(sessionCtx) {
+        const data = Storage.load();
+        const level = data.progression ? data.progression.currentLevel : 1;
+        const missions = LEVEL_MISSIONS[level];
+        if (!missions || level > 30) return;
+
+        Storage.update(d => {
+            if (!d.progression) return;
+            if (!d.progression.levelObjectives[level]) {
+                d.progression.levelObjectives[level] = {};
+            }
+            const obj = d.progression.levelObjectives[level];
+            missions.objectives.forEach(o => {
+                const val = sessionCtx[o.field] || 0;
+                if (['bestStreak', 'sessionAccuracy', 'geniusScore'].includes(o.field)) {
+                    obj[o.id] = Math.max(obj[o.id] || 0, val);
+                } else {
+                    obj[o.id] = (obj[o.id] || 0) + val;
+                }
+            });
+        });
+
+        this.checkLevelUp();
+    },
+
+    checkLevelUp() {
+        const data = Storage.load();
+        if (!data.progression) return;
+        const level = data.progression.currentLevel;
+        if (level >= 30) return;
+
+        const missions = LEVEL_MISSIONS[level];
+        if (!missions) return;
+
+        const obj = data.progression.levelObjectives[level] || {};
+        const allComplete = missions.objectives.every(o => (obj[o.id] || 0) >= o.target);
+
+        const nextLevelData = TIER_LEVELS[level]; // index = level (0-indexed next)
+        const hasEnoughXP = nextLevelData ? data.stats.totalPoints >= nextLevelData.xpRequired : true;
+
+        if (allComplete && hasEnoughXP) {
+            this.advanceLevel(level);
+        }
+    },
+
+    advanceLevel(fromLevel) {
+        const newLevel = fromLevel + 1;
+        Storage.update(d => {
+            if (!d.progression.completedLevels.includes(fromLevel)) {
+                d.progression.completedLevels.push(fromLevel);
+            }
+            d.progression.currentLevel = newLevel;
+            d.progression.levelCompletedAt[fromLevel] = Date.now();
+            if (newLevel >= 11) d.progression.tierUnlocked.advanced = true;
+            if (newLevel >= 21) d.progression.tierUnlocked.champion = true;
+        });
+
+        // Award rewards
+        let reward;
+        if (LEVEL_REWARDS.tierComplete[fromLevel]) {
+            reward = LEVEL_REWARDS.tierComplete[fromLevel];
+        } else if (fromLevel % 5 === 0) {
+            reward = LEVEL_REWARDS.milestone;
+        } else {
+            reward = LEVEL_REWARDS.default;
+        }
+        Storage.update(d => {
+            d.stats.totalCoins += reward.coins;
+            d.stats.totalStars += reward.stars;
+            d.stats.totalPoints += reward.points;
+        });
+
+        this.showLevelUpCelebration(newLevel, reward);
+
+        // Check for new mode unlocks at this level
+        const modeNames = {
+            'focus_mode': '🎯 תרגול חולשות חכם',
+            'boss_battle': '⚔️ קרב בוסים',
+            'quick_recall': '⚡ שליפה מהירה',
+            'challenge': '⏱️ מצב אתגר',
+            'genius': '🧠 אלוף המחוננים',
+            'advanced_bosses': '⚔️ בוסים מתקדמים',
+            'champion_bosses': '👑 בוסי אלוף',
+            'speed_challenge': '💨 אתגר מהירות',
+            'endurance': '🏃‍♂️ מרתון'
+        };
+        if (LEVEL_UNLOCKS[newLevel]) {
+            setTimeout(() => {
+                LEVEL_UNLOCKS[newLevel].forEach((modeId, i) => {
+                    setTimeout(() => {
+                        if (modeNames[modeId]) {
+                            showRewardPopup('🔓', 'נפתח מצב חדש!', modeNames[modeId]);
+                        }
+                    }, i * 2500);
+                });
+            }, 3000); // After celebration overlay
+        }
+
+        // Check for new boss unlocks
+        const newBosses = [...ADVANCED_BOSSES, ...CHAMPION_BOSSES].filter(b => b.unlockLevel === newLevel);
+        if (newBosses.length > 0) {
+            setTimeout(() => {
+                newBosses.forEach((boss, i) => {
+                    setTimeout(() => {
+                        showRewardPopup('⚔️', 'בוס חדש זמין!', `${boss.emoji} ${boss.name}`);
+                    }, i * 2500);
+                });
+            }, 3000 + (LEVEL_UNLOCKS[newLevel] ? LEVEL_UNLOCKS[newLevel].length * 2500 : 0));
+        }
+    },
+
+    showLevelUpCelebration(newLevel, reward) {
+        const levelData = TIER_LEVELS[newLevel - 1];
+        const tier = TIERS[levelData.tier];
+        const isTierComplete = LEVEL_REWARDS.tierComplete[newLevel];
+
+        if (typeof showConfetti === 'function') showConfetti();
+        if (typeof SoundEngine !== 'undefined') SoundEngine.play('perfect');
+
+        // Create level-up overlay
+        const overlay = document.createElement('div');
+        overlay.className = 'level-up-overlay';
+        overlay.innerHTML = `
+            <div class="level-up-card" style="border-color: ${levelData.color}">
+                <div class="level-up-icon">${levelData.icon}</div>
+                <div style="font-size:1.5rem;font-weight:800;font-family:var(--font-display);margin:0.5rem 0;color:${levelData.color};">
+                    ${isTierComplete ? isTierComplete.title : `עלית לשלב ${newLevel}!`}
+                </div>
+                <div style="font-size:1.1rem;font-weight:600;margin-bottom:0.5rem;">${levelData.name}</div>
+                <div style="font-size:0.85rem;color:var(--text-secondary);margin-bottom:0.5rem;">
+                    ${tier.icon} ${tier.name}
+                </div>
+                <div style="display:flex;gap:1rem;justify-content:center;margin:1rem 0;">
+                    <div style="text-align:center;">
+                        <div style="font-size:1.5rem;">🪙</div>
+                        <div style="font-size:0.9rem;font-weight:700;color:#FFD700;">+${reward.coins}</div>
+                    </div>
+                    <div style="text-align:center;">
+                        <div style="font-size:1.5rem;">⭐</div>
+                        <div style="font-size:0.9rem;font-weight:700;color:#FFD700;">+${reward.stars}</div>
+                    </div>
+                </div>
+                <button class="btn btn-primary btn-lg" onclick="this.closest('.level-up-overlay').remove();" style="margin-top:0.5rem;">🎉 יאללה!</button>
+            </div>
+        `;
+        document.body.appendChild(overlay);
+    },
+
+    getObjectivesStatus() {
+        const data = Storage.load();
+        const level = data.progression ? data.progression.currentLevel : 1;
+        const missions = LEVEL_MISSIONS[level];
+        if (!missions) return [];
+        const obj = (data.progression && data.progression.levelObjectives && data.progression.levelObjectives[level]) || {};
+        return missions.objectives.map(o => ({
+            ...o,
+            progress: Math.min(obj[o.id] || 0, o.target),
+            completed: (obj[o.id] || 0) >= o.target
+        }));
+    },
+
+    getUnlockedModes() {
+        const data = Storage.load();
+        const level = data.progression ? data.progression.currentLevel : 1;
+        const modes = [];
+        for (const [lvl, modeList] of Object.entries(LEVEL_UNLOCKS)) {
+            if (level >= parseInt(lvl)) modes.push(...modeList);
+        }
+        return modes;
+    },
+
+    getUnlockLevelForMode(modeId) {
+        for (const [lvl, modeList] of Object.entries(LEVEL_UNLOCKS)) {
+            if (modeList.includes(modeId)) return parseInt(lvl);
+        }
+        return 1;
+    },
+
+    setLevelOverride(level) {
+        Storage.update(d => {
+            if (!d.progression) d.progression = JSON.parse(JSON.stringify(DEFAULT_DATA.progression));
+            d.progression.parentOverrideLevel = level;
+            d.progression.currentLevel = level;
+            for (let i = 1; i < level; i++) {
+                if (!d.progression.completedLevels.includes(i)) {
+                    d.progression.completedLevels.push(i);
+                }
+            }
+            if (level >= 11) d.progression.tierUnlocked.advanced = true;
+            if (level >= 21) d.progression.tierUnlocked.champion = true;
+        });
+    }
+};
 
 function todayKey() {
     return new Date().toISOString().split('T')[0];
@@ -5720,10 +6737,121 @@ function confirmAvatar() {
         data.profile.createdAt = new Date().toISOString();
     });
     SoundEngine.play('achievement');
-    showWelcomeScreen();
+    showMapScreen();
 }
 
 // ====== SCREEN: WELCOME ======
+// ====== MAP SCREEN ======
+function showMapScreen() {
+    const data = Storage.load();
+    const currentLevel = data.progression ? data.progression.currentLevel : 1;
+    const completedLevels = data.progression ? (data.progression.completedLevels || []) : [];
+
+    // Update subtitle
+    const subtitle = document.getElementById('map-subtitle');
+    if (subtitle) subtitle.textContent = `שלב ${currentLevel} / 30`;
+
+    const container = document.getElementById('map-path-container');
+    if (!container) return;
+    container.innerHTML = '';
+
+    const tierDefs = [
+        { key: 'basis',    label: '🌱 בסיס',    cssClass: 'map-tier-basis',    color: '#51CF66', range: [1, 10] },
+        { key: 'advanced', label: '⚡ מתקדם',    cssClass: 'map-tier-advanced', color: '#4DABF7', range: [11, 20] },
+        { key: 'champion', label: '👑 אלוף',     cssClass: 'map-tier-champion', color: '#FFD43B', range: [21, 30] }
+    ];
+
+    tierDefs.forEach((tier, tierIdx) => {
+        // Tier gate between sections
+        if (tierIdx > 0) {
+            const gate = document.createElement('div');
+            const gateUnlocked = currentLevel >= tier.range[0];
+            gate.className = 'map-tier-gate ' + (gateUnlocked ? 'unlocked' : 'gate-locked');
+            gate.textContent = gateUnlocked ? '🚪 ✨' : '🔒';
+            container.appendChild(gate);
+        }
+
+        const tierSection = document.createElement('div');
+        tierSection.className = 'map-tier ' + tier.cssClass;
+
+        const tierLabel = document.createElement('div');
+        tierLabel.className = 'map-tier-label';
+        tierLabel.style.color = tier.color;
+        tierLabel.textContent = tier.label;
+        tierSection.appendChild(tierLabel);
+
+        const nodesContainer = document.createElement('div');
+        nodesContainer.className = 'map-nodes';
+
+        for (let lvl = tier.range[0]; lvl <= tier.range[1]; lvl++) {
+            const node = document.createElement('div');
+            const isCompleted = completedLevels.includes(lvl);
+            const isCurrent = lvl === currentLevel;
+            const isLocked = lvl > currentLevel;
+            const levelData = TIER_LEVELS[lvl - 1];
+
+            node.className = 'map-node pop-in'
+                + (isCompleted ? ' completed' : '')
+                + (isCurrent ? ' current' : '')
+                + (isLocked ? ' locked' : '');
+
+            // Stagger animation
+            node.style.animationDelay = ((lvl - tier.range[0]) * 0.04) + 's';
+
+            if (isCompleted) {
+                node.style.background = tier.color;
+            }
+
+            node.textContent = isCurrent ? levelData.icon : lvl;
+
+            if (isCurrent) {
+                node.title = levelData.name;
+            }
+
+            nodesContainer.appendChild(node);
+        }
+
+        tierSection.appendChild(nodesContainer);
+        container.appendChild(tierSection);
+    });
+
+    // Render current level objectives in footer
+    const objContainer = document.getElementById('map-objectives');
+    if (objContainer) {
+        objContainer.innerHTML = '';
+        const objectives = LevelProgression.getObjectivesStatus();
+        if (objectives && objectives.length > 0) {
+            const objTitle = document.createElement('div');
+            objTitle.style.cssText = 'font-size:0.75rem;font-weight:700;color:#FFD43B;margin-bottom:0.3rem;';
+            const levelData = TIER_LEVELS[currentLevel - 1];
+            objTitle.textContent = `📋 משימות שלב ${currentLevel}: ${levelData ? levelData.name : ''}`;
+            objContainer.appendChild(objTitle);
+
+            objectives.forEach(obj => {
+                const item = document.createElement('div');
+                const done = obj.progress >= obj.target;
+                item.className = 'map-obj-item' + (done ? ' obj-done' : '');
+                item.innerHTML = `
+                    <span class="map-obj-icon">${done ? '✅' : obj.icon}</span>
+                    <span>${obj.desc}</span>
+                    <span class="map-obj-progress">${obj.progress}/${obj.target}</span>
+                `;
+                objContainer.appendChild(item);
+            });
+        }
+    }
+
+    App.navigateTo('screen-map');
+
+    // Auto-scroll to current level node after a short delay
+    setTimeout(() => {
+        const currentNode = container.querySelector('.map-node.current');
+        if (currentNode) {
+            currentNode.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+    }, 300);
+}
+
 function showWelcomeScreen() {
     // Reset all mode flags
     SpaceMusic.stop();
@@ -5835,15 +6963,95 @@ function showWelcomeScreen() {
         else missionCard.classList.remove('completed');
     }
 
+    // Level Objectives card
+    const levelObjCard = document.getElementById('level-objectives-card');
+    if (levelObjCard) {
+        const objectives = LevelProgression.getObjectivesStatus();
+        const currentLevel = data.progression ? data.progression.currentLevel : 1;
+        const levelData = TIER_LEVELS[currentLevel - 1];
+        document.getElementById('level-obj-icon').textContent = levelData ? levelData.icon : '📋';
+        document.getElementById('level-obj-num').textContent = currentLevel;
+        const objList = document.getElementById('level-obj-list');
+        objList.innerHTML = '';
+        if (objectives && objectives.length > 0) {
+            let completed = 0;
+            objectives.forEach(obj => {
+                const done = obj.progress >= obj.target;
+                if (done) completed++;
+                const item = document.createElement('div');
+                item.className = 'level-obj-item' + (done ? ' obj-complete' : '');
+                item.innerHTML = `
+                    <span class="level-obj-item-icon">${done ? '✅' : obj.icon}</span>
+                    <span>${obj.desc}</span>
+                    <span class="level-obj-item-progress">${obj.progress}/${obj.target}</span>
+                `;
+                objList.appendChild(item);
+            });
+            const pct = objectives.length > 0 ? Math.min(100, (completed / objectives.length) * 100) : 0;
+            document.getElementById('level-obj-fill').style.width = pct + '%';
+            levelObjCard.style.display = '';
+        } else {
+            levelObjCard.style.display = 'none';
+        }
+    }
+
     // Boss wins badge
+    const totalBossCount = BOSS_DATA.length + ADVANCED_BOSSES.length + CHAMPION_BOSSES.length;
     const bossWinsBadge = document.getElementById('boss-wins-badge');
     if (bossWinsBadge) {
         const bossWins = data.stats.totalBossWins || 0;
         if (bossWins > 0) {
-            bossWinsBadge.textContent = `⚔️${bossWins}/${BOSS_DATA.length}`;
+            bossWinsBadge.textContent = `⚔️${bossWins}/${totalBossCount}`;
             bossWinsBadge.style.display = 'inline-block';
             bossWinsBadge.style.cssText = 'display:inline-block;background:rgba(0,0,0,0.2);padding:0.1rem 0.4rem;border-radius:10px;font-size:0.65rem;margin-right:0.3rem;vertical-align:middle;';
         }
+    }
+
+    // Level badge update — show tier info
+    const tierInfo = lvl.tierName ? `${lvl.tierIcon} ${lvl.tierName} ` : '';
+    badge.textContent = `${tierInfo}${lvl.name}`;
+
+    // ====== MODE GATING BY LEVEL ======
+    const unlockedModes = LevelProgression.getUnlockedModes();
+    const modeButtonMap = {
+        'focus_mode':    'btn-focus-mode',
+        'boss_battle':   'btn-boss-battle',
+        'quick_recall':  'btn-quick-recall',
+        'challenge':     'btn-challenge',
+        'genius':        'btn-genius'
+    };
+    Object.entries(modeButtonMap).forEach(([modeId, btnId]) => {
+        const btn = document.getElementById(btnId);
+        if (!btn) return;
+        if (unlockedModes.includes(modeId)) {
+            // Mode is unlocked — show normally
+            btn.classList.remove('mode-locked');
+            btn.disabled = false;
+            btn.style.opacity = '';
+            btn.style.pointerEvents = '';
+            // Remove lock overlay if exists
+            const lockOverlay = btn.querySelector('.mode-lock-label');
+            if (lockOverlay) lockOverlay.remove();
+        } else {
+            // Mode is locked — gray out and show lock
+            btn.classList.add('mode-locked');
+            btn.disabled = true;
+            btn.style.opacity = '0.4';
+            btn.style.pointerEvents = 'none';
+            const unlockLvl = LevelProgression.getUnlockLevelForMode(modeId);
+            if (unlockLvl && !btn.querySelector('.mode-lock-label')) {
+                const lockLabel = document.createElement('span');
+                lockLabel.className = 'mode-lock-label';
+                lockLabel.style.cssText = 'margin-right:0.5rem;font-size:0.6rem;opacity:0.8;';
+                lockLabel.textContent = `🔒 רמה ${unlockLvl}`;
+                btn.appendChild(lockLabel);
+            }
+        }
+    });
+
+    // Focus mode: also hide if no weak facts (even if unlocked)
+    if (unlockedModes.includes('focus_mode') && weakFacts.length === 0) {
+        document.getElementById('btn-focus-mode').style.display = 'none';
     }
 
     // Visual upgrade: Add title shimmer
@@ -6308,9 +7516,15 @@ function showQuestion() {
     App.questionStartTime = Date.now();
     App.isProcessing = false;
 
-    // Per-question timer
-    const qtCfg = DIFFICULTY_CONFIG[App.sessionDifficulty];
-    const qtSec = App.isQuickRecall ? QUICK_RECALL_CONFIG.questionTimerSec : qtCfg.questionTimer;
+    // Per-question timer (tier-aware)
+    let qtSec;
+    if (App.isQuickRecall) {
+        qtSec = QUICK_RECALL_CONFIG.questionTimerSec;
+    } else if (App.isBossBattle && App._bossTimerOverride) {
+        qtSec = App._bossTimerOverride;
+    } else {
+        qtSec = getEffectiveQuestionTimer(App.sessionDifficulty);
+    }
     if (qtSec) startQuestionTimer(qtSec);
     else stopQuestionTimer();
 
@@ -6930,6 +8144,30 @@ function endSession(reason) {
         fastCorrect: fastCorrectCount,
         modesPlayed: modesPlayedSet.size
     });
+
+    // ====== LEVEL PROGRESSION: Track objectives ======
+    {
+        // Calculate session best streak
+        let curStrk = 0, bestStrk = 0;
+        for (const r of results) { if (r.correct) { curStrk++; if (curStrk > bestStrk) bestStrk = curStrk; } else curStrk = 0; }
+        // Count mastery upgrades this session
+        const todayChanges = (dailyData.masteryChanges || []);
+        const newMastCount = todayChanges.filter(c => c.to === 'high').length;
+
+        LevelProgression.updateObjectives({
+            questionsAnswered: total,
+            correctAnswers: correct,
+            bestStreak: bestStrk,
+            sessionsCompleted: 1,
+            perfectSessions: (isPerfect && total >= 5) ? 1 : 0,
+            geniusCorrect: App.isGenius ? correct : 0,
+            geniusScore: App.isGenius ? App.geniusScore : 0,
+            bossDefeated: (reason === 'bossDefeated') ? 1 : 0,
+            fastAnswers: fastCorrectCount,
+            sessionAccuracy: accuracy,
+            newMasteries: newMastCount
+        });
+    }
 
     // Check achievements
     const newAch = AchSys.check({
@@ -7600,6 +8838,10 @@ document.addEventListener('click', (e) => {
     if (id === 'btn-parent-snapshot') { SoundEngine.play('click'); ParentSnapshot.requestAccess(); }
     if (id === 'hint-dismiss') { hideHintOverlay(); }
 
+    // Map screen
+    if (id === 'btn-map-continue') showWelcomeScreen();
+    if (id === 'btn-open-map') showMapScreen();
+
     // Boss select screen
     if (id === 'btn-boss-back') showWelcomeScreen();
 
@@ -7776,7 +9018,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (!data.profile.avatar) {
                     App.navigateTo('screen-avatar');
                 } else {
-                    showWelcomeScreen();
+                    showMapScreen();
                 }
             }, 600);
         }, 2000);
@@ -7785,7 +9027,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!data.profile.avatar) {
             App.navigateTo('screen-avatar');
         } else {
-            showWelcomeScreen();
+            showMapScreen();
         }
     }
 });
