@@ -1019,6 +1019,12 @@
             border: 2px solid var(--color-primary-light);
             box-shadow: 0 0 10px rgba(108, 99, 255, 0.3);
             z-index: 5;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .itamar-photo-practice:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 16px rgba(108, 99, 255, 0.5);
         }
         .itamar-photo-summary {
             width: 120px;
@@ -4401,6 +4407,203 @@ const SpaceMusic = {
     }
 };
 
+// ====== BOSS BATTLE MUSIC ======
+const BossMusic = {
+    ctx: null,
+    playing: false,
+    _loopTimer: null,
+
+    start() {
+        if (this.playing) return;
+        try {
+            if (SoundEngine.ctx && SoundEngine.ctx.state !== 'closed') {
+                this.ctx = SoundEngine.ctx;
+            } else {
+                SoundEngine.init();
+                this.ctx = SoundEngine.ctx;
+            }
+            if (this.ctx && this.ctx.state === 'suspended') this.ctx.resume();
+            this.playing = true;
+            this._scheduleLoop();
+        } catch(e) {
+            console.error('BossMusic error:', e);
+        }
+    },
+
+    _note(freq, start, dur, type, vol) {
+        if (!this.ctx || !this.playing) return;
+        const ctx = this.ctx;
+        const t = ctx.currentTime + start;
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = type;
+        osc.frequency.value = freq;
+        gain.gain.setValueAtTime(0, t);
+        gain.gain.linearRampToValueAtTime(vol, t + 0.01);
+        gain.gain.setValueAtTime(vol, t + dur * 0.7);
+        gain.gain.linearRampToValueAtTime(0, t + dur);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(t);
+        osc.stop(t + dur + 0.02);
+    },
+
+    _kick(start) {
+        if (!this.ctx || !this.playing) return;
+        const ctx = this.ctx;
+        const t = ctx.currentTime + start;
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(180, t);
+        osc.frequency.exponentialRampToValueAtTime(30, t + 0.12);
+        gain.gain.setValueAtTime(0.18, t);
+        gain.gain.linearRampToValueAtTime(0, t + 0.15);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(t);
+        osc.stop(t + 0.18);
+    },
+
+    _snare(start) {
+        if (!this.ctx || !this.playing) return;
+        const ctx = this.ctx;
+        const t = ctx.currentTime + start;
+        const buf = ctx.createBuffer(1, Math.floor(ctx.sampleRate * 0.1), ctx.sampleRate);
+        const d = buf.getChannelData(0);
+        for (let i = 0; i < d.length; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / d.length, 1.2);
+        const src = ctx.createBufferSource();
+        src.buffer = buf;
+        const gain = ctx.createGain();
+        gain.gain.setValueAtTime(0.12, t);
+        gain.gain.linearRampToValueAtTime(0, t + 0.09);
+        src.connect(gain);
+        gain.connect(ctx.destination);
+        src.start(t);
+    },
+
+    _scheduleLoop() {
+        if (!this.playing) return;
+        const N = this._note.bind(this);
+        const K = this._kick.bind(this);
+        const SN = this._snare.bind(this);
+        const BPM = 140;
+        const beat = 60 / BPM;
+        const eighth = beat / 2;
+        const sixteenth = beat / 4;
+        const bar = beat * 4;
+        const loopLen = bar * 4;
+
+        // ---- DRUMS: intense driving beat ----
+        for (let b = 0; b < 4; b++) {
+            const o = b * bar;
+            // Double kick pattern (aggressive)
+            K(o);
+            K(o + eighth);
+            K(o + beat * 1.5);
+            K(o + beat * 2);
+            K(o + beat * 3);
+            K(o + beat * 3 + eighth);
+            // Snare on 2 and 4
+            SN(o + beat);
+            SN(o + beat * 3);
+            // Extra snare fills every 4th bar
+            if (b === 3) {
+                SN(o + beat * 3 + eighth);
+                SN(o + beat * 3 + eighth * 1.5);
+            }
+        }
+
+        // ---- BASS: dark D minor power riff ----
+        const bassPattern = [
+            [73.4,  0,     0.5],   // D2
+            [73.4,  0.75,  0.3],   // D2
+            [82.4,  1.5,   0.4],   // E2
+            [87.3,  2,     0.6],   // F2
+            [82.4,  3,     0.4],   // E2
+            [73.4,  3.5,   0.5],   // D2
+            [73.4,  4,     0.5],   // D2
+            [73.4,  4.75,  0.3],   // D2
+            [98.0,  5.5,   0.5],   // G2
+            [87.3,  6,     0.6],   // F2
+            [82.4,  7,     0.5],   // E2
+            [73.4,  8,     0.5],   // D2
+            [73.4,  8.75,  0.3],   // D2
+            [65.4,  9.5,   0.5],   // C2
+            [73.4,  10,    0.8],   // D2
+            [87.3,  11,    0.4],   // F2
+            [98.0,  12,    0.5],   // G2
+            [87.3,  12.5,  0.4],   // F2
+            [82.4,  13,    0.5],   // E2
+            [73.4,  14,    1.0],   // D2 (hold)
+        ];
+        for (const [freq, beatOff, dur] of bassPattern) {
+            N(freq, beatOff * beat, dur * beat, 'sawtooth', 0.05);
+            N(freq, beatOff * beat, dur * beat, 'square', 0.03);
+        }
+
+        // ---- LEAD: urgent battle melody in D minor ----
+        const melodyPattern = [
+            [587.3, 0,     0.4],   // D5
+            [523.3, 0.5,   0.3],   // C5
+            [466.2, 1,     0.5],   // Bb4
+            [440.0, 1.75,  0.4],   // A4
+            [392.0, 2.5,   0.5],   // G4
+            [440.0, 3,     0.5],   // A4
+            [466.2, 4,     0.8],   // Bb4 (hold)
+            [523.3, 5,     0.4],   // C5
+            [587.3, 5.5,   0.5],   // D5
+            [698.5, 6,     0.8],   // F5 (high tension!)
+            [659.3, 7,     0.5],   // E5
+            [587.3, 8,     0.5],   // D5
+            [523.3, 8.5,   0.3],   // C5
+            [587.3, 9,     0.6],   // D5
+            [466.2, 10,    0.5],   // Bb4
+            [440.0, 10.5,  0.4],   // A4
+            [392.0, 11,    0.5],   // G4
+            [440.0, 12,    0.4],   // A4
+            [466.2, 12.5,  0.3],   // Bb4
+            [523.3, 13,    0.4],   // C5
+            [587.3, 14,    1.0],   // D5 (resolve)
+        ];
+        for (const [freq, beatOff, dur] of melodyPattern) {
+            N(freq, beatOff * beat + sixteenth, dur * beat, 'square', 0.04);
+            N(freq * 0.5, beatOff * beat + sixteenth, dur * beat * 0.8, 'triangle', 0.025);
+        }
+
+        // ---- POWER CHORDS: Dm, Bb, C, Dm ----
+        const chords = [
+            [[293.7, 349.2, 440.0], 0],    // Dm
+            [[233.1, 293.7, 349.2], 4],     // Bb
+            [[261.6, 329.6, 392.0], 8],     // C
+            [[293.7, 349.2, 440.0], 12],    // Dm
+        ];
+        for (const [notes, beatOff] of chords) {
+            for (const f of notes) {
+                N(f, beatOff * beat, beat * 0.25, 'sawtooth', 0.02);
+                N(f, (beatOff + 2) * beat, beat * 0.2, 'sawtooth', 0.018);
+            }
+        }
+
+        // ---- WAR DRUMS: low rumble every 2 bars ----
+        for (let b = 0; b < 2; b++) {
+            const o = b * bar * 2;
+            N(55, o + beat * 3.5, beat * 0.5, 'sine', 0.08);
+            N(44, o + beat * 3.5, beat * 0.6, 'sine', 0.06);
+        }
+
+        this._loopTimer = setTimeout(() => {
+            this._scheduleLoop();
+        }, loopLen * 1000 - 100);
+    },
+
+    stop() {
+        this.playing = false;
+        if (this._loopTimer) { clearTimeout(this._loopTimer); this._loopTimer = null; }
+        this.ctx = null;
+    }
+};
+
 // ====== SOUND TEST (temporary debug - remove later) ======
 function testSound() {
     try {
@@ -5367,6 +5570,9 @@ const BossBattle = {
         updateTimerDisplay();
         startTimer();
 
+        // Start boss battle music
+        BossMusic.start();
+
         // Small delay to let screen exit animation complete
         setTimeout(() => {
             App.navigateTo('screen-practice');
@@ -5492,6 +5698,7 @@ const BossBattle = {
         this._currentBoss = null;
         this._bossHP = 0;
         App._bossTimerOverride = null;
+        BossMusic.stop();
         const barContainer = document.getElementById('boss-bar-container');
         if (barContainer) barContainer.style.display = 'none';
     },
@@ -6850,7 +7057,7 @@ function showMapScreen() {
 
 function showWelcomeScreen() {
     // Reset all mode flags
-    SpaceMusic.stop();
+    SpaceMusic.stop(); BossMusic.stop();
     App.isGenius = false;
     App.geniusScore = 0;
     App.isQuickRecall = false;
@@ -8057,7 +8264,7 @@ function endSession(reason) {
 
     // Stop genius mode visuals & music
     if (App.isGenius) {
-        SpaceMusic.stop();
+        SpaceMusic.stop(); BossMusic.stop();
         document.getElementById('screen-practice').classList.remove('genius-mode');
         document.getElementById('genius-title-bar').style.display = 'none';
     }
@@ -8879,6 +9086,18 @@ document.addEventListener('click', (e) => {
     if (e.target.closest('#difficulty-grid')) handleDifficultyClick(e);
     if (id === 'btn-diff-back') { SoundEngine.play('navigate'); showNumberScreen(); }
 
+    // Practice photo — tap to go home
+    if (id === 'practice-photo') {
+        SoundEngine.play('navigate');
+        stopTimer();
+        stopQuestionTimer();
+        BossBattle.cleanup();
+        PowerUps.cleanup();
+        SpaceMusic.stop(); BossMusic.stop();
+        showWelcomeScreen();
+        return;
+    }
+
     // Practice answers
     if (e.target.closest('#practice-answers')) handleAnswerClick(e);
 
@@ -8921,7 +9140,7 @@ document.addEventListener('click', (e) => {
     if (id === 'btn-toggle-music') {
         const btn = document.getElementById('btn-toggle-music');
         if (SpaceMusic.playing) {
-            SpaceMusic.stop();
+            SpaceMusic.stop(); BossMusic.stop();
             btn.classList.add('muted');
             btn.textContent = '🎵';
         } else {
