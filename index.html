@@ -8463,6 +8463,7 @@ function showQuestion() {
     // Start passive voice input alongside buttons (all modes except boss/genius/oral)
     const micHint = document.getElementById('passive-mic-hint');
     if (!App.isBossBattle && !App.isGenius && !App.isOralMode && SpeechRecog.isSupported()) {
+        resetPassiveListening();
         setTimeout(() => startPassiveListening(), 200);
     } else {
         if (micHint) micHint.style.display = 'none';
@@ -8767,8 +8768,23 @@ function processAnswer(isCorrect, q, responseMs, chosenRaw, visualBtn) {
 }
 
 // ====== PASSIVE VOICE INPUT (speech alongside buttons/input in all modes) ======
+let _passiveFailCount = 0;
+const _PASSIVE_MAX_RETRIES = 3;
+let _passiveStartTime = 0;
+
+function resetPassiveListening() {
+    _passiveFailCount = 0;
+}
+
 function startPassiveListening() {
     if (!SpeechRecog.isSupported() || App.isProcessing) return;
+    if (_passiveFailCount >= _PASSIVE_MAX_RETRIES) {
+        // Too many failures — mic not available; hide hint
+        const hint = document.getElementById('passive-mic-hint');
+        if (hint) hint.style.display = 'none';
+        return;
+    }
+
     const q = App.sessionQuestions[App.sessionIndex];
     if (!q) return;
 
@@ -8782,7 +8798,10 @@ function startPassiveListening() {
     const hint = document.getElementById('passive-mic-hint');
     if (hint) hint.style.display = '';
 
+    _passiveStartTime = Date.now();
+
     SpeechRecog.onResult = (transcripts, isFinal) => {
+        _passiveFailCount = 0; // Got a result — mic works!
         if (isFinal && !App.isProcessing) {
             const answer = SpeechRecog.parseSpokenNumber(transcripts);
             if (answer !== null) {
@@ -8799,14 +8818,26 @@ function startPassiveListening() {
     };
 
     SpeechRecog.onEnd = () => {
-        // Auto-restart if still on practice screen and not processing
+        const listenedMs = Date.now() - _passiveStartTime;
+        if (listenedMs < 500) {
+            // Ended too quickly — likely a failure (no mic, permission denied)
+            _passiveFailCount++;
+        } else {
+            // Ran for a while — normal end, reset fail count
+            _passiveFailCount = 0;
+        }
+
+        // Auto-restart if still valid
         if (!App.isProcessing && App.currentScreen === 'screen-practice' &&
-            !App.isBossBattle && !App.isGenius && !App.isOralMode) {
+            !App.isBossBattle && !App.isGenius && !App.isOralMode &&
+            _passiveFailCount < _PASSIVE_MAX_RETRIES) {
             setTimeout(() => {
                 if (!App.isProcessing && App.currentScreen === 'screen-practice') {
                     startPassiveListening();
                 }
-            }, 300);
+            }, 500);
+        } else if (_passiveFailCount >= _PASSIVE_MAX_RETRIES) {
+            if (hint) hint.style.display = 'none';
         }
     };
 
