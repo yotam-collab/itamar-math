@@ -615,6 +615,30 @@
             0%, 100% { transform: scale(1); }
             50% { transform: scale(1.1); }
         }
+        .passive-mic-hint {
+            position: absolute;
+            bottom: 8px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.7rem;
+            color: rgba(255,255,255,0.35);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            pointer-events: none;
+            z-index: 1;
+        }
+        .passive-mic-hint .mic-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: rgba(240, 101, 149, 0.5);
+            animation: micDotPulse 2s ease-in-out infinite;
+        }
+        @keyframes micDotPulse {
+            0%, 100% { opacity: 0.4; }
+            50% { opacity: 1; }
+        }
         .oral-status {
             font-size: 1rem;
             color: var(--text-secondary);
@@ -3232,6 +3256,11 @@
         <!-- Answer Options -->
         <div class="answer-grid" id="practice-answers"></div>
 
+        <!-- Passive mic hint (shown when voice input is active alongside buttons) -->
+        <div class="passive-mic-hint" id="passive-mic-hint" style="display:none;">
+            <span class="mic-dot"></span> אפשר גם לענות בקול
+        </div>
+
         <!-- Power-Up Bar -->
         <div class="powerup-bar" id="powerup-bar" style="display:none;"></div>
     </div>
@@ -3751,18 +3780,31 @@ const TTS = {
     _speaking: false,
     _hebrewVoice: null,
     _onEndCallback: null,
+    _pickBestVoice(voices) {
+        const heVoices = voices.filter(v => v.lang && v.lang.startsWith('he'));
+        if (heVoices.length === 0) return null;
+        // Prefer premium/enhanced voices (Google, Microsoft, Apple premium)
+        const premium = heVoices.find(v =>
+            /google|enhanced|premium|neural|natural/i.test(v.name) ||
+            (v.name.includes('Carmit') && v.localService) // Apple's high-quality Hebrew
+        );
+        if (premium) return premium;
+        // Prefer non-default, non-compact voices
+        const good = heVoices.find(v => !v.name.toLowerCase().includes('compact'));
+        return good || heVoices[0];
+    },
     speak(text, onEnd) {
         if (!this._enabled || !window.speechSynthesis) { if (onEnd) onEnd(); return; }
         window.speechSynthesis.cancel();
         const utterance = new SpeechSynthesisUtterance(text);
         utterance.lang = 'he-IL';
-        utterance.rate = 0.95;
-        utterance.pitch = 1.1;
+        utterance.rate = 1.15;
+        utterance.pitch = 1.0;
         if (this._hebrewVoice) utterance.voice = this._hebrewVoice;
         else {
             const voices = window.speechSynthesis.getVoices();
-            const hv = voices.find(v => v.lang && v.lang.startsWith('he'));
-            if (hv) { this._hebrewVoice = hv; utterance.voice = hv; }
+            const best = this._pickBestVoice(voices);
+            if (best) { this._hebrewVoice = best; utterance.voice = best; }
         }
         this._speaking = true;
         this._onEndCallback = onEnd || null;
@@ -3778,7 +3820,7 @@ const TTS = {
 if (window.speechSynthesis) {
     window.speechSynthesis.onvoiceschanged = () => {
         const voices = window.speechSynthesis.getVoices();
-        TTS._hebrewVoice = voices.find(v => v.lang && v.lang.startsWith('he')) || null;
+        TTS._hebrewVoice = TTS._pickBestVoice(voices);
     };
 }
 
@@ -8417,11 +8459,20 @@ function showQuestion() {
     else stopQuestionTimer();
 
     updatePracticeBubble();
+
+    // Start passive voice input alongside buttons (all modes except boss/genius/oral)
+    const micHint = document.getElementById('passive-mic-hint');
+    if (!App.isBossBattle && !App.isGenius && !App.isOralMode && SpeechRecog.isSupported()) {
+        setTimeout(() => startPassiveListening(), 200);
+    } else {
+        if (micHint) micHint.style.display = 'none';
+    }
 }
 
 function handleAnswerClick(e) {
     const btn = e.target.closest('[data-option]');
     if (!btn || App.isProcessing) return;
+    SpeechRecog.stop();
     stopQuestionTimer();
     App.isProcessing = true;
 
@@ -8523,8 +8574,8 @@ function processAnswer(isCorrect, q, responseMs, chosenRaw, visualBtn) {
         showPhotoFeedback(true);
         App.currentStreak++;
 
-        // Voice readout for correct answers (all modes)
-        if (q.a && q.b) {
+        // Voice readout for correct answers (skip boss battle & genius)
+        if (q.a && q.b && !App.isBossBattle && !App.isGenius) {
             const ttsCallback = (App.isOralMode) ? () => { setTimeout(() => startOralListening(), 500); } : null;
             TTS.speak(buildCorrectReadout(q.a, q.b), ttsCallback);
         }
@@ -8715,11 +8766,114 @@ function processAnswer(isCorrect, q, responseMs, chosenRaw, visualBtn) {
     }, delay);
 }
 
+// ====== PASSIVE VOICE INPUT (speech alongside buttons/input in all modes) ======
+function startPassiveListening() {
+    if (!SpeechRecog.isSupported() || App.isProcessing) return;
+    const q = App.sessionQuestions[App.sessionIndex];
+    if (!q) return;
+
+    // Skip question types where the answer isn't a simple number
+    if (!App.isFreeForm) {
+        const skipTypes = ['trueFalse', 'comparison', 'reverseMatch'];
+        if (skipTypes.includes(q.type)) return;
+    }
+
+    // Show passive mic hint
+    const hint = document.getElementById('passive-mic-hint');
+    if (hint) hint.style.display = '';
+
+    SpeechRecog.onResult = (transcripts, isFinal) => {
+        if (isFinal && !App.isProcessing) {
+            const answer = SpeechRecog.parseSpokenNumber(transcripts);
+            if (answer !== null) {
+                if (App.isFreeForm) {
+                    const input = document.getElementById('freeform-answer');
+                    if (input) input.value = answer;
+                    handleFreeFormSubmit();
+                } else {
+                    handleVoiceAnswerInButtonMode(answer);
+                }
+            }
+            // If answer is null (didn't understand), auto-restart handles retry
+        }
+    };
+
+    SpeechRecog.onEnd = () => {
+        // Auto-restart if still on practice screen and not processing
+        if (!App.isProcessing && App.currentScreen === 'screen-practice' &&
+            !App.isBossBattle && !App.isGenius && !App.isOralMode) {
+            setTimeout(() => {
+                if (!App.isProcessing && App.currentScreen === 'screen-practice') {
+                    startPassiveListening();
+                }
+            }, 300);
+        }
+    };
+
+    SpeechRecog.start();
+}
+
+function handleVoiceAnswerInButtonMode(answer) {
+    if (App.isProcessing) return;
+    SpeechRecog.stop();
+    stopQuestionTimer();
+    App.isProcessing = true;
+
+    const q = App.sessionQuestions[App.sessionIndex];
+    if (!q) { App.isProcessing = false; return; }
+
+    const responseMs = Date.now() - App.questionStartTime;
+
+    // Determine correct answer based on question type
+    let correctAnswer;
+    if (!q.type || q.type === 'standard') {
+        correctAnswer = q.a * q.b;
+    } else if (q.type === 'reverse' || q.type === 'sequence' || q.type === 'commutative') {
+        correctAnswer = q.correct;
+    } else {
+        App.isProcessing = false;
+        return;
+    }
+
+    const isCorrect = answer === correctAnswer;
+
+    // Disable all buttons visually
+    document.querySelectorAll('.answer-btn').forEach(b => b.classList.add('disabled'));
+
+    // Visual feedback on buttons
+    if (isCorrect) {
+        document.querySelectorAll('.answer-btn').forEach(b => {
+            if (parseInt(b.dataset.option) === correctAnswer) {
+                b.classList.add('correct');
+                showButtonParticles(b);
+            }
+        });
+        const card = document.querySelector('#screen-practice .card');
+        if (card) {
+            card.classList.remove('screen-flash-correct');
+            void card.offsetWidth;
+            card.classList.add('screen-flash-correct');
+            setTimeout(() => card.classList.remove('screen-flash-correct'), 500);
+        }
+    } else {
+        const card = document.querySelector('#screen-practice .card');
+        if (card) {
+            card.classList.remove('screen-flash-wrong', 'card-shake');
+            void card.offsetWidth;
+            card.classList.add('screen-flash-wrong', 'card-shake');
+            setTimeout(() => card.classList.remove('screen-flash-wrong', 'card-shake'), 500);
+        }
+    }
+
+    processAnswer(isCorrect, q, responseMs, String(answer), null);
+}
+
 // ====== FREE-FORM ANSWER HANDLER ======
 function handleFreeFormSubmit() {
     if (App.isProcessing) return;
     const input = document.getElementById('freeform-answer');
     if (!input || input.value.trim() === '') return;
+    SpeechRecog.stop();
     stopQuestionTimer();
     App.isProcessing = true;
 
