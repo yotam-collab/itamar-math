@@ -541,6 +541,94 @@
             color: var(--color-success);
         }
 
+        /* ====== FREE-FORM INPUT MODE ====== */
+        .freeform-input-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+        .freeform-input {
+            width: 80%;
+            max-width: 200px;
+            padding: 1.2rem;
+            border: 2.5px solid rgba(124, 107, 255, 0.4);
+            border-radius: 20px;
+            font-size: 2.5rem;
+            font-weight: 700;
+            font-family: var(--font-display);
+            background: rgba(22, 18, 56, 0.95);
+            color: #FFFFFF;
+            text-align: center;
+            outline: none;
+            direction: ltr;
+            -moz-appearance: textfield;
+        }
+        .freeform-input::-webkit-outer-spin-button,
+        .freeform-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+        .freeform-input:focus {
+            border-color: var(--color-primary);
+            box-shadow: 0 0 20px rgba(124, 107, 255, 0.3);
+        }
+        .freeform-submit {
+            padding: 0.8rem 2.5rem;
+            border: none;
+            border-radius: 16px;
+            font-size: 1.3rem;
+            font-weight: 700;
+            font-family: var(--font-display);
+            background: var(--gradient-nebula);
+            color: white;
+            cursor: pointer;
+            box-shadow: 0 5px 0 rgba(0,0,0,0.2);
+            transition: all 0.15s ease;
+        }
+        .freeform-submit:active { transform: translateY(3px); box-shadow: 0 2px 0 rgba(0,0,0,0.2); }
+        /* ====== ORAL MODE ====== */
+        .oral-mode-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.8rem;
+            margin: 1rem 0;
+        }
+        .oral-mic-btn {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            border: 3px solid rgba(240, 101, 149, 0.5);
+            background: rgba(22, 18, 56, 0.95);
+            font-size: 3rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+        .oral-mic-btn.listening {
+            border-color: var(--color-error);
+            box-shadow: 0 0 30px rgba(255, 107, 107, 0.4);
+            animation: micPulse 1.5s ease-in-out infinite;
+        }
+        @keyframes micPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        .oral-status {
+            font-size: 1rem;
+            color: var(--text-secondary);
+            font-weight: 600;
+        }
+        .oral-heard {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--color-primary-light);
+            min-height: 2.5rem;
+            direction: rtl;
+            transition: all 0.3s ease;
+        }
+
         /* ====== Progress Bar ====== */
         .progress-container {
             width: 100%;
@@ -2989,6 +3077,8 @@
             <button class="btn btn-outline btn-block" id="btn-review-mistakes">🔄  חזרה על טעויות</button>
             <button class="btn btn-outline btn-block" id="btn-boss-battle" style="border-color:rgba(255,82,82,0.4);color:#FF8A80;">⚔️  קרב בוסים <span class="boss-wins-badge" id="boss-wins-badge" style="display:none;"></span></button>
             <button class="btn btn-outline btn-block" id="btn-challenge">⏱️  מצב אתגר</button>
+            <button class="btn btn-outline btn-block" id="btn-free-form" style="border-color:rgba(77,171,247,0.4);color:#4DABF7;">✏️  כתיבה חופשית</button>
+            <button class="btn btn-outline btn-block" id="btn-oral-mode" style="border-color:rgba(240,101,149,0.4);color:#F06595;">🎤  תשובה בעל פה</button>
             <button class="btn btn-outline btn-block" id="btn-achievements">🏆  הישגים</button>
             <button class="btn btn-outline btn-block" id="btn-mastery">📊  לוח השליטה שלי</button>
             <button class="btn btn-outline btn-block" id="btn-journal">📔  יומן התקדמות</button>
@@ -3012,6 +3102,13 @@
             </div>
         </div>
 
+        <div class="settings-toggle-row">
+            <span class="settings-label">🔊 הקראה קולית:</span>
+            <div class="toggle-group">
+                <button class="toggle-option" data-tts="on" id="toggle-tts-on">פעיל</button>
+                <button class="toggle-option" data-tts="off" id="toggle-tts-off">כבוי</button>
+            </div>
+        </div>
         <div class="reset-trigger">
             <button class="reset-link" id="btn-test-sound" style="margin-bottom:8px;color:#00E5FF;">🔊 בדיקת סאונד</button>
             <div id="sound-debug" style="font-size:0.7rem;color:#00E5FF;margin-bottom:8px;min-height:1.2em;"></div>
@@ -3573,7 +3670,7 @@ const LEVEL_REWARDS = {
 
 // ====== MODE UNLOCKS BY LEVEL ======
 const LEVEL_UNLOCKS = {
-    1:  ['practice', 'daily_boost', 'focus_mode', 'boss_battle', 'quick_recall', 'challenge', 'genius'],
+    1:  ['practice', 'daily_boost', 'focus_mode', 'boss_battle', 'quick_recall', 'challenge', 'genius', 'free_form', 'oral_mode'],
     11: ['advanced_bosses'],
     15: ['speed_challenge'],
     21: ['champion_bosses'],
@@ -3613,6 +3710,149 @@ const ACHIEVEMENTS = [
     { id: 'powerup_first', icon: '🛡️', name: 'כוח-על!', desc: 'השתמשת בכוח-על לראשונה' },
     { id: 'thousand_correct', icon: '💎', name: 'אלף!', desc: 'ענית נכון על 1000 שאלות' }
 ];
+
+// ====== HEBREW NUMBER WORDS ======
+const HebrewNumbers = {
+    ones: ['', 'אחת', 'שתיים', 'שלוש', 'ארבע', 'חמש', 'שש', 'שבע', 'שמונה', 'תשע'],
+    onesMasc: ['', 'אחד', 'שניים', 'שלושה', 'ארבעה', 'חמישה', 'שישה', 'שבעה', 'שמונה', 'תשעה'],
+    teens: ['עשר', 'אחת עשרה', 'שתים עשרה', 'שלוש עשרה', 'ארבע עשרה', 'חמש עשרה',
+            'שש עשרה', 'שבע עשרה', 'שמונה עשרה', 'תשע עשרה'],
+    tens: ['', '', 'עשרים', 'שלושים', 'ארבעים', 'חמישים', 'שישים', 'שבעים', 'שמונים', 'תשעים'],
+    toWords(n) {
+        if (n === 0) return 'אפס';
+        if (n === 100) return 'מאה';
+        if (n < 10) return this.ones[n];
+        if (n >= 10 && n < 20) return this.teens[n - 10];
+        const ten = Math.floor(n / 10);
+        const one = n % 10;
+        if (one === 0) return this.tens[ten];
+        return this.tens[ten] + ' ו' + this.ones[one];
+    },
+    getSpokenVariants(n) {
+        const variants = [String(n), this.toWords(n)];
+        if (n < 10) { variants.push(this.onesMasc[n]); }
+        if (n >= 10 && n < 20) {
+            variants.push(this.teens[n - 10].replace(/ /g, '-'));
+            variants.push(this.teens[n - 10].replace(/ /g, ''));
+        }
+        if (n > 20 && n % 10 !== 0) {
+            const ten = Math.floor(n / 10);
+            const one = n % 10;
+            variants.push(this.tens[ten] + ' ' + this.ones[one]);
+            variants.push(this.tens[ten] + ' ו' + this.onesMasc[one]);
+        }
+        return variants.filter(v => v);
+    }
+};
+
+// ====== TEXT-TO-SPEECH MODULE ======
+const TTS = {
+    _enabled: true,
+    _speaking: false,
+    _hebrewVoice: null,
+    _onEndCallback: null,
+    speak(text, onEnd) {
+        if (!this._enabled || !window.speechSynthesis) { if (onEnd) onEnd(); return; }
+        window.speechSynthesis.cancel();
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = 'he-IL';
+        utterance.rate = 0.95;
+        utterance.pitch = 1.1;
+        if (this._hebrewVoice) utterance.voice = this._hebrewVoice;
+        else {
+            const voices = window.speechSynthesis.getVoices();
+            const hv = voices.find(v => v.lang && v.lang.startsWith('he'));
+            if (hv) { this._hebrewVoice = hv; utterance.voice = hv; }
+        }
+        this._speaking = true;
+        this._onEndCallback = onEnd || null;
+        utterance.onend = () => { this._speaking = false; if (this._onEndCallback) this._onEndCallback(); };
+        utterance.onerror = () => { this._speaking = false; if (this._onEndCallback) this._onEndCallback(); };
+        window.speechSynthesis.speak(utterance);
+    },
+    stop() {
+        if (window.speechSynthesis) window.speechSynthesis.cancel();
+        this._speaking = false;
+    }
+};
+if (window.speechSynthesis) {
+    window.speechSynthesis.onvoiceschanged = () => {
+        const voices = window.speechSynthesis.getVoices();
+        TTS._hebrewVoice = voices.find(v => v.lang && v.lang.startsWith('he')) || null;
+    };
+}
+
+const VOICE_PRAISES = [
+    'נכון מאוד {name}!', '{name} אלוף!', 'כל הכבוד {name}!', 'מעולה {name}!',
+    'יופי {name}!', 'מדהים {name}!', 'וואו {name}!', 'נהדר {name}!', '{name} כוכב!'
+];
+function buildCorrectReadout(a, b) {
+    const name = (Storage && Storage.load().profile.name) || 'איתמר';
+    const praise = VOICE_PRAISES[Math.floor(Math.random() * VOICE_PRAISES.length)].replace('{name}', name);
+    return praise + ' ' + HebrewNumbers.toWords(a) + ' כפול ' + HebrewNumbers.toWords(b) + ' שווה ' + HebrewNumbers.toWords(a * b);
+}
+
+// ====== SPEECH RECOGNITION MODULE ======
+const SpeechRecog = {
+    recognition: null,
+    isListening: false,
+    onResult: null,
+    onEnd: null,
+    isSupported() {
+        return 'SpeechRecognition' in window || 'webkitSpeechRecognition' in window;
+    },
+    init() {
+        const SR_API = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (!SR_API) return false;
+        this.recognition = new SR_API();
+        this.recognition.lang = 'he-IL';
+        this.recognition.continuous = false;
+        this.recognition.interimResults = true;
+        this.recognition.maxAlternatives = 5;
+        this.recognition.onresult = (event) => {
+            const results = [];
+            for (let i = 0; i < event.results.length; i++) {
+                for (let j = 0; j < event.results[i].length; j++) {
+                    results.push(event.results[i][j].transcript.trim());
+                }
+            }
+            if (this.onResult) this.onResult(results, event.results[0].isFinal);
+        };
+        this.recognition.onend = () => {
+            this.isListening = false;
+            if (this.onEnd) this.onEnd();
+        };
+        this.recognition.onerror = (event) => {
+            this.isListening = false;
+            if (this.onEnd) this.onEnd();
+        };
+        return true;
+    },
+    start() {
+        if (!this.recognition && !this.init()) return;
+        try { this.recognition.start(); this.isListening = true; } catch (e) { /* already started */ }
+    },
+    stop() {
+        if (this.recognition && this.isListening) {
+            try { this.recognition.stop(); } catch (e) {}
+            this.isListening = false;
+        }
+    },
+    parseSpokenNumber(transcripts) {
+        for (const transcript of transcripts) {
+            const digits = transcript.replace(/[^\d]/g, '');
+            if (digits) return parseInt(digits);
+            const clean = transcript.trim();
+            for (let n = 1; n <= 144; n++) {
+                const variants = HebrewNumbers.getSpokenVariants(n);
+                for (const variant of variants) {
+                    if (clean === variant || clean.includes(variant)) return n;
+                }
+            }
+        }
+        return null;
+    }
+};
 
 const DIFFICULTY_CONFIG = {
     easy:      { questions: 10, distractorMode: 'far', multiplier: 1,   timer: false, showCorrect: true,  retryWrong: true, questionTimer: 15 },
@@ -6701,6 +6941,8 @@ const App = {
     isDailyBoost: false,
     isBossBattle: false,
     bossTable: null,
+    isFreeForm: false,
+    isOralMode: false,
     focusModeFactsBefore: {},
     focusModeImproved: [],
     selectedAvatar: null,
@@ -7469,9 +7711,13 @@ function showWelcomeScreen() {
     App.isFocusMode = false;
     App.isDailyBoost = false;
     App.isBossBattle = false;
+    App.isFreeForm = false;
+    App.isOralMode = false;
     App.bossTable = null;
     App.focusModeFactsBefore = {};
     App.focusModeImproved = [];
+    SpeechRecog.stop();
+    TTS.stop();
     BossBattle.cleanup();
     PowerUps.cleanup();
     FrustrationGuard.reset();
@@ -7528,6 +7774,11 @@ function showWelcomeScreen() {
     document.getElementById('toggle-ans-4').classList.toggle('active', ansC === 4);
     document.getElementById('toggle-ans-6').classList.toggle('active', ansC === 6);
     document.getElementById('toggle-ans-8').classList.toggle('active', ansC === 8);
+
+    // TTS toggle state
+    const ttsOn = TTS._enabled;
+    document.getElementById('toggle-tts-on').classList.toggle('active', ttsOn);
+    document.getElementById('toggle-tts-off').classList.toggle('active', !ttsOn);
 
     // Genius high score inside button
     const gHS = data.settings.geniusHighScore || 0;
@@ -7626,7 +7877,9 @@ function showWelcomeScreen() {
         'boss_battle':   'btn-boss-battle',
         'quick_recall':  'btn-quick-recall',
         'challenge':     'btn-challenge',
-        'genius':        'btn-genius'
+        'genius':        'btn-genius',
+        'free_form':     'btn-free-form',
+        'oral_mode':     'btn-oral-mode'
     };
     Object.entries(modeButtonMap).forEach(([modeId, btnId]) => {
         const btn = document.getElementById(btnId);
@@ -8010,7 +8263,34 @@ function showQuestion() {
 
     // Render question text + answers based on type
     // Rule: Hebrew goes ONLY in .question-label header, math goes in questionEl wrapped in ltr()
-    switch (q.type) {
+
+    // ====== FREE-FORM MODE: input field instead of answer buttons ======
+    if (App.isFreeForm) {
+        questionEl.innerHTML = ltr(q.a + ' × ' + q.b + ' = ?');
+        grid.style.gridTemplateColumns = '1fr';
+        grid.innerHTML = `
+            <div class="freeform-input-container">
+                <input type="number" inputmode="numeric" id="freeform-answer" class="freeform-input" autocomplete="off" placeholder="?">
+                <button id="freeform-submit-btn" class="freeform-submit">בדוק ✓</button>
+            </div>
+        `;
+        setTimeout(() => { const inp = document.getElementById('freeform-answer'); if (inp) inp.focus(); }, 100);
+
+    // ====== ORAL MODE: mic button instead of answer buttons ======
+    } else if (App.isOralMode) {
+        questionEl.innerHTML = ltr(q.a + ' × ' + q.b + ' = ?');
+        grid.style.gridTemplateColumns = '1fr';
+        grid.innerHTML = `
+            <div class="oral-mode-container">
+                <div class="oral-status">לחץ על המיקרופון ואמור את התשובה</div>
+                <button class="oral-mic-btn" id="oral-mic-btn">🎤</button>
+                <div class="oral-heard" id="oral-heard"></div>
+            </div>
+        `;
+        // Auto-start listening after short delay
+        setTimeout(() => startOralListening(), 300);
+
+    } else switch (q.type) {
         case 'trueFalse': {
             questionEl.innerHTML = ltr(q.a + ' × ' + q.b + ' = ' + q.displayedResult);
             grid.style.gridTemplateColumns = 'repeat(2, 1fr)';
@@ -8149,7 +8429,6 @@ function handleAnswerClick(e) {
     if (!q) { App.isProcessing = false; return; }
     const chosenRaw = btn.dataset.option;
     const responseMs = Date.now() - App.questionStartTime;
-    const cfg = DIFFICULTY_CONFIG[App.sessionDifficulty];
 
     // Determine correctness based on question type
     let isCorrect;
@@ -8180,24 +8459,6 @@ function handleAnswerClick(e) {
         }
     }
 
-    // Notify GeniusQGen for adaptive difficulty
-    if (App.isGenius) GeniusQGen.recordAnswer(isCorrect);
-
-    // Notify FrustrationGuard and StrategyHints
-    FrustrationGuard.recordAnswer(isCorrect);
-    if (isCorrect) {
-        StrategyHints.recordCorrect(q.factKey);
-    }
-
-    // Shield power-up: absorb error
-    if (!isCorrect && PowerUps.consumeShield()) {
-        isCorrect = true; // Shield absorbed the error!
-        showFloatingReward('🛡️', window.innerWidth / 2, window.innerHeight / 3);
-    }
-
-    // Hide any inline strategy hint
-    StrategyHints.hideInlineHint();
-
     // Mark buttons
     document.querySelectorAll('.answer-btn').forEach(b => b.classList.add('disabled'));
 
@@ -8214,11 +8475,6 @@ function handleAnswerClick(e) {
 
     if (isCorrect) {
         btn.classList.add('correct');
-        SoundEngine.play('correct');
-        showPhotoFeedback(true);
-        App.currentStreak++;
-
-        // Visual upgrade: screen flash + particles
         const card = btn.closest('.card');
         if (card) {
             card.classList.remove('screen-flash-correct');
@@ -8227,11 +8483,57 @@ function handleAnswerClick(e) {
             setTimeout(() => card.classList.remove('screen-flash-correct'), 500);
         }
         showButtonParticles(btn);
+    } else {
+        btn.classList.add('wrong');
+        const card2 = btn.closest('.card');
+        if (card2) {
+            card2.classList.remove('screen-flash-wrong', 'card-shake');
+            void card2.offsetWidth;
+            card2.classList.add('screen-flash-wrong', 'card-shake');
+            setTimeout(() => card2.classList.remove('screen-flash-wrong', 'card-shake'), 500);
+        }
+    }
 
-        // True/False: if answered "not true" correctly, show bonus follow-up
+    processAnswer(isCorrect, q, responseMs, chosenRaw, btn);
+}
+
+// ====== SHARED ANSWER PROCESSING (used by button-click, free-form, and oral modes) ======
+function processAnswer(isCorrect, q, responseMs, chosenRaw, visualBtn) {
+    const cfg = DIFFICULTY_CONFIG[App.sessionDifficulty];
+
+    // Notify GeniusQGen for adaptive difficulty
+    if (App.isGenius) GeniusQGen.recordAnswer(isCorrect);
+
+    // Notify FrustrationGuard and StrategyHints
+    FrustrationGuard.recordAnswer(isCorrect);
+    if (isCorrect) {
+        StrategyHints.recordCorrect(q.factKey);
+    }
+
+    // Shield power-up: absorb error
+    if (!isCorrect && PowerUps.consumeShield()) {
+        isCorrect = true;
+        showFloatingReward('🛡️', window.innerWidth / 2, window.innerHeight / 3);
+    }
+
+    StrategyHints.hideInlineHint();
+
+    if (isCorrect) {
+        SoundEngine.play('correct');
+        showPhotoFeedback(true);
+        App.currentStreak++;
+
+        // Voice readout for correct answers (all modes)
+        if (q.a && q.b) {
+            const ttsCallback = (App.isOralMode) ? () => { setTimeout(() => startOralListening(), 500); } : null;
+            TTS.speak(buildCorrectReadout(q.a, q.b), ttsCallback);
+        }
+
+        // True/False follow-up
         if (q.type === 'trueFalse' && !q.isTrue && q.followUpOptions && !q._isFollowUp) {
             setTimeout(() => { showTrueFalseFollowUp(q); }, 600);
-            return; // Don't advance yet - follow-up will handle it
+            App.sessionResults.push({ factKey: q.factKey, correct: true, responseMs, chosen: chosenRaw });
+            return;
         }
 
         if (App.isQuickRecall) {
@@ -8253,29 +8555,23 @@ function handleAnswerClick(e) {
             }
         }
 
-        // Capture mastery level BEFORE SR update for celebration tracking
         const beforeLevel = getMasteryLevel(SR.getFact(q.factKey));
-
-        // Scoring via Scorer module
         const masteryLevel = beforeLevel;
         const qType = q.type || 'standard';
         let pointsEarned = Scorer.calcPoints(qType, App.sessionDifficulty, masteryLevel, responseMs, true);
 
-        // DoubleXP power-up
         const xpMultiplier = PowerUps.consumeDoubleXP();
         if (xpMultiplier > 1) {
             pointsEarned *= xpMultiplier;
             showFloatingReward('✨×2', window.innerWidth / 2, window.innerHeight / 4);
         }
 
-        // Boss Battle: damage boss
         if (App.isBossBattle) BossBattle.onCorrectAnswer();
 
         let starsEarned = 1;
         let coinsEarned = 1;
         if (responseMs < 2000) { starsEarned = 2; coinsEarned = 2; }
 
-        // Streak bonuses
         if (App.currentStreak === 5) {
             starsEarned += SCORING_CONFIG.streakBonuses.five.stars;
             coinsEarned += SCORING_CONFIG.streakBonuses.five.coins;
@@ -8294,10 +8590,13 @@ function handleAnswerClick(e) {
         App.sessionCoins += coinsEarned;
 
         // Float reward
-        const rect = btn.getBoundingClientRect();
-        showFloatingReward('\u2B50', rect.left + rect.width / 2, rect.top);
+        if (visualBtn) {
+            const rect = visualBtn.getBoundingClientRect();
+            showFloatingReward('\u2B50', rect.left + rect.width / 2, rect.top);
+        } else {
+            showFloatingReward('\u2B50', window.innerWidth / 2, window.innerHeight / 3);
+        }
 
-        // Update stats
         Storage.update(data => {
             data.stats.totalCorrect++;
             data.stats.totalQuestions++;
@@ -8310,11 +8609,9 @@ function handleAnswerClick(e) {
             if (data.daily[dk]) { data.daily[dk].questionsAnswered++; data.daily[dk].correctAnswers++; }
         });
 
-        // SR update
         const quality = SR.quality(true, responseMs);
         SR.updateFact(q.factKey, quality, responseMs);
 
-        // Mastery color change celebration
         const afterLevel = getMasteryLevel(SR.getFact(q.factKey));
         if (beforeLevel !== afterLevel && afterLevel !== 'none' && beforeLevel !== 'none') {
             const impBonus = Scorer.calcImprovementBonus(beforeLevel, afterLevel);
@@ -8333,26 +8630,16 @@ function handleAnswerClick(e) {
             }
         }
 
-        // Check achievements
         const wasMistake = SR.getFact(q.factKey).wrong > 0;
         AchSys.check({ correct: true, responseMs, correctedMistake: wasMistake && quality >= 3 });
 
     } else {
-        btn.classList.add('wrong');
         SoundEngine.play('wrong');
         showPhotoFeedback(false);
 
-        // Visual upgrade: screen flash red + card shake
-        const card2 = btn.closest('.card');
-        if (card2) {
-            card2.classList.remove('screen-flash-wrong', 'card-shake');
-            void card2.offsetWidth;
-            card2.classList.add('screen-flash-wrong', 'card-shake');
-            setTimeout(() => card2.classList.remove('screen-flash-wrong', 'card-shake'), 500);
-        }
-
         // Show correct answer for standard/reverse types
         if (cfg.showCorrect && (q.type === 'standard' || q.type === 'reverse' || !q.type)) {
+            // For button mode, highlight correct btn; for free-form/oral show text
             let foundCorrectBtn = false;
             const correctVal = q.type === 'reverse' ? q.correct : (q.a * q.b);
             document.querySelectorAll('.answer-btn').forEach(b => {
@@ -8369,7 +8656,6 @@ function handleAnswerClick(e) {
             }
         }
 
-        // Frustration shield penalty
         const penalty = Scorer.calcPoints(q.type || 'standard', App.sessionDifficulty, 'none', responseMs, false);
         if (penalty < 0) {
             Storage.update(data => { data.stats.totalPoints = Math.max(0, data.stats.totalPoints + penalty); });
@@ -8387,10 +8673,8 @@ function handleAnswerClick(e) {
 
         SR.updateFact(q.factKey, 0, responseMs);
 
-        // Strategy Hints: track wrong per fact
         const wrongCount = StrategyHints.recordWrong(q.factKey);
 
-        // Focus mode: track wrong count per fact for visual hints
         if (App.isFocusMode && typeof FocusMode !== 'undefined') {
             if (!FocusMode._wrongCountPerFact[q.factKey]) FocusMode._wrongCountPerFact[q.factKey] = 0;
             FocusMode._wrongCountPerFact[q.factKey]++;
@@ -8399,24 +8683,20 @@ function handleAnswerClick(e) {
                 StrategyHints.showVisualHint(ha, hb);
             }
         } else if (StrategyHints.shouldShowHint(q.factKey)) {
-            // Show strategy hint after consecutive errors on same fact
             const { a: ha, b: hb } = SR.parseFact(q.factKey);
             StrategyHints.showVisualHint(ha, hb);
         }
 
-        // Frustration Guard: encouragement after consecutive errors
         if (FrustrationGuard.shouldShowEncouragement()) {
             showEncouragementBubble();
         }
 
-        // Frustration Guard: insert easy question after error streak
         if (FrustrationGuard.shouldInsertEasyQuestion()) {
             const easyQ = FrustrationGuard.generateEasyQuestion();
-            easyQ._isEasyBoost = true; // Mark for visual feedback
+            easyQ._isEasyBoost = true;
             App.sessionQuestions.splice(App.sessionIndex + 2, 0, easyQ);
         }
 
-        // Re-insert question later in session
         if (cfg.retryWrong) {
             const reinsertAt = App.sessionIndex + 3 + Math.floor(Math.random() * 3);
             const insertIdx = Math.min(reinsertAt, App.sessionQuestions.length);
@@ -8428,12 +8708,103 @@ function handleAnswerClick(e) {
 
     App.sessionResults.push({ factKey: q.factKey, correct: isCorrect, responseMs, chosen: chosenRaw });
 
-    // Next question after delay
     const delay = App.isGenius ? (isCorrect ? 500 : 1000) : (isCorrect ? 800 : (cfg.showCorrect === 'brief' ? 1200 : 1500));
     setTimeout(() => {
         App.sessionIndex++;
         showQuestion();
     }, delay);
+}
+
+// ====== FREE-FORM ANSWER HANDLER ======
+function handleFreeFormSubmit() {
+    if (App.isProcessing) return;
+    const input = document.getElementById('freeform-answer');
+    if (!input || input.value.trim() === '') return;
+    stopQuestionTimer();
+    App.isProcessing = true;
+
+    const q = App.sessionQuestions[App.sessionIndex];
+    if (!q) { App.isProcessing = false; return; }
+
+    const answer = parseInt(input.value);
+    const responseMs = Date.now() - App.questionStartTime;
+    const isCorrect = answer === q.a * q.b;
+
+    input.disabled = true;
+    const submitBtn = document.getElementById('freeform-submit-btn');
+    if (submitBtn) submitBtn.disabled = true;
+
+    input.style.borderColor = isCorrect ? 'var(--color-success)' : 'var(--color-error)';
+    input.style.color = isCorrect ? 'var(--color-success)' : 'var(--color-error)';
+    input.style.boxShadow = isCorrect ? '0 0 20px rgba(0,230,118,0.4)' : '0 0 20px rgba(255,82,82,0.4)';
+
+    processAnswer(isCorrect, q, responseMs, String(answer), null);
+}
+
+// ====== ORAL ANSWER HANDLER ======
+function startOralListening() {
+    if (!SpeechRecog.isSupported()) {
+        const statusEl = document.querySelector('.oral-status');
+        if (statusEl) statusEl.textContent = 'הדפדפן לא תומך בזיהוי קולי 😔';
+        return;
+    }
+    if (App.isProcessing) return;
+
+    const micBtn = document.querySelector('.oral-mic-btn');
+    if (micBtn) micBtn.classList.add('listening');
+    const statusEl = document.querySelector('.oral-status');
+    if (statusEl) statusEl.textContent = '🔴 מקשיב...';
+
+    SpeechRecog.onResult = (transcripts, isFinal) => {
+        const heardEl = document.getElementById('oral-heard');
+        if (heardEl) heardEl.textContent = transcripts[0] || '';
+
+        if (isFinal && !App.isProcessing) {
+            const answer = SpeechRecog.parseSpokenNumber(transcripts);
+            if (answer !== null) {
+                handleOralAnswer(answer);
+            } else {
+                if (statusEl) statusEl.textContent = 'לא הבנתי, נסה שוב 🎤';
+                setTimeout(() => startOralListening(), 1000);
+            }
+        }
+    };
+
+    SpeechRecog.onEnd = () => {
+        if (micBtn) micBtn.classList.remove('listening');
+        if (!App.isProcessing && App.isOralMode && App.currentScreen === 'screen-practice') {
+            // Auto-restart if recognition ended prematurely
+            setTimeout(() => {
+                if (!App.isProcessing && App.isOralMode) startOralListening();
+            }, 500);
+        }
+    };
+
+    SpeechRecog.start();
+}
+
+function handleOralAnswer(answer) {
+    if (App.isProcessing) return;
+    SpeechRecog.stop();
+    stopQuestionTimer();
+    App.isProcessing = true;
+
+    const q = App.sessionQuestions[App.sessionIndex];
+    if (!q) { App.isProcessing = false; return; }
+
+    const responseMs = Date.now() - App.questionStartTime;
+    const isCorrect = answer === q.a * q.b;
+
+    const heardEl = document.getElementById('oral-heard');
+    if (heardEl) {
+        heardEl.textContent = answer;
+        heardEl.style.color = isCorrect ? 'var(--color-success)' : 'var(--color-error)';
+        heardEl.style.fontSize = '2.5rem';
+    }
+    const micBtn = document.querySelector('.oral-mic-btn');
+    if (micBtn) micBtn.classList.remove('listening');
+
+    processAnswer(isCorrect, q, responseMs, String(answer), null);
 }
 
 // True/False follow-up bonus question
@@ -9416,6 +9787,14 @@ function performReset() {
     renderAvatarScreen();
 }
 
+// ====== ENTER KEY FOR FREE-FORM MODE ======
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && App.isFreeForm && !App.isProcessing && App.currentScreen === 'screen-practice') {
+        e.preventDefault();
+        handleFreeFormSubmit();
+    }
+});
+
 // ====== EVENT DELEGATION ======
 document.addEventListener('click', (e) => {
     // Initialize sound on first click, and always try to resume (Safari needs this)
@@ -9443,6 +9822,8 @@ document.addEventListener('click', (e) => {
         showNumberScreen();
         App.isChallenge = true;
     }
+    if (id === 'btn-free-form') { SoundEngine.play('navigate'); App.isFreeForm = true; showNumberScreen(); }
+    if (id === 'btn-oral-mode') { SoundEngine.play('navigate'); App.isOralMode = true; showNumberScreen(); }
     if (id === 'btn-genius') { SoundEngine.play('navigate'); startGeniusMode(); }
     if (id === 'btn-quick-recall') { SoundEngine.play('navigate'); QuickRecall.start(); }
     if (id === 'btn-daily-boost') { SoundEngine.play('navigate'); DailyBoost.start(); }
@@ -9500,6 +9881,15 @@ document.addEventListener('click', (e) => {
         PowerUps.cleanup();
         SpaceMusic.stop(); BossMusic.stop();
         showWelcomeScreen();
+        return;
+    }
+
+    // Free-form submit button
+    if (id === 'freeform-submit-btn') { handleFreeFormSubmit(); return; }
+    // Oral mic button
+    if (id === 'oral-mic-btn') {
+        if (SpeechRecog.isListening) SpeechRecog.stop();
+        else startOralListening();
         return;
     }
 
@@ -9590,6 +9980,16 @@ document.addEventListener('click', (e) => {
         document.getElementById('toggle-ans-4').classList.toggle('active', newCount === 4);
         document.getElementById('toggle-ans-6').classList.toggle('active', newCount === 6);
         document.getElementById('toggle-ans-8').classList.toggle('active', newCount === 8);
+    }
+
+    // TTS toggle
+    const toggleTTS = e.target.closest('.toggle-option[data-tts]');
+    if (toggleTTS) {
+        const newState = toggleTTS.dataset.tts === 'on';
+        SoundEngine.play('click');
+        TTS._enabled = newState;
+        document.getElementById('toggle-tts-on').classList.toggle('active', newState);
+        document.getElementById('toggle-tts-off').classList.toggle('active', !newState);
     }
 
     // Reset data
