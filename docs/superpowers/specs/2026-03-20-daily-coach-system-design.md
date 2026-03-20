@@ -37,9 +37,24 @@ A smart daily coaching system for ZNK (English bagrut exam prep app) that combin
 
 ### Auth & Access
 
-- JWT-based login using WordPress credentials
+- Student lands on the React app via a link from the WordPress/LearnDash site
+- WordPress passes a short-lived auth token as a URL parameter
+- React app exchanges the token for a JWT via `POST /wp-json/znk-coach/v1/auth/exchange`
+- JWT stored in localStorage (alongside existing Zustand stores)
+- JWT expires after 7 days; refresh flow via `POST /wp-json/znk-coach/v1/auth/refresh`
+- If JWT is expired and refresh fails → widget shows "התחבר מחדש" button linking to WordPress login
 - Every API request checks LearnDash enrollment status
 - Course removal = immediate widget access revocation
+
+### Client-Server Data Sync
+
+The existing SM-2, Elo, and vocabulary progress live client-side (Zustand + localStorage). The server needs this data for plan generation:
+
+- After each practice session, React app sends a sync payload: `POST /wp-json/znk-coach/v1/sync`
+- Payload includes: words practiced (with accuracy), Elo rating, units completed, streak
+- Server stores latest snapshot per student
+- `PlanGenerator.php` uses server-side snapshot (may be up to 24h stale — acceptable)
+- If sync fails → queued in localStorage, retried on next app open
 
 ---
 
@@ -72,7 +87,21 @@ A smart daily coaching system for ZNK (English bagrut exam prep app) that combin
 
 ### Persona Selection
 
-`PersonaRouter` in the WordPress plugin analyzes the student message content and selects the appropriate persona. Claude API receives persona-specific system prompts.
+`PersonaRouter` uses a single Claude API call with a routing system prompt to both classify AND respond:
+
+1. Student message arrives at the server
+2. Server builds a prompt with: student message, conversation history (last 20 messages), student profile (Elo, weak areas, streak), staff overrides
+3. System prompt instructs Claude to: (a) select persona (bot/roni/dana) based on content, (b) respond in that persona's voice
+4. Claude returns: `{ "persona": "roni", "response": "..." }`
+5. One API call, not two — no extra latency for routing
+
+**Classification rules in the system prompt:**
+- Schedule/plan/time changes → bot (handled locally, no Claude needed)
+- Vocabulary, motivation, emotional, ADHD, general → roni
+- Exam questions, restatement, reading comprehension, test strategy → dana
+- Ambiguous → roni (default, warmer persona)
+
+**Fallback:** If Claude API fails → bot responds with "הצוות שלנו יחזור אליך בהקדם" + escalation email sent.
 
 ### Off-Hours Behavior
 
@@ -81,8 +110,10 @@ A smart daily coaching system for ZNK (English bagrut exam prep app) that combin
 - Next morning: response appears as if Roni read and replied
 
 ### Off-hours definition
-- After 22:00 until 08:00 (daily)
-- Friday after 13:00 until Saturday 20:00
+- Sunday–Thursday: after 22:00 until 08:00
+- Friday: after 13:00
+- Saturday: all day until 20:00
+- Saturday after 20:00 = active (like a weekday evening)
 
 ---
 
@@ -154,8 +185,10 @@ Following the 85% accuracy rule (maintaining ~85% success rate):
 message {
   id
   student_id
-  sender: 'bot' | 'roni' | 'dana' | 'staff:{name}'
+  sender: 'bot' | 'roni' | 'dana' | 'staff:{name}' | 'student'
+  type: 'text' | 'morning_message' | 'mission_card' | 'system_update' | 'plan_update'
   content
+  metadata: {}              — mission details, plan diff, etc.
   channel: 'widget'
   priority: 'normal' | 'high'
   delivery_targets: []
@@ -216,6 +249,172 @@ message {
 2. Email sent to relevant staff member with link to conversation in WP Admin
 3. Staff can: read conversation, override AI response, write directly, add instructions for bot
 4. Staff response appears in widget with their real name
+
+---
+
+## Database Schema
+
+```sql
+-- Students (extends WP users)
+znk_coach_students (
+  id BIGINT PRIMARY KEY AUTO_INCREMENT,
+  wp_user_id BIGINT UNIQUE NOT NULL,
+  elo_rating INT DEFAULT 800,
+  streak_days INT DEFAULT 0,
+  exam_date DATE,
+  daily_minutes INT DEFAULT 30,
+  last_sync_at DATETIME,
+  sync_data JSON,                    -- latest client-side snapshot
+  created_at DATETIME,
+  updated_at DATETIME
+)
+
+-- Messages
+znk_coach_messages (
+  id BIGINT PRIMARY KEY AUTO_INCREMENT,
+  student_id BIGINT NOT NULL,
+  sender VARCHAR(50) NOT NULL,       -- 'bot', 'roni', 'dana', 'staff:yotam', 'student'
+  type VARCHAR(30) DEFAULT 'text',   -- 'text', 'morning_message', 'mission_card', 'system_update', 'plan_update'
+  content TEXT NOT NULL,
+  metadata JSON,
+  channel VARCHAR(20) DEFAULT 'widget',
+  priority VARCHAR(10) DEFAULT 'normal',
+  created_at DATETIME,
+  delivered_at DATETIME,
+  read_at DATETIME,
+  INDEX idx_student_created (student_id, created_at)
+)
+
+-- Daily Plans
+znk_coach_plans (
+  id BIGINT PRIMARY KEY AUTO_INCREMENT,
+  student_id BIGINT NOT NULL,
+  plan_date DATE NOT NULL,
+  total_minutes INT,
+  missions JSON,                     -- array of mission objects
+  morning_message TEXT,
+  status VARCHAR(20) DEFAULT 'active', -- 'active', 'modified', 'completed'
+  created_at DATETIME,
+  UNIQUE KEY idx_student_date (student_id, plan_date)
+)
+
+-- Missions (denormalized from plan for tracking)
+znk_coach_missions (
+  id BIGINT PRIMARY KEY AUTO_INCREMENT,
+  plan_id BIGINT NOT NULL,
+  student_id BIGINT NOT NULL,
+  type VARCHAR(30) NOT NULL,         -- 'vocab_learn', 'vocab_practice', 'reading', 'exam_sc', 'exam_restatement'
+  params JSON,                       -- { unit: 2, word_count: 10, elo_target: 1100, ... }
+  estimated_minutes INT,
+  status VARCHAR(20) DEFAULT 'pending', -- 'pending', 'in_progress', 'completed', 'skipped'
+  completed_at DATETIME,
+  result JSON,                       -- { accuracy: 0.85, words_practiced: 10, ... }
+  INDEX idx_student_status (student_id, status)
+)
+
+-- Staff Overrides (instructions to the bot about a student)
+znk_coach_overrides (
+  id BIGINT PRIMARY KEY AUTO_INCREMENT,
+  student_id BIGINT NOT NULL,
+  staff_wp_user_id BIGINT NOT NULL,
+  instruction TEXT NOT NULL,         -- "lower restatement difficulty", "be gentler"
+  active BOOLEAN DEFAULT TRUE,
+  created_at DATETIME
+)
+
+-- Escalations
+znk_coach_escalations (
+  id BIGINT PRIMARY KEY AUTO_INCREMENT,
+  student_id BIGINT NOT NULL,
+  trigger_type VARCHAR(30),          -- 'frustration', 'explicit_request', 'low_confidence', 'inactivity'
+  message_id BIGINT,                 -- the triggering message
+  status VARCHAR(20) DEFAULT 'open', -- 'open', 'handled', 'dismissed'
+  handled_by BIGINT,                 -- staff wp_user_id
+  created_at DATETIME,
+  handled_at DATETIME
+)
+```
+
+---
+
+## Mission Completion Flow
+
+1. Student taps a mission in the widget → widget closes → app navigates to the relevant practice screen
+2. Navigation uses mission params: e.g., `navigate('/vocab/adaptive', { missionId: 'xxx', unit: 2, wordCount: 10 })`
+3. Practice screen detects `missionId` in route params → runs in "mission mode"
+4. On completion (session finished, not just opened): practice screen calls `POST /wp-json/znk-coach/v1/missions/{id}/complete` with results
+5. Widget re-opens or badge updates to reflect completion
+6. "Complete" = session finished with any result (no minimum threshold — the point is engagement, not perfection)
+
+---
+
+## Claude API Prompt Structure
+
+### Morning Message (daily, via cron)
+```
+System: You are the daily motivation writer for ZNK, an English bagrut
+exam prep app. Write a short, warm morning message (2-3 sentences in Hebrew)
+for the student. Be encouraging but not fake. Reference their specific
+progress. Use the student's name and correct gender.
+
+Context:
+- Name: {name}, Gender: {gender}
+- Streak: {streak} days
+- Yesterday's performance: {summary}
+- Weak areas: {weak_areas}
+- Days until exam: {days}
+- Staff notes: {overrides}
+```
+
+### Persona Response (per student message)
+```
+System: You are responding as a member of the ZNK support team.
+Based on the student's message, respond as the most appropriate persona:
+
+PERSONAS:
+- "roni": Roni, vocabulary & motivation coach. Warm, encouraging,
+  asks follow-up questions. Handles: learning struggles, ADHD,
+  motivation, general questions.
+- "dana": Dana, exam specialist. Knowledgeable, practical, gives
+  concrete tips. Handles: exam questions, restatement, reading
+  comprehension, test strategy.
+
+STYLE:
+- Professional but warm Hebrew
+- Encourage student to elaborate on struggles
+- Gender-aware (student gender: {gender})
+- Natural emoji use (not excessive)
+- 2-5 sentences max
+
+STUDENT CONTEXT:
+- Name: {name}, Elo: {elo}, Streak: {streak}
+- Current weak areas: {weak_areas}
+- Staff instructions: {overrides}
+- Conversation history: {last_20_messages}
+
+Respond in JSON: { "persona": "roni" | "dana", "response": "...",
+"escalate": true/false, "plan_action": null | { action, params } }
+```
+
+### Conversation History Management
+- Last 20 messages included in context
+- Older messages summarized if conversation is long
+- Staff overrides always included regardless of history length
+
+---
+
+## Error Handling
+
+| Scenario | Behavior |
+|----------|----------|
+| Claude API down/rate-limited | Bot responds: "הצוות שלנו יחזור אליך בהקדם". Escalation email sent. Message queued for retry. |
+| Claude API timeout (>15s) | Same as above |
+| WordPress cron fails (no plan generated) | Student sees yesterday's plan with note "התוכנית מתעדכנת...". Alert email to admin. |
+| Student message fails to send | Client retries 3x with backoff. Shows "שליחה נכשלה, נסה שוב" with retry button. |
+| LearnDash enrollment check fails | Fail-open: allow access, log error. Better than blocking a paying student. |
+| Plan references deleted content | Mission skipped, replacement generated from available content. |
+| Sync payload fails | Queued in localStorage, retried next session. Plan uses last known snapshot. |
+| JWT expired + refresh fails | Widget shows "התחבר מחדש" button. Chat history preserved server-side. |
 
 ---
 
@@ -313,18 +512,25 @@ interface CoachStore {
 ### API Endpoints
 
 ```
-POST /wp-json/znk-coach/v1/auth/login
-GET  /wp-json/znk-coach/v1/plan/today
-GET  /wp-json/znk-coach/v1/messages
-POST /wp-json/znk-coach/v1/messages
-POST /wp-json/znk-coach/v1/missions/{id}/complete
+POST /wp-json/znk-coach/v1/auth/exchange    — exchange WP token for JWT
+POST /wp-json/znk-coach/v1/auth/refresh     — refresh expired JWT
+GET  /wp-json/znk-coach/v1/plan/today       — get today's plan + missions
+GET  /wp-json/znk-coach/v1/messages         — get messages (supports If-Modified-Since)
+POST /wp-json/znk-coach/v1/messages         — send student message
+POST /wp-json/znk-coach/v1/missions/{id}/complete — mark mission done with results
+POST /wp-json/znk-coach/v1/sync             — upload client-side learning state
 ```
 
 ### Data Fetching
 
-- Polling every 30 seconds for new messages
+- **Adaptive polling:**
+  - Widget open → poll every 15 seconds
+  - Widget closed → poll every 60 seconds (for badge updates)
+  - App in background / practice mode → no polling
+  - After sending a message → poll every 5 seconds for 2 minutes (waiting for response)
 - No WebSocket needed — intentional delays make polling sufficient
 - Plan fetched once on widget open, cached for session
+- Uses `If-Modified-Since` header to minimize payload when no new messages
 
 ---
 
