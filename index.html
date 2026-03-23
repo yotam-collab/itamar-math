@@ -653,6 +653,98 @@
             transition: all 0.3s ease;
         }
 
+        /* ====== Handwriting Mode (iPad) ====== */
+        .handwriting-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+            width: 100%;
+        }
+        .handwriting-question-svg {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--color-text);
+            min-height: 4rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .handwriting-canvas-wrap {
+            position: relative;
+            width: 100%;
+            max-width: 500px;
+            aspect-ratio: 3/2;
+            border-radius: 16px;
+            overflow: hidden;
+            background: rgba(255,255,255,0.05);
+            border: 2px solid rgba(169,132,255,0.3);
+            touch-action: none;
+        }
+        .handwriting-canvas {
+            width: 100%;
+            height: 100%;
+            cursor: crosshair;
+        }
+        .handwriting-canvas-lines {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            pointer-events: none;
+            background: repeating-linear-gradient(
+                0deg,
+                transparent,
+                transparent calc(100% / 3 - 1px),
+                rgba(169,132,255,0.1) calc(100% / 3 - 1px),
+                rgba(169,132,255,0.1) calc(100% / 3)
+            );
+        }
+        .handwriting-buttons {
+            display: flex;
+            gap: 1rem;
+            width: 100%;
+            max-width: 500px;
+        }
+        .handwriting-btn-clear, .handwriting-btn-check {
+            flex: 1;
+            padding: 0.8rem;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            border: 2px solid;
+            transition: all 0.2s;
+        }
+        .handwriting-btn-clear {
+            background: rgba(255,107,107,0.1);
+            border-color: rgba(255,107,107,0.3);
+            color: #FF6B6B;
+        }
+        .handwriting-btn-check {
+            background: rgba(81,207,102,0.2);
+            border-color: rgba(81,207,102,0.4);
+            color: #51CF66;
+        }
+        .handwriting-recognized {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--color-primary-light);
+            min-height: 2rem;
+        }
+        /* Writing animation for question */
+        @keyframes writeIn {
+            from { stroke-dashoffset: var(--dash-len); opacity: 1; }
+            to { stroke-dashoffset: 0; opacity: 1; }
+        }
+        .hw-char {
+            display: inline-block;
+            opacity: 0;
+            animation: hwFadeIn 0.15s ease forwards;
+        }
+        @keyframes hwFadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
         /* ====== Progress Bar ====== */
         .progress-container {
             width: 100%;
@@ -3103,6 +3195,7 @@
             <button class="btn btn-outline btn-block" id="btn-challenge">⏱️  מצב אתגר</button>
             <button class="btn btn-outline btn-block" id="btn-free-form" style="border-color:rgba(77,171,247,0.4);color:#4DABF7;">✏️  כתיבה חופשית</button>
             <button class="btn btn-outline btn-block" id="btn-oral-mode" style="border-color:rgba(240,101,149,0.4);color:#F06595;">🎤  תשובה בעל פה</button>
+            <button class="btn btn-outline btn-block" id="btn-handwriting" style="border-color:rgba(169,132,255,0.4);color:#A984FF;display:none;">✍️  כתיבה עם עט</button>
             <button class="btn btn-outline btn-block" id="btn-achievements">🏆  הישגים</button>
             <button class="btn btn-outline btn-block" id="btn-mastery">📊  לוח השליטה שלי</button>
             <button class="btn btn-outline btn-block" id="btn-journal">📔  יומן התקדמות</button>
@@ -3466,6 +3559,9 @@
 <!-- Confetti Container -->
 <div id="confetti-container"></div>
 
+<!-- Pre-recorded audio from ElevenLabs (optional, falls back gracefully) -->
+<script src="audio-data.js" defer onerror="console.log('audio-data.js not found, using fallback audio')"></script>
+
 <script>
 /* ====================================================================
    MULTIPLICATION PRACTICE APP FOR ITAMAR
@@ -3699,7 +3795,7 @@ const LEVEL_REWARDS = {
 
 // ====== MODE UNLOCKS BY LEVEL ======
 const LEVEL_UNLOCKS = {
-    1:  ['practice', 'daily_boost', 'focus_mode', 'boss_battle', 'quick_recall', 'challenge', 'genius', 'free_form', 'oral_mode'],
+    1:  ['practice', 'daily_boost', 'focus_mode', 'boss_battle', 'quick_recall', 'challenge', 'genius', 'free_form', 'oral_mode', 'handwriting'],
     11: ['advanced_bosses'],
     15: ['speed_challenge'],
     21: ['champion_bosses'],
@@ -3750,6 +3846,10 @@ const HebrewNumbers = {
     toWords(n) {
         if (n === 0) return 'אפס';
         if (n === 100) return 'מאה';
+        if (n > 100 && n <= 144) {
+            const remainder = n - 100;
+            return 'מאה ו' + this.toWords(remainder);
+        }
         if (n < 10) return this.ones[n];
         if (n >= 10 && n < 20) return this.teens[n - 10];
         const ten = Math.floor(n / 10);
@@ -3834,6 +3934,112 @@ function buildCorrectReadout(a, b) {
     return praise + ' ' + HebrewNumbers.toWords(a) + ' כפול ' + HebrewNumbers.toWords(b) + ' שווה ' + HebrewNumbers.toWords(a * b);
 }
 
+// ====== AUDIO PLAYER MODULE (ElevenLabs pre-recorded audio) ======
+const AudioPlayer = {
+    _bufferCache: {},  // key → AudioBuffer
+    _ctx: null,
+
+    isAvailable() {
+        return !!(window.AUDIO_DATA);
+    },
+
+    _getContext() {
+        if (!this._ctx) {
+            this._ctx = SoundEngine._ctx || new (window.AudioContext || window.webkitAudioContext)();
+        }
+        return this._ctx;
+    },
+
+    async _decode(base64) {
+        if (this._bufferCache[base64]) return this._bufferCache[base64];
+        const ctx = this._getContext();
+        // Strip data URI prefix if present
+        const raw = base64.includes(',') ? base64.split(',')[1] : base64;
+        const binary = atob(raw);
+        const bytes = new Uint8Array(binary.length);
+        for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+        const buffer = await ctx.decodeAudioData(bytes.buffer);
+        this._bufferCache[base64] = buffer;
+        return buffer;
+    },
+
+    async playClip(base64, volume = 1.0) {
+        const ctx = this._getContext();
+        if (ctx.state === 'suspended') await ctx.resume();
+        const buffer = await this._decode(base64);
+        const source = ctx.createBufferSource();
+        const gain = ctx.createGain();
+        gain.gain.value = volume;
+        source.buffer = buffer;
+        source.connect(gain);
+        gain.connect(ctx.destination);
+        source.start(0);
+        return new Promise(resolve => {
+            source.onended = resolve;
+        });
+    },
+
+    async playSFX(name) {
+        if (!this.isAvailable() || !window.AUDIO_DATA.sfx) return false;
+        // For 'correct', pick a random variation
+        let key = name;
+        if (name === 'correct') {
+            const variants = Object.keys(window.AUDIO_DATA.sfx).filter(k => k.startsWith('correct_'));
+            if (variants.length > 0) key = variants[Math.floor(Math.random() * variants.length)];
+        }
+        const data = window.AUDIO_DATA.sfx[key];
+        if (!data) return false;
+        await this.playClip(data, 0.5);
+        return true;
+    },
+
+    async playSequence(tokens, gapMs = 100, onEnd) {
+        if (!this.isAvailable()) {
+            // Fallback to Web Speech API TTS
+            if (onEnd) onEnd();
+            return false;
+        }
+        try {
+            const ctx = this._getContext();
+            if (ctx.state === 'suspended') await ctx.resume();
+
+            for (let i = 0; i < tokens.length; i++) {
+                const token = tokens[i];
+                // Look up in phrases first, then numbers
+                let data = null;
+                if (window.AUDIO_DATA.phrases && window.AUDIO_DATA.phrases[token]) {
+                    data = window.AUDIO_DATA.phrases[token];
+                } else if (window.AUDIO_DATA.numbers && window.AUDIO_DATA.numbers[token]) {
+                    data = window.AUDIO_DATA.numbers[token];
+                }
+                if (!data) continue;
+
+                await this.playClip(data, 0.8);
+                // Small gap between words (except after last)
+                if (i < tokens.length - 1) {
+                    await new Promise(r => setTimeout(r, gapMs));
+                }
+            }
+            if (onEnd) onEnd();
+            return true;
+        } catch (e) {
+            console.warn('AudioPlayer error:', e);
+            if (onEnd) onEnd();
+            return false;
+        }
+    },
+
+    // Build token array for a correct answer readout
+    buildReadoutTokens(a, b) {
+        const praises = [
+            'נכון מאוד איתמר', 'איתמר אלוף', 'כל הכבוד איתמר', 'מעולה איתמר',
+            'יופי איתמר', 'מדהים איתמר', 'וואו איתמר', 'נהדר איתמר', 'איתמר כוכב'
+        ];
+        const praise = praises[Math.floor(Math.random() * praises.length)];
+        return [praise, String(a), 'כפול', String(b), 'שווה', String(a * b)];
+    }
+};
+
 // ====== SPEECH RECOGNITION MODULE ======
 const SpeechRecog = {
     recognition: null,
@@ -3893,6 +4099,378 @@ const SpeechRecog = {
             }
         }
         return null;
+    }
+};
+
+// ====== DIGIT RECOGNIZER (lightweight, no external dependencies) ======
+const DigitRecognizer = {
+    // Simple CNN-like recognizer using pixel grid analysis
+    // Recognizes digits 0-9 from a 28x28 grayscale image
+
+    // Normalize canvas content to 28x28 grayscale grid
+    _extractGrid(canvas) {
+        const ctx = canvas.getContext('2d');
+        const w = canvas.width, h = canvas.height;
+        const imageData = ctx.getImageData(0, 0, w, h);
+        const data = imageData.data;
+
+        // Find bounding box of drawn content
+        let minX = w, minY = h, maxX = 0, maxY = 0;
+        for (let y = 0; y < h; y++) {
+            for (let x = 0; x < w; x++) {
+                const alpha = data[(y * w + x) * 4 + 3];
+                if (alpha > 50) {
+                    if (x < minX) minX = x;
+                    if (x > maxX) maxX = x;
+                    if (y < minY) minY = y;
+                    if (y > maxY) maxY = y;
+                }
+            }
+        }
+
+        if (maxX <= minX || maxY <= minY) return null;
+
+        // Add padding
+        const pad = Math.max((maxX - minX), (maxY - minY)) * 0.15;
+        minX = Math.max(0, minX - pad);
+        minY = Math.max(0, minY - pad);
+        maxX = Math.min(w, maxX + pad);
+        maxY = Math.min(h, maxY + pad);
+
+        // Make it square (centered)
+        const bw = maxX - minX, bh = maxY - minY;
+        const size = Math.max(bw, bh);
+        const cx = minX + bw / 2, cy = minY + bh / 2;
+        const sx = cx - size / 2, sy = cy - size / 2;
+
+        // Sample to 28x28
+        const grid = new Float32Array(28 * 28);
+        const offCanvas = document.createElement('canvas');
+        offCanvas.width = 28;
+        offCanvas.height = 28;
+        const offCtx = offCanvas.getContext('2d');
+        offCtx.fillStyle = '#000';
+        offCtx.fillRect(0, 0, 28, 28);
+        offCtx.drawImage(canvas, sx, sy, size, size, 2, 2, 24, 24);
+        const offData = offCtx.getImageData(0, 0, 28, 28).data;
+        for (let i = 0; i < 784; i++) {
+            // Use alpha channel (white on transparent = inverted for recognition)
+            grid[i] = offData[i * 4 + 3] / 255.0;
+        }
+        return { grid, offCanvas };
+    },
+
+    // Segment multiple digits by finding vertical gaps
+    _segmentDigits(canvas) {
+        const ctx = canvas.getContext('2d');
+        const w = canvas.width, h = canvas.height;
+        const data = ctx.getImageData(0, 0, w, h).data;
+
+        // Build column density (how much ink per column)
+        const colDensity = new Array(w).fill(0);
+        for (let x = 0; x < w; x++) {
+            for (let y = 0; y < h; y++) {
+                if (data[(y * w + x) * 4 + 3] > 50) colDensity[x]++;
+            }
+        }
+
+        // Find segments: groups of columns with ink, separated by gaps
+        const segments = [];
+        let inSegment = false, segStart = 0;
+        const threshold = 2;
+        const minGap = w * 0.03;
+
+        for (let x = 0; x <= w; x++) {
+            const hasInk = x < w && colDensity[x] > threshold;
+            if (hasInk && !inSegment) {
+                segStart = x;
+                inSegment = true;
+            } else if (!hasInk && inSegment) {
+                // Check if this gap is wide enough
+                let gapEnd = x;
+                while (gapEnd < w && colDensity[gapEnd] <= threshold) gapEnd++;
+                const gapWidth = gapEnd - x;
+
+                if (gapWidth >= minGap || x >= w) {
+                    segments.push({ x: segStart, width: x - segStart });
+                    inSegment = false;
+                }
+            }
+        }
+        if (inSegment) segments.push({ x: segStart, width: w - segStart });
+
+        return segments;
+    },
+
+    // Feature extraction for a 28x28 grid
+    _extractFeatures(grid) {
+        // Divide into 4x4 zones, compute density
+        const zones = [];
+        for (let zy = 0; zy < 4; zy++) {
+            for (let zx = 0; zx < 4; zx++) {
+                let sum = 0;
+                for (let y = zy * 7; y < (zy + 1) * 7; y++) {
+                    for (let x = zx * 7; x < (zx + 1) * 7; x++) {
+                        sum += grid[y * 28 + x];
+                    }
+                }
+                zones.push(sum / 49);
+            }
+        }
+
+        // Horizontal and vertical projections
+        const hProj = new Array(7).fill(0);
+        const vProj = new Array(7).fill(0);
+        for (let y = 0; y < 28; y++) {
+            for (let x = 0; x < 28; x++) {
+                const v = grid[y * 28 + x];
+                hProj[Math.floor(y / 4)] += v;
+                vProj[Math.floor(x / 4)] += v;
+            }
+        }
+        const hMax = Math.max(...hProj, 1);
+        const vMax = Math.max(...vProj, 1);
+        hProj.forEach((v, i) => hProj[i] = v / hMax);
+        vProj.forEach((v, i) => vProj[i] = v / vMax);
+
+        // Aspect ratio, center of mass, total ink
+        let totalInk = 0, cx = 0, cy = 0;
+        let minY = 28, maxY = 0, minX = 28, maxX = 0;
+        for (let y = 0; y < 28; y++) {
+            for (let x = 0; x < 28; x++) {
+                const v = grid[y * 28 + x];
+                totalInk += v;
+                cx += x * v;
+                cy += y * v;
+                if (v > 0.3) {
+                    if (y < minY) minY = y;
+                    if (y > maxY) maxY = y;
+                    if (x < minX) minX = x;
+                    if (x > maxX) maxX = x;
+                }
+            }
+        }
+        if (totalInk > 0) { cx /= totalInk; cy /= totalInk; }
+        cx /= 28; cy /= 28;
+        const aspect = maxY > minY ? (maxX - minX) / (maxY - minY) : 1;
+
+        // Check for enclosed loops (characteristic of 0, 6, 8, 9)
+        const centerFill = zones[5] + zones[6] + zones[9] + zones[10]; // center 2x2
+        const topFill = zones[1] + zones[2] + zones[5] + zones[6];
+        const botFill = zones[9] + zones[10] + zones[13] + zones[14];
+
+        // Check horizontal crossings at different heights
+        const crossings = [];
+        for (const row of [7, 14, 21]) {
+            let c = 0;
+            for (let x = 1; x < 27; x++) {
+                if (grid[row * 28 + x] > 0.3 && grid[row * 28 + x - 1] <= 0.3) c++;
+            }
+            crossings.push(c);
+        }
+
+        return {
+            zones, hProj, vProj, totalInk, cx, cy, aspect,
+            centerFill, topFill, botFill, crossings
+        };
+    },
+
+    // Score how well features match each digit pattern
+    _scoreDigit(features) {
+        const scores = new Array(10).fill(0);
+        const { zones, cx, cy, aspect, totalInk, centerFill, topFill, botFill, crossings, hProj, vProj } = features;
+
+        // 0: oval, high aspect, hollow center, ~2 crossings everywhere
+        scores[0] += (1 - Math.abs(aspect - 0.7)) * 2;
+        scores[0] += (crossings[0] >= 2 ? 1 : 0) + (crossings[1] >= 2 ? 1 : 0) + (crossings[2] >= 2 ? 1 : 0);
+        scores[0] += Math.max(0, zones[0] + zones[3] + zones[12] + zones[15] - centerFill) * 2;
+
+        // 1: narrow, high density in center columns, 1 crossing
+        scores[1] += (aspect < 0.45 ? 2 : 0);
+        scores[1] += (crossings[0] <= 1 && crossings[1] <= 1 && crossings[2] <= 1 ? 2 : 0);
+        scores[1] += (1 - Math.abs(cx - 0.5)) * 2;
+        scores[1] += (vProj[3] > 0.5 ? 1 : 0);
+
+        // 2: top-right heavy, bottom-left heavy, S-like
+        scores[2] += (zones[2] + zones[3] > zones[0] + zones[1] ? 1 : 0);
+        scores[2] += (zones[12] + zones[13] > zones[14] + zones[15] ? 1 : 0);
+        scores[2] += (hProj[6] > 0.5 ? 1 : 0); // heavy bottom (base line)
+
+        // 3: right-heavy, two bumps
+        scores[3] += (zones[3] + zones[7] + zones[11] + zones[15]) * 2;
+        scores[3] += (crossings[1] >= 2 ? 1 : 0);
+
+        // 4: top ink split, strong middle horizontal
+        scores[4] += (crossings[1] >= 2 ? 1 : 0);
+        scores[4] += (zones[4] > 0.3 ? 1 : 0); // left-mid ink
+        scores[4] += (hProj[3] > 0.6 ? 1 : 0);
+
+        // 5: top-left heavy, bottom-right heavy
+        scores[5] += (zones[0] + zones[1] > zones[2] + zones[3] ? 1 : 0);
+        scores[5] += (zones[14] + zones[15] > zones[12] + zones[13] ? 1 : 0);
+        scores[5] += (hProj[0] > 0.4 ? 1 : 0);
+
+        // 6: top narrow, bottom loop
+        scores[6] += (topFill < botFill ? 1.5 : 0);
+        scores[6] += (crossings[2] >= 2 ? 1 : 0);
+        scores[6] += (zones[12] + zones[13] + zones[14] + zones[15] > 1.5 ? 1 : 0);
+
+        // 7: top heavy horizontal, right diagonal
+        scores[7] += (hProj[0] > 0.7 ? 2 : 0);
+        scores[7] += (crossings[0] <= 1 ? 1 : 0);
+        scores[7] += (zones[0] + zones[1] + zones[2] + zones[3] > totalInk * 0.015 ? 1 : 0);
+
+        // 8: two loops, balanced top/bottom
+        scores[8] += (1 - Math.abs(topFill - botFill)) * 2;
+        scores[8] += (crossings[0] >= 2 && crossings[2] >= 2 ? 2 : 0);
+        scores[8] += (centerFill > 0.5 ? -1 : 1);
+
+        // 9: top loop, bottom tail
+        scores[9] += (topFill > botFill ? 1.5 : 0);
+        scores[9] += (crossings[0] >= 2 ? 1 : 0);
+        scores[9] += (zones[0] + zones[1] + zones[2] + zones[3] > 1 ? 1 : 0);
+
+        return scores;
+    },
+
+    // Recognize a single digit from a canvas region
+    recognizeDigit(canvas) {
+        const result = this._extractGrid(canvas);
+        if (!result) return null;
+        const features = this._extractFeatures(result.grid);
+        const scores = this._scoreDigit(features);
+        let best = 0, bestScore = scores[0];
+        for (let i = 1; i < 10; i++) {
+            if (scores[i] > bestScore) { best = i; bestScore = scores[i]; }
+        }
+        return { digit: best, confidence: bestScore, scores };
+    },
+
+    // Recognize multi-digit number from full canvas
+    recognize(canvas) {
+        const segments = this._segmentDigits(canvas);
+        if (segments.length === 0) return null;
+
+        // If only one segment, it might be a single digit or the user wrote compactly
+        if (segments.length === 1 && segments[0].width < canvas.width * 0.6) {
+            const r = this.recognizeDigit(canvas);
+            return r ? r.digit : null;
+        }
+
+        // Multiple segments: recognize each
+        let number = '';
+        for (const seg of segments) {
+            // Create sub-canvas for this segment
+            const sub = document.createElement('canvas');
+            const fullH = canvas.height;
+            sub.width = seg.width;
+            sub.height = fullH;
+            const subCtx = sub.getContext('2d');
+            subCtx.drawImage(canvas, seg.x, 0, seg.width, fullH, 0, 0, seg.width, fullH);
+            const r = this.recognizeDigit(sub);
+            if (r) number += r.digit;
+        }
+        return number ? parseInt(number) : null;
+    }
+};
+
+// ====== HANDWRITING CANVAS MODULE ======
+const HandwritingCanvas = {
+    canvas: null,
+    ctx: null,
+    isDrawing: false,
+    lastX: 0,
+    lastY: 0,
+    hasContent: false,
+
+    init(canvasEl) {
+        this.canvas = canvasEl;
+        this.ctx = canvasEl.getContext('2d');
+        this.resize();
+        this.clear();
+        this._bindEvents();
+    },
+
+    resize() {
+        const rect = this.canvas.getBoundingClientRect();
+        const dpr = window.devicePixelRatio || 1;
+        this.canvas.width = rect.width * dpr;
+        this.canvas.height = rect.height * dpr;
+        this.ctx.scale(dpr, dpr);
+        this._applyStyle();
+    },
+
+    _applyStyle() {
+        this.ctx.strokeStyle = '#E8E0FF';
+        this.ctx.lineWidth = 4;
+        this.ctx.lineCap = 'round';
+        this.ctx.lineJoin = 'round';
+    },
+
+    clear() {
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        this._applyStyle();
+        this.hasContent = false;
+    },
+
+    _getPos(e) {
+        const rect = this.canvas.getBoundingClientRect();
+        if (e.touches) {
+            return { x: e.touches[0].clientX - rect.left, y: e.touches[0].clientY - rect.top };
+        }
+        return { x: e.clientX - rect.left, y: e.clientY - rect.top };
+    },
+
+    _getPressure(e) {
+        // Apple Pencil provides pressure via pointer events
+        if (e.pressure && e.pressure > 0) return e.pressure;
+        if (e.force && e.force > 0) return e.force / 3; // Force Touch normalization
+        return 0.5;
+    },
+
+    _bindEvents() {
+        const c = this.canvas;
+
+        // Use pointer events for Apple Pencil support
+        c.addEventListener('pointerdown', (e) => {
+            e.preventDefault();
+            this.isDrawing = true;
+            const pos = this._getPos(e);
+            this.lastX = pos.x;
+            this.lastY = pos.y;
+            this.ctx.beginPath();
+            this.ctx.moveTo(pos.x, pos.y);
+        });
+
+        c.addEventListener('pointermove', (e) => {
+            if (!this.isDrawing) return;
+            e.preventDefault();
+            const pos = this._getPos(e);
+            const pressure = this._getPressure(e);
+
+            // Adjust line width based on pressure (Apple Pencil)
+            this.ctx.lineWidth = 2 + pressure * 6;
+            this.ctx.lineTo(pos.x, pos.y);
+            this.ctx.stroke();
+            this.ctx.beginPath();
+            this.ctx.moveTo(pos.x, pos.y);
+            this.lastX = pos.x;
+            this.lastY = pos.y;
+            this.hasContent = true;
+        });
+
+        c.addEventListener('pointerup', (e) => {
+            this.isDrawing = false;
+            this.ctx.beginPath();
+        });
+
+        c.addEventListener('pointerleave', (e) => {
+            this.isDrawing = false;
+        });
+
+        // Prevent scrolling while drawing
+        c.addEventListener('touchstart', (e) => e.preventDefault(), { passive: false });
+        c.addEventListener('touchmove', (e) => e.preventDefault(), { passive: false });
     }
 };
 
@@ -4376,6 +4954,13 @@ const SoundEngine = {
             // Check if sound is disabled
             const data = Storage.load();
             if (data.settings && data.settings.soundEnabled === false) return;
+
+            // Try ElevenLabs pre-recorded SFX first (for upgraded sounds)
+            const sfxNames = ['correct', 'wrong', 'achievement', 'perfect', 'streak', 'welcome'];
+            if (sfxNames.includes(name) && AudioPlayer.isAvailable()) {
+                AudioPlayer.playSFX(name).catch(() => {});
+                return; // Don't play oscillator version
+            }
 
             // Get or create AudioContext
             if (!this.ctx || this.ctx.state === 'closed') {
@@ -7755,6 +8340,7 @@ function showWelcomeScreen() {
     App.isBossBattle = false;
     App.isFreeForm = false;
     App.isOralMode = false;
+    App.isHandwriting = false;
     App.bossTable = null;
     App.focusModeFactsBefore = {};
     App.focusModeImproved = [];
@@ -7816,6 +8402,14 @@ function showWelcomeScreen() {
     document.getElementById('toggle-ans-4').classList.toggle('active', ansC === 4);
     document.getElementById('toggle-ans-6').classList.toggle('active', ansC === 6);
     document.getElementById('toggle-ans-8').classList.toggle('active', ansC === 8);
+
+    // Show handwriting button only on touch devices (iPad/tablet)
+    const hwBtn = document.getElementById('btn-handwriting');
+    if (hwBtn) {
+        const isTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+        const isLargeScreen = Math.min(screen.width, screen.height) >= 600;
+        hwBtn.style.display = (isTouch && isLargeScreen) ? '' : 'none';
+    }
 
     // TTS toggle state
     const ttsOn = TTS._enabled;
@@ -7921,7 +8515,8 @@ function showWelcomeScreen() {
         'challenge':     'btn-challenge',
         'genius':        'btn-genius',
         'free_form':     'btn-free-form',
-        'oral_mode':     'btn-oral-mode'
+        'oral_mode':     'btn-oral-mode',
+        'handwriting':   'btn-handwriting'
     };
     Object.entries(modeButtonMap).forEach(([modeId, btnId]) => {
         const btn = document.getElementById(btnId);
@@ -8236,6 +8831,12 @@ function startPractice() {
         stopTimer();
     }
 
+    // Mode badge for handwriting
+    if (App.isHandwriting) {
+        const badge = document.getElementById('practice-mode-badge');
+        if (badge) { badge.textContent = '✍️ כתיבה עם עט'; badge.style.display = ''; }
+    }
+
     SoundEngine.play('launch');
     App.navigateTo('screen-practice');
     showQuestion();
@@ -8317,6 +8918,43 @@ function showQuestion() {
             </div>
         `;
         setTimeout(() => { const inp = document.getElementById('freeform-answer'); if (inp) inp.focus(); }, 100);
+
+    // ====== HANDWRITING MODE: canvas for Apple Pencil ======
+    } else if (App.isHandwriting) {
+        // Animated question display
+        const qText = q.a + ' × ' + q.b + ' = ?';
+        questionEl.innerHTML = '';
+        const chars = qText.split('');
+        chars.forEach((ch, i) => {
+            const span = document.createElement('span');
+            span.className = 'hw-char';
+            span.textContent = ch === ' ' ? '\u00A0' : ch;
+            span.style.animationDelay = (i * 0.08) + 's';
+            questionEl.appendChild(span);
+        });
+        questionEl.style.direction = 'ltr';
+        questionEl.style.unicodeBidi = 'bidi-override';
+
+        grid.style.gridTemplateColumns = '1fr';
+        grid.innerHTML = `
+            <div class="handwriting-container">
+                <div class="handwriting-canvas-wrap">
+                    <canvas class="handwriting-canvas" id="hw-canvas"></canvas>
+                    <div class="handwriting-canvas-lines"></div>
+                </div>
+                <div class="handwriting-recognized" id="hw-recognized"></div>
+                <div class="handwriting-buttons">
+                    <button class="handwriting-btn-clear" id="hw-clear">🗑️ מחק</button>
+                    <button class="handwriting-btn-check" id="hw-check">✓ בדוק</button>
+                </div>
+            </div>
+        `;
+
+        // Initialize canvas after DOM update
+        setTimeout(() => {
+            const canvas = document.getElementById('hw-canvas');
+            if (canvas) HandwritingCanvas.init(canvas);
+        }, 100);
 
     // ====== ORAL MODE: mic button instead of answer buttons ======
     } else if (App.isOralMode) {
@@ -8578,7 +9216,13 @@ function processAnswer(isCorrect, q, responseMs, chosenRaw, visualBtn) {
         // Voice readout for correct answers (skip boss battle & genius)
         if (q.a && q.b && !App.isBossBattle && !App.isGenius) {
             const ttsCallback = (App.isOralMode) ? () => { setTimeout(() => startOralListening(), 500); } : null;
-            TTS.speak(buildCorrectReadout(q.a, q.b), ttsCallback);
+            // Prefer pre-recorded ElevenLabs audio, fallback to Web Speech API
+            if (AudioPlayer.isAvailable()) {
+                const tokens = AudioPlayer.buildReadoutTokens(q.a, q.b);
+                AudioPlayer.playSequence(tokens, 100, ttsCallback);
+            } else {
+                TTS.speak(buildCorrectReadout(q.a, q.b), ttsCallback);
+            }
         }
 
         // True/False follow-up
@@ -8924,6 +9568,47 @@ function handleFreeFormSubmit() {
     input.style.boxShadow = isCorrect ? '0 0 20px rgba(0,230,118,0.4)' : '0 0 20px rgba(255,82,82,0.4)';
 
     processAnswer(isCorrect, q, responseMs, String(answer), null);
+}
+
+// ====== HANDWRITING ANSWER HANDLER ======
+function handleHandwritingCheck() {
+    if (App.isProcessing || !HandwritingCanvas.hasContent) return;
+    stopQuestionTimer();
+    App.isProcessing = true;
+
+    const q = App.sessionQuestions[App.sessionIndex];
+    if (!q) { App.isProcessing = false; return; }
+
+    const canvas = document.getElementById('hw-canvas');
+    const recognized = DigitRecognizer.recognize(canvas);
+    const recognizedEl = document.getElementById('hw-recognized');
+
+    if (recognized === null) {
+        // Couldn't recognize — ask to try again
+        if (recognizedEl) recognizedEl.innerHTML = '<span style="color:#FF6B6B;">לא הצלחתי לקרוא, נסה שוב 🤔</span>';
+        App.isProcessing = false;
+        return;
+    }
+
+    if (recognizedEl) recognizedEl.textContent = 'זיהיתי: ' + recognized;
+
+    const responseMs = Date.now() - App.questionStartTime;
+    const isCorrect = recognized === q.a * q.b;
+
+    // Visual feedback on canvas
+    const wrap = document.querySelector('.handwriting-canvas-wrap');
+    if (wrap) {
+        wrap.style.borderColor = isCorrect ? 'var(--color-success)' : 'var(--color-error)';
+        wrap.style.boxShadow = isCorrect ? '0 0 20px rgba(0,230,118,0.3)' : '0 0 20px rgba(255,82,82,0.3)';
+    }
+
+    // Disable buttons
+    const clearBtn = document.getElementById('hw-clear');
+    const checkBtn = document.getElementById('hw-check');
+    if (clearBtn) clearBtn.disabled = true;
+    if (checkBtn) checkBtn.disabled = true;
+
+    processAnswer(isCorrect, q, responseMs, String(recognized), null);
 }
 
 // ====== ORAL ANSWER HANDLER ======
@@ -10009,6 +10694,7 @@ document.addEventListener('click', (e) => {
     }
     if (id === 'btn-free-form') { SoundEngine.play('navigate'); App.isFreeForm = true; showNumberScreen(); }
     if (id === 'btn-oral-mode') { SoundEngine.play('navigate'); App.isOralMode = true; showNumberScreen(); }
+    if (id === 'btn-handwriting') { SoundEngine.play('navigate'); App.isHandwriting = true; showNumberScreen(); }
     if (id === 'btn-genius') { SoundEngine.play('navigate'); startGeniusMode(); }
     if (id === 'btn-quick-recall') { SoundEngine.play('navigate'); QuickRecall.start(); }
     if (id === 'btn-daily-boost') { SoundEngine.play('navigate'); DailyBoost.start(); }
@@ -10071,6 +10757,9 @@ document.addEventListener('click', (e) => {
 
     // Free-form submit button
     if (id === 'freeform-submit-btn') { handleFreeFormSubmit(); return; }
+    // Handwriting buttons
+    if (id === 'hw-clear') { HandwritingCanvas.clear(); document.getElementById('hw-recognized').textContent = ''; return; }
+    if (id === 'hw-check') { handleHandwritingCheck(); return; }
     // Oral mic button
     if (id === 'oral-mic-btn') {
         if (SpeechRecog.isListening) SpeechRecog.stop();
