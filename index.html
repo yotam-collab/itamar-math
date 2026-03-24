@@ -661,74 +661,62 @@
             gap: 1rem;
             width: 100%;
         }
-        .handwriting-question-svg {
-            font-size: 2.5rem;
-            font-weight: 700;
-            color: var(--color-text);
-            min-height: 4rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .handwriting-canvas-wrap {
+        .hw-notebook {
             position: relative;
             width: 100%;
             max-width: 500px;
-            aspect-ratio: 3/2;
             border-radius: 16px;
             overflow: hidden;
-            background: rgba(255,255,255,0.05);
+            background: rgba(255,255,255,0.04);
             border: 2px solid rgba(169,132,255,0.3);
-            touch-action: none;
+            padding: 1.5rem;
+            transition: all 0.3s;
         }
-        .handwriting-canvas {
-            width: 100%;
-            height: 100%;
-            cursor: crosshair;
-        }
-        .handwriting-canvas-lines {
+        .hw-notebook-lines {
             position: absolute;
             top: 0; left: 0; right: 0; bottom: 0;
             pointer-events: none;
             background: repeating-linear-gradient(
                 0deg,
                 transparent,
-                transparent calc(100% / 3 - 1px),
-                rgba(169,132,255,0.1) calc(100% / 3 - 1px),
-                rgba(169,132,255,0.1) calc(100% / 3)
+                transparent 49px,
+                rgba(169,132,255,0.08) 49px,
+                rgba(169,132,255,0.08) 50px
             );
         }
-        .handwriting-buttons {
-            display: flex;
-            gap: 1rem;
+        .hw-input {
             width: 100%;
-            max-width: 500px;
+            background: transparent;
+            border: none;
+            outline: none;
+            font-size: 4rem;
+            font-weight: 700;
+            color: var(--color-primary-light);
+            text-align: center;
+            direction: ltr;
+            padding: 2rem 1rem;
+            position: relative;
+            z-index: 1;
+            caret-color: var(--color-primary);
+            -webkit-appearance: none;
+            -moz-appearance: textfield;
         }
-        .handwriting-btn-clear, .handwriting-btn-check {
-            flex: 1;
+        .hw-input::placeholder {
+            color: rgba(169,132,255,0.3);
+            font-size: 1.5rem;
+        }
+        .hw-input::-webkit-outer-spin-button,
+        .hw-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+        .handwriting-btn-check {
             padding: 0.8rem;
             border-radius: 12px;
             font-size: 1.1rem;
             font-weight: 700;
             cursor: pointer;
-            border: 2px solid;
-            transition: all 0.2s;
-        }
-        .handwriting-btn-clear {
-            background: rgba(255,107,107,0.1);
-            border-color: rgba(255,107,107,0.3);
-            color: #FF6B6B;
-        }
-        .handwriting-btn-check {
+            border: 2px solid rgba(81,207,102,0.4);
             background: rgba(81,207,102,0.2);
-            border-color: rgba(81,207,102,0.4);
             color: #51CF66;
-        }
-        .handwriting-recognized {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: var(--color-primary-light);
-            min-height: 2rem;
+            transition: all 0.2s;
         }
         /* Writing animation for question */
         @keyframes writeIn {
@@ -3991,52 +3979,6 @@ const AudioPlayer = {
         if (!data) return false;
         await this.playClip(data, 0.5);
         return true;
-    },
-
-    async playSequence(tokens, gapMs = 100, onEnd) {
-        if (!this.isAvailable()) {
-            // Fallback to Web Speech API TTS
-            if (onEnd) onEnd();
-            return false;
-        }
-        try {
-            const ctx = this._getContext();
-            if (ctx.state === 'suspended') await ctx.resume();
-
-            for (let i = 0; i < tokens.length; i++) {
-                const token = tokens[i];
-                // Look up in phrases first, then numbers
-                let data = null;
-                if (window.AUDIO_DATA.phrases && window.AUDIO_DATA.phrases[token]) {
-                    data = window.AUDIO_DATA.phrases[token];
-                } else if (window.AUDIO_DATA.numbers && window.AUDIO_DATA.numbers[token]) {
-                    data = window.AUDIO_DATA.numbers[token];
-                }
-                if (!data) continue;
-
-                await this.playClip(data, 0.8);
-                // Small gap between words (except after last)
-                if (i < tokens.length - 1) {
-                    await new Promise(r => setTimeout(r, gapMs));
-                }
-            }
-            if (onEnd) onEnd();
-            return true;
-        } catch (e) {
-            console.warn('AudioPlayer error:', e);
-            if (onEnd) onEnd();
-            return false;
-        }
-    },
-
-    // Build token array for a correct answer readout
-    buildReadoutTokens(a, b) {
-        const praises = [
-            'נכון מאוד איתמר', 'איתמר אלוף', 'כל הכבוד איתמר', 'מעולה איתמר',
-            'יופי איתמר', 'מדהים איתמר', 'וואו איתמר', 'נהדר איתמר', 'איתמר כוכב'
-        ];
-        const praise = praises[Math.floor(Math.random() * praises.length)];
-        return [praise, String(a), 'כפול', String(b), 'שווה', String(a * b)];
     }
 };
 
@@ -4102,8 +4044,8 @@ const SpeechRecog = {
     }
 };
 
-// ====== DIGIT RECOGNIZER (lightweight, no external dependencies) ======
-const DigitRecognizer = {
+/* DigitRecognizer and HandwritingCanvas removed — Apple Pencil Scribble handles recognition natively
+const _UNUSED_OLD_CODE = {
     // Simple CNN-like recognizer using pixel grid analysis
     // Recognizes digits 0-9 from a 28x28 grayscale image
 
@@ -4473,6 +4415,7 @@ const HandwritingCanvas = {
         c.addEventListener('touchmove', (e) => e.preventDefault(), { passive: false });
     }
 };
+END OF REMOVED CODE */
 
 const DIFFICULTY_CONFIG = {
     easy:      { questions: 10, distractorMode: 'far', multiplier: 1,   timer: false, showCorrect: true,  retryWrong: true, questionTimer: 15 },
@@ -8935,26 +8878,18 @@ function showQuestion() {
         questionEl.style.direction = 'ltr';
         questionEl.style.unicodeBidi = 'bidi-override';
 
+        // Use large input with Apple Pencil Scribble support (iPadOS handles recognition)
         grid.style.gridTemplateColumns = '1fr';
         grid.innerHTML = `
             <div class="handwriting-container">
-                <div class="handwriting-canvas-wrap">
-                    <canvas class="handwriting-canvas" id="hw-canvas"></canvas>
-                    <div class="handwriting-canvas-lines"></div>
+                <div class="hw-notebook">
+                    <div class="hw-notebook-lines"></div>
+                    <input type="number" inputmode="numeric" id="hw-answer" class="hw-input" autocomplete="off" placeholder="✍️ כתוב כאן" autofocus>
                 </div>
-                <div class="handwriting-recognized" id="hw-recognized"></div>
-                <div class="handwriting-buttons">
-                    <button class="handwriting-btn-clear" id="hw-clear">🗑️ מחק</button>
-                    <button class="handwriting-btn-check" id="hw-check">✓ בדוק</button>
-                </div>
+                <button id="hw-check" class="handwriting-btn-check" style="max-width:500px;width:100%;">✓ בדוק</button>
             </div>
         `;
-
-        // Initialize canvas after DOM update
-        setTimeout(() => {
-            const canvas = document.getElementById('hw-canvas');
-            if (canvas) HandwritingCanvas.init(canvas);
-        }, 100);
+        setTimeout(() => { const inp = document.getElementById('hw-answer'); if (inp) inp.focus(); }, 100);
 
     // ====== ORAL MODE: mic button instead of answer buttons ======
     } else if (App.isOralMode) {
@@ -9214,15 +9149,10 @@ function processAnswer(isCorrect, q, responseMs, chosenRaw, visualBtn) {
         App.currentStreak++;
 
         // Voice readout for correct answers (skip boss battle & genius)
+        // Uses Web Speech API (Carmit/Google) for Hebrew — ElevenLabs doesn't support Hebrew well
         if (q.a && q.b && !App.isBossBattle && !App.isGenius) {
             const ttsCallback = (App.isOralMode) ? () => { setTimeout(() => startOralListening(), 500); } : null;
-            // Prefer pre-recorded ElevenLabs audio, fallback to Web Speech API
-            if (AudioPlayer.isAvailable()) {
-                const tokens = AudioPlayer.buildReadoutTokens(q.a, q.b);
-                AudioPlayer.playSequence(tokens, 100, ttsCallback);
-            } else {
-                TTS.speak(buildCorrectReadout(q.a, q.b), ttsCallback);
-            }
+            TTS.speak(buildCorrectReadout(q.a, q.b), ttsCallback);
         }
 
         // True/False follow-up
@@ -9572,43 +9502,32 @@ function handleFreeFormSubmit() {
 
 // ====== HANDWRITING ANSWER HANDLER ======
 function handleHandwritingCheck() {
-    if (App.isProcessing || !HandwritingCanvas.hasContent) return;
+    if (App.isProcessing) return;
+    const input = document.getElementById('hw-answer');
+    if (!input || input.value.trim() === '') return;
     stopQuestionTimer();
     App.isProcessing = true;
 
     const q = App.sessionQuestions[App.sessionIndex];
     if (!q) { App.isProcessing = false; return; }
 
-    const canvas = document.getElementById('hw-canvas');
-    const recognized = DigitRecognizer.recognize(canvas);
-    const recognizedEl = document.getElementById('hw-recognized');
-
-    if (recognized === null) {
-        // Couldn't recognize — ask to try again
-        if (recognizedEl) recognizedEl.innerHTML = '<span style="color:#FF6B6B;">לא הצלחתי לקרוא, נסה שוב 🤔</span>';
-        App.isProcessing = false;
-        return;
-    }
-
-    if (recognizedEl) recognizedEl.textContent = 'זיהיתי: ' + recognized;
-
+    const answer = parseInt(input.value);
     const responseMs = Date.now() - App.questionStartTime;
-    const isCorrect = recognized === q.a * q.b;
+    const isCorrect = answer === q.a * q.b;
 
-    // Visual feedback on canvas
-    const wrap = document.querySelector('.handwriting-canvas-wrap');
-    if (wrap) {
-        wrap.style.borderColor = isCorrect ? 'var(--color-success)' : 'var(--color-error)';
-        wrap.style.boxShadow = isCorrect ? '0 0 20px rgba(0,230,118,0.3)' : '0 0 20px rgba(255,82,82,0.3)';
-    }
-
-    // Disable buttons
-    const clearBtn = document.getElementById('hw-clear');
+    input.disabled = true;
     const checkBtn = document.getElementById('hw-check');
-    if (clearBtn) clearBtn.disabled = true;
     if (checkBtn) checkBtn.disabled = true;
 
-    processAnswer(isCorrect, q, responseMs, String(recognized), null);
+    // Visual feedback on notebook
+    const notebook = document.querySelector('.hw-notebook');
+    if (notebook) {
+        notebook.style.borderColor = isCorrect ? 'var(--color-success)' : 'var(--color-error)';
+        notebook.style.boxShadow = isCorrect ? '0 0 20px rgba(0,230,118,0.3)' : '0 0 20px rgba(255,82,82,0.3)';
+    }
+    input.style.color = isCorrect ? 'var(--color-success)' : 'var(--color-error)';
+
+    processAnswer(isCorrect, q, responseMs, String(answer), null);
 }
 
 // ====== ORAL ANSWER HANDLER ======
@@ -10659,9 +10578,9 @@ function performReset() {
 
 // ====== ENTER KEY FOR FREE-FORM MODE ======
 document.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter' && App.isFreeForm && !App.isProcessing && App.currentScreen === 'screen-practice') {
-        e.preventDefault();
-        handleFreeFormSubmit();
+    if (e.key === 'Enter' && !App.isProcessing && App.currentScreen === 'screen-practice') {
+        if (App.isFreeForm) { e.preventDefault(); handleFreeFormSubmit(); }
+        else if (App.isHandwriting) { e.preventDefault(); handleHandwritingCheck(); }
     }
 });
 
@@ -10758,7 +10677,6 @@ document.addEventListener('click', (e) => {
     // Free-form submit button
     if (id === 'freeform-submit-btn') { handleFreeFormSubmit(); return; }
     // Handwriting buttons
-    if (id === 'hw-clear') { HandwritingCanvas.clear(); document.getElementById('hw-recognized').textContent = ''; return; }
     if (id === 'hw-check') { handleHandwritingCheck(); return; }
     // Oral mic button
     if (id === 'oral-mic-btn') {
