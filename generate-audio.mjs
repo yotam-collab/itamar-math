@@ -63,12 +63,12 @@ async function findBestVoice() {
     }
 
     // Fallback to well-known multilingual voices
-    // "Rachel" - good multilingual female voice
+    // Aria - natural, young-sounding multilingual voice (good Hebrew)
     const defaultVoices = [
+        { id: '9BWtsMINqrJLrRacOk9x', name: 'Aria' },
+        { id: 'SAz9YHcvj6GT2YYXdXww', name: 'River' },
+        { id: 'CwhRBWXzGAHq8TQ4Fs17', name: 'Roger' },
         { id: '21m00Tcm4TlvDq8ikWAM', name: 'Rachel' },
-        { id: 'EXAVITQu4vr4xnSDxMaL', name: 'Sarah' },
-        { id: 'MF3mGyEYCl7XYWbV9V6O', name: 'Elli' },
-        { id: 'jBpfAFnaylXS5xSpRre8', name: 'Gigi' },
     ];
 
     // Test which one works

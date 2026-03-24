@@ -3979,6 +3979,44 @@ const AudioPlayer = {
         if (!data) return false;
         await this.playClip(data, 0.5);
         return true;
+    },
+
+    async playReadout(a, b, onEnd) {
+        if (!this.isAvailable() || !window.AUDIO_DATA.numbers || !window.AUDIO_DATA.phrases) {
+            if (onEnd) onEnd();
+            return false;
+        }
+        try {
+            const praises = [
+                'נכון מאוד איתמר', 'איתמר אלוף', 'כל הכבוד איתמר', 'מעולה איתמר',
+                'יופי איתמר', 'מדהים איתמר', 'וואו איתמר', 'נהדר איתמר', 'איתמר כוכב'
+            ];
+            const praise = praises[Math.floor(Math.random() * praises.length)];
+            const tokens = [
+                { key: praise, src: 'phrases' },
+                { key: String(a), src: 'numbers' },
+                { key: 'כפול', src: 'phrases' },
+                { key: String(b), src: 'numbers' },
+                { key: 'שווה', src: 'phrases' },
+                { key: String(a * b), src: 'numbers' }
+            ];
+
+            const ctx = this._getContext();
+            if (ctx.state === 'suspended') await ctx.resume();
+
+            for (let i = 0; i < tokens.length; i++) {
+                const t = tokens[i];
+                const data = window.AUDIO_DATA[t.src] && window.AUDIO_DATA[t.src][t.key];
+                if (!data) continue;
+                await this.playClip(data, 0.8);
+                if (i < tokens.length - 1) await new Promise(r => setTimeout(r, 80));
+            }
+            if (onEnd) onEnd();
+            return true;
+        } catch (e) {
+            if (onEnd) onEnd();
+            return false;
+        }
     }
 };
 
@@ -8884,7 +8922,7 @@ function showQuestion() {
             <div class="handwriting-container">
                 <div class="hw-notebook">
                     <div class="hw-notebook-lines"></div>
-                    <input type="number" inputmode="numeric" id="hw-answer" class="hw-input" autocomplete="off" placeholder="✍️ כתוב כאן" autofocus>
+                    <input type="text" inputmode="numeric" pattern="[0-9]*" id="hw-answer" class="hw-input" autocomplete="off" placeholder="✍️ כתוב כאן">
                 </div>
                 <button id="hw-check" class="handwriting-btn-check" style="max-width:500px;width:100%;">✓ בדוק</button>
             </div>
@@ -9149,10 +9187,14 @@ function processAnswer(isCorrect, q, responseMs, chosenRaw, visualBtn) {
         App.currentStreak++;
 
         // Voice readout for correct answers (skip boss battle & genius)
-        // Uses Web Speech API (Carmit/Google) for Hebrew — ElevenLabs doesn't support Hebrew well
         if (q.a && q.b && !App.isBossBattle && !App.isGenius) {
             const ttsCallback = (App.isOralMode) ? () => { setTimeout(() => startOralListening(), 500); } : null;
-            TTS.speak(buildCorrectReadout(q.a, q.b), ttsCallback);
+            // Prefer ElevenLabs pre-recorded audio, fallback to Web Speech API
+            if (AudioPlayer.isAvailable() && window.AUDIO_DATA.numbers) {
+                AudioPlayer.playReadout(q.a, q.b, ttsCallback);
+            } else {
+                TTS.speak(buildCorrectReadout(q.a, q.b), ttsCallback);
+            }
         }
 
         // True/False follow-up
