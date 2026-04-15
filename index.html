@@ -3191,7 +3191,7 @@
 
         <div class="flex-col gap-1 mt-3">
             <button class="btn btn-daily-boost btn-lg btn-block" id="btn-daily-boost">☀️  החימום של היום <span class="daily-boost-badge" id="daily-boost-badge"></span></button>
-            <button class="btn btn-genius btn-block" id="btn-genius">🧠  אלוף המחוננים <span class="genius-hs-inline" id="genius-highscore-welcome" style="display:none;">🏆 <span id="genius-highscore-val">0</span></span></button>
+            <button class="btn btn-genius btn-block" id="btn-genius">🧠  אלוף עץ חיים <span class="genius-hs-inline" id="genius-highscore-welcome" style="display:none;">🏆 <span id="genius-highscore-val">0</span></span></button>
             <button class="btn btn-recall btn-block" id="btn-quick-recall">⚡  שליפה מהירה</button>
             <button class="btn btn-primary btn-lg btn-block" id="btn-start-practice">🎯  תרגול חדש</button>
             <button class="btn btn-outline btn-block" id="btn-focus-mode">🎯  תרגול חולשות חכם</button>
@@ -3296,7 +3296,7 @@
         <div class="practice-bubble" id="practice-bubble">קדימה!</div>
         <!-- Genius title (genius mode only) -->
         <div id="genius-title-bar" style="display:none;">
-            <div class="genius-title-text" id="genius-title-text">🧠 אלוף המחוננים 🧠</div>
+            <div class="genius-title-text" id="genius-title-text">🧠 אלוף עץ חיים 🧠</div>
             <div class="genius-record-line" id="genius-record-line">🏆 שיא: <span id="genius-record-val">0</span></div>
             <div class="genius-sound-controls">
                 <button class="genius-sound-btn" id="btn-toggle-music" title="מוזיקה">🎵</button>
@@ -7769,7 +7769,7 @@ const LevelProgression = {
             'boss_battle': '⚔️ קרב בוסים',
             'quick_recall': '⚡ שליפה מהירה',
             'challenge': '⏱️ מצב אתגר',
-            'genius': '🧠 אלוף המחוננים',
+            'genius': '🧠 אלוף עץ חיים',
             'advanced_bosses': '⚔️ בוסים מתקדמים',
             'champion_bosses': '👑 בוסי אלוף',
             'speed_challenge': '💨 אתגר מהירות',
@@ -10172,7 +10172,7 @@ function endSession(reason) {
         // Genius mode summary
         icon.textContent = '\uD83E\uDDE0';
         if (App.geniusScore >= 75) {
-            title.textContent = 'אלוף המחוננים!';
+            title.textContent = 'אלוף עץ חיים!';
             subtitle.textContent = 'תוצאה מדהימה!';
             showConfetti();
             SoundEngine.play('perfect');
