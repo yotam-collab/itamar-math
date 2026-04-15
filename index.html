@@ -3551,8 +3551,8 @@
     <div class="confirm-popup">
         <div class="confirm-popup-icon">🔒</div>
         <div class="confirm-popup-title">למחוק את כל הנתונים?</div>
-        <div class="confirm-popup-desc">כל ההתקדמות, הכוכבים, המטבעות וההישגים ימחקו לצמיתות.<br>הכנס קוד אישור כדי למחוק:</div>
-        <input type="text" id="reset-code-input" placeholder="הכנס קוד..." style="width:100%; padding:0.75rem 1rem; border:1px solid rgba(108,99,255,0.3); border-radius:var(--radius-md); font-family:var(--font-display); font-size:1.1rem; text-align:center; font-weight:700; letter-spacing:3px; margin-bottom:0.5rem; direction:ltr; background:rgba(108,99,255,0.08); color:var(--text-primary);" autocomplete="off">
+        <div class="confirm-popup-desc">כל ההתקדמות, הכוכבים, המטבעות וההישגים ימחקו לצמיתות.<br>הורים: הכניסו את שנת הלידה שלכם לאישור:</div>
+        <input type="number" inputmode="numeric" id="reset-code-input" placeholder="למשל: 1985" min="1950" max="2010" style="width:100%; padding:0.75rem 1rem; border:1px solid rgba(108,99,255,0.3); border-radius:var(--radius-md); font-family:var(--font-display); font-size:1.1rem; text-align:center; font-weight:700; margin-bottom:0.5rem; direction:ltr; background:rgba(108,99,255,0.08); color:var(--text-primary);" autocomplete="off">
         <div id="reset-code-error" style="color:var(--color-error); font-size:0.85rem; font-weight:700; min-height:1.5rem; margin-bottom:0.5rem;"></div>
         <div class="confirm-buttons">
             <button class="btn btn-danger" id="btn-reset-confirm">🗑️ מחק</button>
@@ -10690,9 +10690,22 @@ function hideResetConfirm() {
 }
 
 function performReset() {
-    const input = document.getElementById('reset-code-input').value.trim();
-    if (input !== RESET_CODE) {
-        document.getElementById('reset-code-error').textContent = 'קוד שגוי! נסה שוב.';
+    const inputVal = document.getElementById('reset-code-input').value.trim();
+    const year = parseInt(inputVal);
+    const data = Storage.load();
+    const storedYear = data.settings && data.settings.birthYear;
+
+    // If birth year was set, verify it matches
+    if (storedYear && year !== storedYear) {
+        document.getElementById('reset-code-error').textContent = 'שנת לידה שגויה! נסה שוב.';
+        document.getElementById('reset-code-input').value = '';
+        document.getElementById('reset-code-input').focus();
+        SoundEngine.play('wrong');
+        return;
+    }
+    // If no birth year stored, require a valid parent-age year
+    if (!storedYear && (isNaN(year) || year < 1950 || year > 2010)) {
+        document.getElementById('reset-code-error').textContent = 'הכנס שנת לידה תקינה';
         document.getElementById('reset-code-input').value = '';
         document.getElementById('reset-code-input').focus();
         SoundEngine.play('wrong');
