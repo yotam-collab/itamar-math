@@ -6,7 +6,8 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <title>תרגול כפל - איתמר</title>
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob:; font-src 'self' https://fonts.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: blob:;">
+    <title>תרגול כפל - עץ חיים</title>
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Rubik:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
         /* ====== CSS Custom Properties - COSMIC PLAYGROUND ====== */
@@ -225,7 +226,7 @@
         #screen-welcome.screen-enter .flex-col > button:nth-child(n+9) { animation: btnPopIn 0.45s cubic-bezier(0.16, 1, 0.3, 1) 0.58s both; }
 
         /* Welcome screen profile entrance */
-        #screen-welcome.screen-enter .itamar-photo-welcome { animation: profileBounce 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) 0.05s both; }
+        #screen-welcome.screen-enter .student-photo-welcome { animation: profileBounce 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) 0.05s both; }
         #screen-welcome.screen-enter .welcome-title { animation: titleReveal 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.1s both; }
         #screen-welcome.screen-enter .mission-card { animation: btnPopIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.15s both; }
 
@@ -1182,7 +1183,7 @@
         }
 
         /* ====== Itamar Photo Styles ====== */
-        .itamar-photo {
+        .student-photo {
             width: 120px;
             height: 120px;
             border-radius: 50%;
@@ -1190,7 +1191,7 @@
             border: 3px solid var(--color-primary);
             box-shadow: 0 0 20px rgba(108, 99, 255, 0.4);
         }
-        .itamar-photo-welcome {
+        .student-photo-welcome {
             width: 140px;
             height: 140px;
             border-radius: 50%;
@@ -1200,7 +1201,7 @@
             margin-bottom: 0.5rem;
             animation: pulseGlow 3s ease-in-out infinite;
         }
-        .itamar-photo-practice {
+        .student-photo-practice {
             position: absolute;
             top: 12px;
             left: 12px;
@@ -1214,11 +1215,11 @@
             cursor: pointer;
             transition: transform 0.2s, box-shadow 0.2s;
         }
-        .itamar-photo-practice:hover {
+        .student-photo-practice:hover {
             transform: scale(1.1);
             box-shadow: 0 0 16px rgba(108, 99, 255, 0.5);
         }
-        .itamar-photo-summary {
+        .student-photo-summary {
             width: 120px;
             height: 120px;
             border-radius: 50%;
@@ -1899,9 +1900,9 @@
             .question-text { font-size: 2.4rem; }
             .title-hero { font-size: 2rem; }
             .stats-bar { gap: 1rem; }
-            .itamar-photo-welcome { width: 110px; height: 110px; }
-            .itamar-photo-practice { width: 40px; height: 40px; }
-            .itamar-photo-summary { width: 90px; height: 90px; }
+            .student-photo-welcome { width: 110px; height: 110px; }
+            .student-photo-practice { width: 40px; height: 40px; }
+            .student-photo-summary { width: 90px; height: 90px; }
             .practice-bubble { left: 55px; font-size: 0.6rem; }
             .mastery-cell { min-width: 26px; min-height: 26px; font-size: 0.5rem; }
             .mastery-grid { gap: 2px; min-width: 380px; }
@@ -2598,7 +2599,7 @@
         }
 
         /* ====== MAP SCREEN ====== */
-        #screen-map {
+        #screen-map.screen-active {
             display: flex;
             flex-direction: column;
             height: 100vh;
@@ -3044,7 +3045,7 @@
         }
 
         /* ====== Enhanced Welcome Entry ====== */
-        #screen-welcome.screen-enter .itamar-photo-welcome {
+        #screen-welcome.screen-enter .student-photo-welcome {
             animation: splashPhotoEntry 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) 0.05s both !important;
         }
         @keyframes splashPhotoEntry {
@@ -3103,9 +3104,25 @@
 <div class="bg-decorations" id="bg-decorations"></div>
 
 <!-- ====== SCREEN: Avatar Selection ====== -->
+<!-- ====== SCREEN: Name Input ====== -->
+<div id="screen-name" class="screen">
+    <div class="card text-center">
+        <div style="font-size:3rem;margin-bottom:0.5rem;">📐</div>
+        <div class="title-lg mb-1">!ברוכים הבאים</div>
+        <div class="subtitle mb-1">תרגול כפל - תלמוד תורה עץ חיים</div>
+        <div class="subtitle mb-2" style="font-size:1.1rem;font-weight:600;">מה השם שלך?</div>
+        <input type="text" id="name-input" placeholder="הכנס את השם שלך" maxlength="20" autocomplete="off"
+               dir="rtl" style="font-size:1.5rem;text-align:center;padding:1rem;border-radius:16px;
+               border:2px solid rgba(255,255,255,0.2);background:rgba(22,18,56,0.8);color:white;
+               width:80%;font-family:var(--font-display);outline:none;transition:border-color 0.3s;"
+               onfocus="this.style.borderColor='rgba(124,77,255,0.6)'" onblur="this.style.borderColor='rgba(255,255,255,0.2)'">
+        <button class="btn btn-primary btn-lg btn-block mt-2" id="btn-name-continue" disabled>המשך ➤</button>
+    </div>
+</div>
+
 <div id="screen-avatar" class="screen">
     <div class="card text-center">
-        <div class="title-lg mb-1">שלום איתמר!</div>
+        <div class="title-lg mb-1" id="avatar-greeting">!שלום</div>
         <div class="subtitle mb-2">בחר דמות שתלווה אותך</div>
         <div class="avatar-grid" id="avatar-grid"></div>
         <button class="btn btn-primary btn-lg btn-block mt-2" id="btn-avatar-continue" disabled>יאללה!</button>
@@ -3115,7 +3132,7 @@
 <!-- ====== SCREEN: Map ====== -->
 <div id="screen-map" class="screen">
     <div class="map-header">
-        <div class="map-title">🗺️ מסע הכפל של איתמר</div>
+        <div class="map-title" id="map-title-text">🗺️ מסע הכפל</div>
         <div class="map-subtitle" id="map-subtitle">שלב 1 / 30</div>
         <div class="map-world-indicator" id="map-world-indicator"></div>
     </div>
@@ -3131,11 +3148,11 @@
 <!-- ====== SCREEN: Welcome ====== -->
 <div id="screen-welcome" class="screen">
     <div class="card text-center">
-        <img src="images/welcome.jpg" alt="איתמר" class="itamar-photo-welcome" id="welcome-photo" onerror="this.style.display='none';document.getElementById('welcome-avatar-fallback').style.display=''">
+        <img src="images/welcome.jpg" alt="תמונה" class="student-photo-welcome" id="welcome-photo" onerror="this.style.display='none';document.getElementById('welcome-avatar-fallback').style.display=''">
         <div style="font-size: 3.5rem; margin-bottom: 0.25rem; display:none;" id="welcome-avatar-fallback"></div>
-        <div class="title-hero mb-1" id="welcome-greeting">שלום איתמר!</div>
+        <div class="title-hero mb-1" id="welcome-greeting">!שלום</div>
         <div class="subtitle" id="welcome-subtitle">בוא ננצח את לוח הכפל! 💪</div>
-        <div style="font-size:0.6rem;opacity:0.3;margin-top:2px;">v3.0-genius</div>
+        <div style="font-size:0.6rem;opacity:0.3;margin-top:2px;">תלמוד תורה עץ חיים</div>
 
         <div class="level-bar mt-2" id="welcome-level-bar">
             <div class="level-badge" id="welcome-level-badge">מתחיל</div>
@@ -3275,7 +3292,7 @@
 <!-- ====== SCREEN: Practice ====== -->
 <div id="screen-practice" class="screen">
     <div class="card" style="position:relative;">
-        <img src="images/practice.jpg" alt="איתמר" class="itamar-photo-practice" id="practice-photo" onerror="this.style.display='none';document.getElementById('practice-bubble')&&(document.getElementById('practice-bubble').style.display='none')">
+        <img src="images/practice.jpg" alt="תמונה" class="student-photo-practice" id="practice-photo" onerror="this.style.display='none';document.getElementById('practice-bubble')&&(document.getElementById('practice-bubble').style.display='none')">
         <div class="practice-bubble" id="practice-bubble">קדימה!</div>
         <!-- Genius title (genius mode only) -->
         <div id="genius-title-bar" style="display:none;">
@@ -3350,7 +3367,7 @@
 <!-- ====== SCREEN: Summary ====== -->
 <div id="screen-summary" class="screen">
     <div class="card text-center">
-        <img src="images/correct.jpg" alt="איתמר" class="itamar-photo-summary" id="summary-photo" onerror="this.style.display='none'">
+        <img src="images/correct.jpg" alt="תמונה" class="student-photo-summary" id="summary-photo" onerror="this.style.display='none'">
         <div id="summary-icon" style="font-size:4rem;"></div>
         <div class="title-lg" id="summary-title"></div>
         <div class="subtitle" id="summary-subtitle"></div>
@@ -3390,7 +3407,7 @@
 <div id="screen-mastery" class="screen">
     <div class="mastery-container">
         <div class="card">
-            <div class="title-lg mb-1">📊 לוח השליטה של איתמר</div>
+            <div class="title-lg mb-1" id="mastery-title-name">📊 לוח השליטה</div>
             <div class="subtitle mb-2">לחץ על תא כדי לראות פרטים</div>
 
             <div class="mastery-legend">
@@ -3489,8 +3506,8 @@
     <div class="parent-lock-box">
         <div style="font-size:2.5rem;margin-bottom:0.5rem;">🔒</div>
         <div style="font-weight:700;font-size:1rem;margin-bottom:0.5rem;">אזור הורים</div>
-        <div style="font-size:0.8rem;color:var(--text-secondary);margin-bottom:0.5rem;">הכנס קוד כדי לצפות</div>
-        <input type="password" class="parent-code-input" id="parent-code-input" maxlength="4" placeholder="••••" autocomplete="off">
+        <div style="font-size:0.8rem;color:var(--text-secondary);margin-bottom:0.5rem;">מה שנת הלידה שלך?</div>
+        <input type="number" inputmode="numeric" class="parent-code-input" id="parent-code-input" placeholder="למשל: 1985" min="1950" max="2010" autocomplete="off">
         <div id="parent-code-error" style="color:var(--color-error);font-size:0.75rem;min-height:1.2rem;"></div>
         <div style="display:flex;gap:0.5rem;margin-top:0.5rem;">
             <button class="btn btn-primary" id="btn-parent-unlock" style="flex:1;">כניסה</button>
@@ -3515,7 +3532,7 @@
 
 <!-- ====== Photo Feedback Container ====== -->
 <div class="feedback-photo-container" id="feedback-photo-container">
-    <img src="" alt="איתמר" class="feedback-photo" id="feedback-photo">
+    <img src="" alt="תמונה" class="feedback-photo" id="feedback-photo">
     <div class="feedback-text" id="feedback-text"></div>
 </div>
 
@@ -3917,7 +3934,7 @@ const VOICE_PRAISES = [
     'יופי {name}!', 'מדהים {name}!', 'וואו {name}!', 'נהדר {name}!', '{name} כוכב!'
 ];
 function buildCorrectReadout(a, b) {
-    const name = (Storage && Storage.load().profile.name) || 'איתמר';
+    const name = (Storage && Storage.load().profile.name) || 'תלמיד';
     const praise = VOICE_PRAISES[Math.floor(Math.random() * VOICE_PRAISES.length)].replace('{name}', name);
     return praise + ' ' + HebrewNumbers.toWords(a) + ' כפול ' + HebrewNumbers.toWords(b) + ' שווה ' + HebrewNumbers.toWords(a * b);
 }
@@ -3988,8 +4005,8 @@ const AudioPlayer = {
         }
         try {
             const praises = [
-                'נכון מאוד איתמר', 'איתמר אלוף', 'כל הכבוד איתמר', 'מעולה איתמר',
-                'יופי איתמר', 'מדהים איתמר', 'וואו איתמר', 'נהדר איתמר', 'איתמר כוכב'
+                'נכון מאוד', 'אלוף', 'כל הכבוד', 'מעולה',
+                'יופי', 'מדהים', 'וואו', 'נהדר', 'כוכב'
             ];
             const praise = praises[Math.floor(Math.random() * praises.length)];
             const tokens = [
@@ -4704,7 +4721,7 @@ const MISSION_TEMPLATES = [
 
 const DEFAULT_DATA = {
     version: 4,
-    profile: { name: 'איתמר', avatar: null, createdAt: null },
+    profile: { name: null, avatar: null, createdAt: null },
     stats: {
         totalQuestions: 0, totalCorrect: 0, totalWrong: 0,
         totalStars: 0, totalCoins: 0, totalPoints: 0,
@@ -4736,7 +4753,7 @@ const DEFAULT_DATA = {
 // ====== STORAGE ======
 const Storage = {
     _cache: null,
-    STORAGE_KEY: 'itamar_math_app',
+    STORAGE_KEY: 'kefel_etz_chaim',
 
     load() {
         if (this._cache) return this._cache;
@@ -4776,6 +4793,11 @@ const DataMigration = {
         if (data.version < 4) {
             this._migrateV3toV4(data);
         }
+        if (data.version < 5) {
+            this._migrateV4toV5(data);
+        }
+        // Migrate from old storage key
+        this._migrateOldKey();
     },
     _migrateV1toV2(data) {
         data.version = 2;
@@ -4834,6 +4856,32 @@ const DataMigration = {
             if (data.progression.currentLevel >= 21) data.progression.tierUnlocked.champion = true;
         }
         Storage.save();
+    },
+    _migrateV4toV5(data) {
+        data.version = 5;
+        // Remove hardcoded name if it's still "איתמר"
+        if (data.profile.name === 'איתמר') data.profile.name = null;
+        // Migrate parentCode to birthYear
+        if (data.settings.parentCode) delete data.settings.parentCode;
+        if (!data.settings.birthYear) data.settings.birthYear = null;
+        Storage.save();
+    },
+    _migrateOldKey() {
+        const oldData = localStorage.getItem('itamar_math_app');
+        if (oldData && !localStorage.getItem('kefel_etz_chaim')) {
+            try {
+                const parsed = JSON.parse(oldData);
+                if (parsed.profile && parsed.profile.name === 'איתמר') parsed.profile.name = null;
+                if (parsed.settings) {
+                    delete parsed.settings.parentCode;
+                    if (!parsed.settings.birthYear) parsed.settings.birthYear = null;
+                }
+                localStorage.setItem('kefel_etz_chaim', JSON.stringify(parsed));
+                // Reload with new key
+                Storage._cache = null;
+                Storage.load();
+            } catch (e) { /* ignore corrupt old data */ }
+        }
     }
 };
 
@@ -7270,16 +7318,31 @@ const ParentSnapshot = {
 
     tryUnlock() {
         const input = document.getElementById('parent-code-input');
-        const code = input.value.trim();
+        const yearStr = input.value.trim();
+        const year = parseInt(yearStr);
         const data = Storage.load();
-        const correctCode = data.settings.parentCode || '1234';
 
-        if (code === correctCode) {
+        // Validate: must be a reasonable birth year for a parent
+        if (isNaN(year) || year < 1950 || year > 2010) {
+            document.getElementById('parent-code-error').textContent = 'הכנס שנת לידה תקינה';
+            input.value = '';
+            input.focus();
+            return;
+        }
+
+        // First time: store the birth year and grant access
+        if (!data.settings.birthYear) {
+            Storage.update(d => { d.settings.birthYear = year; });
+            this._unlocked = true;
+            document.getElementById('parent-lock-overlay').style.display = 'none';
+            this.show();
+        } else if (year === data.settings.birthYear) {
+            // Correct birth year — grant access
             this._unlocked = true;
             document.getElementById('parent-lock-overlay').style.display = 'none';
             this.show();
         } else {
-            document.getElementById('parent-code-error').textContent = 'קוד שגוי, נסה שוב';
+            document.getElementById('parent-code-error').textContent = 'שנת לידה שגויה, נסה שוב';
             input.value = '';
             input.focus();
         }
@@ -7986,6 +8049,20 @@ function createAmbientParticles() {
 }
 
 // ====== SCREEN: AVATAR ======
+// ====== NAME INPUT ======
+function confirmName() {
+    const input = document.getElementById('name-input');
+    if (!input) return;
+    const raw = input.value.replace(/[<>&"'\/\\]/g, '').trim();
+    if (raw.length < 2) return;
+    Storage.update(d => { d.profile.name = raw; });
+    SoundEngine.play('click');
+    App.navigateTo('screen-avatar');
+    // Update avatar greeting with the name
+    const greet = document.getElementById('avatar-greeting');
+    if (greet) greet.textContent = 'שלום ' + raw + '!';
+}
+
 function renderAvatarScreen() {
     const grid = document.getElementById('avatar-grid');
     grid.innerHTML = '';
@@ -7996,6 +8073,10 @@ function renderAvatarScreen() {
         btn.innerHTML = `<div class="avatar-emoji">${av.emoji}</div><div class="avatar-name">${av.name}</div>`;
         grid.appendChild(btn);
     });
+    // Update greeting if name already set
+    const data = Storage.load();
+    const greet = document.getElementById('avatar-greeting');
+    if (greet && data.profile.name) greet.textContent = 'שלום ' + data.profile.name + '!';
 }
 
 function handleAvatarClick(e) {
@@ -8024,6 +8105,10 @@ function showMapScreen() {
     const data = Storage.load();
     const currentLevel = data.progression ? data.progression.currentLevel : 1;
     const completedLevels = data.progression ? (data.progression.completedLevels || []) : [];
+
+    // Dynamic name in map title
+    const mapTitle = document.getElementById('map-title-text');
+    if (mapTitle && data.profile.name) mapTitle.textContent = '🗺️ מסע הכפל של ' + data.profile.name;
 
     // Update subtitle
     const subtitle = document.getElementById('map-subtitle');
@@ -10357,7 +10442,7 @@ const ENCOURAGEMENTS_WRONG = ['לא נורא!', 'בפעם הבאה!', 'ממשי�
 const PRACTICE_BUBBLES = ['קדימה!', 'אתה יכול!', 'בוא!', 'יאללה!', 'קל!'];
 
 const PHOTOS_CORRECT = ['images/correct.jpg', 'images/correct2.png', 'images/correct3.png', 'images/correct4.png'];
-const PHOTOS_WRONG = ['images/wrong.jpg', 'images/wrong2.png', 'images/wrong3.png', 'images/wrong4.png', 'images/wrong5.png'];
+const PHOTOS_WRONG = ['images/wrong.jpg', 'images/wrong2.png', 'images/wrong3.png', 'images/wrong4.png'];
 
 function randomPhoto(correct) {
     const arr = correct ? PHOTOS_CORRECT : PHOTOS_WRONG;
@@ -10444,6 +10529,10 @@ function getMasteryColor(level) {
 let currentMasteryFilter = 'all';
 
 function showMasteryScreen() {
+    // Dynamic name in mastery title
+    const masteryTitle = document.getElementById('mastery-title-name');
+    const data = Storage.load();
+    if (masteryTitle && data.profile.name) masteryTitle.textContent = '📊 לוח השליטה של ' + data.profile.name;
     currentMasteryFilter = 'all';
     // Reset filter buttons
     document.querySelectorAll('.mastery-filter-btn').forEach(b => {
@@ -10620,9 +10709,20 @@ function performReset() {
 
 // ====== ENTER KEY FOR FREE-FORM MODE ======
 document.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter' && !App.isProcessing && App.currentScreen === 'screen-practice') {
-        if (App.isFreeForm) { e.preventDefault(); handleFreeFormSubmit(); }
-        else if (App.isHandwriting) { e.preventDefault(); handleHandwritingCheck(); }
+    if (e.key === 'Enter') {
+        if (App.currentScreen === 'screen-name') { e.preventDefault(); confirmName(); }
+        else if (!App.isProcessing && App.currentScreen === 'screen-practice') {
+            if (App.isFreeForm) { e.preventDefault(); handleFreeFormSubmit(); }
+            else if (App.isHandwriting) { e.preventDefault(); handleHandwritingCheck(); }
+        }
+    }
+});
+
+// Name input: enable/disable button based on length
+document.addEventListener('input', (e) => {
+    if (e.target.id === 'name-input') {
+        const val = e.target.value.replace(/[<>&"'\/\\]/g, '').trim();
+        document.getElementById('btn-name-continue').disabled = val.length < 2;
     }
 });
 
@@ -10643,6 +10743,7 @@ document.addEventListener('click', (e) => {
 
     // Avatar screen
     if (e.target.closest('#avatar-grid')) handleAvatarClick(e);
+    if (id === 'btn-name-continue') confirmName();
     if (id === 'btn-avatar-continue') confirmAvatar();
 
     // Welcome screen
@@ -10877,7 +10978,9 @@ document.addEventListener('DOMContentLoaded', () => {
             // After fade-out transition (0.6s), remove splash and show app
             setTimeout(() => {
                 splash.remove();
-                if (!data.profile.avatar) {
+                if (!data.profile.name) {
+                    App.navigateTo('screen-name');
+                } else if (!data.profile.avatar) {
                     App.navigateTo('screen-avatar');
                 } else {
                     showMapScreen();
@@ -10886,7 +10989,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 2000);
     } else {
         // Fallback if splash element missing
-        if (!data.profile.avatar) {
+        if (!data.profile.name) {
+            App.navigateTo('screen-name');
+        } else if (!data.profile.avatar) {
             App.navigateTo('screen-avatar');
         } else {
             showMapScreen();
