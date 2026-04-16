@@ -1,0 +1,11 @@
+name = "znk-associations"
+main = "worker.js"
+compatibility_date = "2024-01-01"
+
+[vars]
+ALLOWED_ORIGIN = "https://znk.co.il"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "znk-associations"
+database_id = ""
