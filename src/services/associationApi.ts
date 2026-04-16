@@ -1,4 +1,4 @@
-const API_BASE = import.meta.env.VITE_ASSOCIATIONS_API || 'https://znk-associations.amirnet.workers.dev'
+const API_BASE = import.meta.env.VITE_ASSOCIATIONS_API || 'https://znk-associations.yotamxtz.workers.dev'
 
 const BATCH_CACHE_TTL = 24 * 60 * 60 * 1000 // 24 hours
 const PROMOTED_CACHE_TTL = 12 * 60 * 60 * 1000 // 12 hours

@@ -8,4 +8,4 @@ ALLOWED_ORIGIN = "https://znk.co.il"
 [[d1_databases]]
 binding = "DB"
 database_name = "znk-associations"
-database_id = ""
+database_id = "bedb9494-ae75-4c26-bcfc-a4bc753b2534"
