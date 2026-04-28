@@ -1,0 +1,152 @@
+@import url('https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@500;600;700;800&family=DM+Sans:wght@400;500;700&display=swap');
+
+:root {
+  /* ===== BASE SURFACE — Cool grey neumorphism ===== */
+  --znk-bg: #E0E5EC;
+  --znk-bg-dark: #D1D9E6;
+
+  /* ===== NEUMORPHISM SHADOWS ===== */
+  --shadow-light: rgba(255, 255, 255, 0.5);
+  --shadow-dark: rgb(163, 177, 198, 0.6);
+  --shadow-light-strong: rgba(255, 255, 255, 0.6);
+  --shadow-dark-strong: rgb(163, 177, 198, 0.7);
+
+  /* Extruded (Standard raised) */
+  --shadow-extruded: 9px 9px 16px rgb(163,177,198,0.6), -9px -9px 16px rgba(255,255,255,0.5);
+  --shadow-extruded-hover: 12px 12px 20px rgb(163,177,198,0.7), -12px -12px 20px rgba(255,255,255,0.6);
+  --shadow-extruded-sm: 5px 5px 10px rgb(163,177,198,0.6), -5px -5px 10px rgba(255,255,255,0.5);
+
+  /* Inset (Pressed) */
+  --shadow-inset: inset 6px 6px 10px rgb(163,177,198,0.6), inset -6px -6px 10px rgba(255,255,255,0.5);
+  --shadow-inset-deep: inset 10px 10px 20px rgb(163,177,198,0.7), inset -10px -10px 20px rgba(255,255,255,0.6);
+  --shadow-inset-sm: inset 3px 3px 6px rgb(163,177,198,0.6), inset -3px -3px 6px rgba(255,255,255,0.5);
+
+  /* Button accent shadow */
+  --shadow-button: 5px 5px 10px rgb(163,177,198,0.6), -5px -5px 10px rgba(255,255,255,0.5);
+
+  /* ===== BRAND COLORS ===== */
+  --znk-navy: #0d294b;
+  --znk-navy-light: #1a3d6b;
+  --znk-pink: #EE2B73;
+  --znk-pink-light: #FF4D8E;
+  --znk-yellow: #FFE600;
+  --znk-yellow-soft: #FFF3A0;
+  --znk-purple: #4F4780;
+  --znk-purple-light: #6B62A8;
+
+  /* ===== ACCENT COLORS ===== */
+  --znk-accent: #6C63FF;
+  --znk-accent-light: #8B84FF;
+  --znk-secondary: #38B2AC;
+
+  /* ===== SEMANTIC COLORS ===== */
+  --znk-correct: #10B981;
+  --znk-correct-bg: #ECFDF5;
+  --znk-wrong: #EF4444;
+  --znk-wrong-bg: #FEF2F2;
+  --znk-info: #0EA5E9;
+  --znk-info-bg: #F0F9FF;
+  --znk-warning: #F59E0B;
+
+  /* ===== TEXT ===== */
+  --znk-text: #3D4852;
+  --znk-text-muted: #6B7280;
+  --znk-text-light: #A0AEC0;
+  --znk-text-on-dark: #FFFFFF;
+
+  /* ===== TYPOGRAPHY ===== */
+  --font-hebrew: 'Heebo', sans-serif;
+  --font-display: 'Heebo', sans-serif;
+  --font-body: 'Heebo', sans-serif;
+
+  /* ===== BORDER RADII ===== */
+  --radius-sm: 12px;
+  --radius-md: 16px;
+  --radius-lg: 32px;
+  --radius-xl: 48px;
+  --radius-full: 9999px;
+
+  /* ===== SPACING (8pt grid) ===== */
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+  --space-2xl: 48px;
+
+  /* ===== TRANSITIONS ===== */
+  --transition-fast: 200ms var(--ease-out);
+  --transition-normal: 300ms var(--ease-out);
+  --transition-slow: 500ms var(--ease-out);
+
+  /* ===== COACH WIDGET ===== */
+  --znk-coach-navy: #1B3A6B;
+  --znk-coach-pink: #E91E78;
+  --znk-coach-yellow: #F5B731;
+  --znk-coach-purple: #6B3FA0;
+}
+
+/* Coach widget typing animation */
+@keyframes typing {
+  0%, 60%, 100% { opacity: 0.3; transform: translateY(0); }
+  30% { opacity: 1; transform: translateY(-3px); }
+}
+
+/* ===== Coach Widget Panel ===== */
+
+/* Mobile: centered bottom sheet — uses dvh for keyboard-aware height */
+.coach-widget-panel {
+  bottom: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  max-width: 390px;
+  margin: 0 auto;
+  height: 85dvh;
+  max-height: 85dvh;
+  background: #E0E5EC;
+  border-radius: 24px 24px 0 0;
+  box-shadow: 0 -10px 40px rgba(27,58,107,0.2);
+  transform: translateY(100%);
+  opacity: 1;
+  /* Prevent iOS keyboard from pushing panel off screen or expanding width */
+  overflow: hidden;
+  overflow-x: hidden;
+  box-sizing: border-box;
+  /* Belt-and-suspenders: even when the closed panel is translated off-screen,
+     some browsers still let it intercept clicks if it overlaps the viewport
+     during the transform. We also set the Tailwind class `.pointer-events-none`
+     on the closed panel JSX side, but defining it in CSS too makes the
+     guarantee independent of the React render path. */
+  pointer-events: none;
+}
+.coach-widget-panel.open {
+  transform: translateY(0);
+  pointer-events: auto;
+}
+/* Fallback for browsers that don't support dvh */
+@supports not (height: 1dvh) {
+  .coach-widget-panel {
+    height: 85vh;
+    max-height: 85vh;
+  }
+}
+
+/* Desktop: floating window on left */
+@media (min-width: 768px) {
+  .coach-widget-panel {
+    left: 20px;
+    right: auto;
+    margin: 0;
+    bottom: 24px;
+    max-height: 75vh;
+    border-radius: 24px;
+    box-shadow: 0 10px 50px rgba(27,58,107,0.25), 0 4px 12px rgba(0,0,0,0.1);
+    transform: translateY(20px) scale(0.9);
+    opacity: 0;
+  }
+  .coach-widget-panel.open {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+}
