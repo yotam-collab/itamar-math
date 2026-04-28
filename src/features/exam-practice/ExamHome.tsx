@@ -140,10 +140,13 @@ export function ExamHome() {
               נכונות גם כשהשעון לוחץ. משוב מיידי, רמה שמטפסת {g('איתך', 'איתך')}, ואפס בירוקרטיה.
             </p>
             <div className="eh-ctas">
-              <button className="eh-btn-primary" onClick={() => navigate('/exam/sc')}>
-                <span>{g('המשך מהמקום שעצרת', 'המשיכי מהמקום שעצרת')}</span>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" style={{ transform: 'scaleX(-1)' }}><path d="M5 12h14" /><path d="M12 5l7 7-7 7" /></svg>
-              </button>
+              {/* The "continue where you left off" CTA was removed per
+                  product feedback — it routed students back into a
+                  partially-completed SC session and felt punishing
+                  rather than progressive. The "real exam chapter
+                  practice" CTA below now stands alone, and the
+                  per-mission CTA further down handles "next mission".
+                  See the in-progress practice via the missions list. */}
               <button className="eh-btn-ghost" onClick={() => navigate('/exam/full/start')}>תרגול פרק בחינה אמיתי ←</button>
             </div>
           </div>
@@ -251,7 +254,7 @@ export function ExamHome() {
                 </ul>
                 {activeExamMission ? (
                   <button
-                    className="eh-today-cta znk-cta-primary"
+                    className="eh-today-cta znk-cta-primary znk-tooltip"
                     onClick={() => {
                       playSound('click')
                       try { localStorage.setItem('znk-active-mission', activeExamMission.id) } catch { /* ok */ }
@@ -275,6 +278,9 @@ export function ExamHome() {
                       }
                     }}
                   >
+                    <span className="znk-tip" data-placement="bottom" role="tooltip">
+                      המשימה הבאה שלך — מותאמת לרמה ולמסלול שלך כרגע
+                    </span>
                     <span>{g('להתחיל את המשימה הבאה', 'להתחיל את המשימה הבאה')}</span>
                     {/* Arrow LEFT — forward direction in RTL */}
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M19 12H5" /><path d="M12 19l-7-7 7-7" /></svg>
@@ -391,7 +397,10 @@ export function ExamHome() {
               🧠 <span>מחקר:</span> פתרון תחת <b>תנאי מבחן אמיתיים</b> — אפס רמזים, טיימר, ציון — מחזק זיכרון לטווח ארוך יותר מחזרה רגילה <span className="eh-full-cite">(Roediger &amp; Karpicke, Wash. Univ. 2006)</span>.
             </div>
             <div className="eh-full-ctas">
-              <button className="eh-full-btn-primary" onClick={(e) => { e.stopPropagation(); navigate('/exam/full') }}>
+              <button className="eh-full-btn-primary znk-tooltip" onClick={(e) => { e.stopPropagation(); navigate('/exam/full') }}>
+                <span className="znk-tip" data-placement="top" role="tooltip">
+                  פותח את מסך הקדם-בחינה — שם בודקים פרטים ומתחילים
+                </span>
                 {g('התחל עכשיו', 'התחילי עכשיו')}
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polygon points="5 3 19 12 5 21 5 3" /></svg>
               </button>
@@ -1304,24 +1313,29 @@ const cssBlock = `
 
   /* Promote the hero to a GPU layer so the giant multi-radial gradient
      doesn't repaint on scroll. transform:translateZ(0) is the classic
-     hack that's still the most reliable cross-iOS solution. */
+     hack that's still the most reliable cross-iOS solution.
+
+     NOTE: previous versions also added will-change:transform and
+     contain:layout-paint here — both turn out to break iOS Safari\'s
+     paint scheduler in this particular layout. Students reported the
+     bottom half of /exam not rendering until they scrolled, and a
+     stuck spinner showing for a few seconds first. Removing both
+     restored normal paint timing without measurably affecting scroll
+     perf, since the GPU promotion already comes from translateZ(0). */
   .eh-hero{
     transform: translateZ(0);
-    will-change: transform;
-    /* Isolate paint — anything that changes inside doesn't invalidate
-       the surrounding sections on scroll. */
-    contain: layout paint;
   }
   /* Replace drop-shadow filter on the character with a cheap CSS
      shadow. drop-shadow is expensive per-frame; box-shadow is GPU. */
   .eh-today-char{
     filter: none !important;
   }
-  /* Isolate paint on each scroll-revealed section so they don't
-     trigger a full-page repaint when fade-up animations land. */
-  .eh-shead, .eh-cards, .eh-full, .eh-stats, .eh-results, .eh-mot{
-    contain: layout paint;
-  }
+  /* Previously this rule applied contain:layout-paint to every
+     scroll-revealed section — but combined with the fade-up entrance
+     animations it caused offscreen sections to be skipped from the
+     initial paint on iOS, leaving the below-the-fold area blank until
+     scroll, which is the symptom students reported. Containment
+     removed. */
 }
 
 /* ══════════════════════════════════════════════════════════════════

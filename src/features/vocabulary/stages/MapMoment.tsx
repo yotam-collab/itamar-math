@@ -253,11 +253,13 @@ export function MapMoment({ open, reason, provenStageId, onClose }: Props) {
                 onClose callback always fires synchronously. */}
             <button
               type="button"
-              className="mm-close"
+              className="mm-close znk-tooltip"
               onClick={(e) => { e.preventDefault(); e.stopPropagation(); onClose() }}
               aria-label="סגור"
-              title="סגור (Esc)"
-            >×</button>
+            >
+              <span className="znk-tip" data-placement="left" role="tooltip">סגור (Esc)</span>
+              ×
+            </button>
 
             {/* Header with badge ribbon */}
             <div className="mm-head">

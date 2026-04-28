@@ -354,7 +354,7 @@ export function VocabHome() {
           {/* ══════════════════════════════════════════════ */}
           <button
             type="button"
-            className="bento-cell cell-progress shadow-clay-pink stage-tile"
+            className="bento-cell cell-progress shadow-clay-pink stage-tile znk-tooltip"
             onClick={openMap}
             aria-label={`המסע שלך — שלב ${currentStageId} מתוך 24. לחץ לפתיחת המפה`}
             style={{
@@ -382,9 +382,12 @@ export function VocabHome() {
               transition: 'transform 200ms cubic-bezier(0.34,1.56,0.64,1), box-shadow 200ms ease',
             }}
           >
-            <div className="znk-tooltip tip-pink" style={{ bottom: 'auto', top: 'calc(100% + 12px)' }}>
-              <span className="tip-emoji">⛰️</span>לחץ לפתיחת המפה — תראה בדיוק איפה אתה במסע לפטור
-            </div>
+            {/* Bubble — uses the global znk-tip CSS pattern (see
+                src/design-system/tokens.css). The wrapping button gets
+                the znk-tooltip class so :hover/:focus reveal this bubble. */}
+            <span className="znk-tip tip-pink" data-placement="bottom" role="tooltip">
+              ⛰️ לחץ לפתיחת המפה — תראה בדיוק איפה אתה במסע לפטור
+            </span>
 
             {/* Subtle aurora — dropped the bright pink/yellow blobs that
                 were making this tile compete with the primary CTA. */}

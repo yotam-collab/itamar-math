@@ -940,10 +940,13 @@ export function InAppReader() {
           style={{ bottom: 'calc(env(safe-area-inset-bottom, 10px) + 80px)' }}
         >
           <button
-            className="neu-btn-accent w-full text-sm py-3.5"
+            className="neu-btn-accent w-full text-sm py-3.5 znk-tooltip"
             style={{ boxShadow: `${S.extruded}, 0 4px 16px ${ACCENT}30` }}
             onClick={() => { stopReadAloud(); setPhase('quiz') }}
           >
+            <span className="znk-tip" data-placement="top" role="tooltip">
+              שאלות הבנה על הקטע — תוכל לחזור לקרוא בכל רגע
+            </span>
             סיימתי! קדימה לשאלות ←
           </button>
         </div>

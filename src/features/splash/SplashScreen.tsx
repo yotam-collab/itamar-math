@@ -33,6 +33,12 @@ interface SplashScreenProps {
 export function SplashScreen({ onDone }: SplashScreenProps) {
   const videoRef = useRef<HTMLVideoElement>(null)
   const [done, setDone] = useState(false)
+  /* The video element is invisible until it's actually playing. Without
+     this gate, a paused or blocked-autoplay <video> draws its own black
+     fill on top of our brand fallback — students reported "blank screen"
+     on splash because the video element occluded the logo even though
+     it never started. We fade it in only when onPlaying fires. */
+  const [videoVisible, setVideoVisible] = useState(false)
 
   // Pick the variant ONCE on mount so it doesn't flicker if the user
   // happens to rotate mid-playback.
@@ -114,6 +120,12 @@ export function SplashScreen({ onDone }: SplashScreenProps) {
         autoPlay
         playsInline
         preload="auto"
+        onPlaying={() => {
+          // Fires the moment the video actually starts producing frames.
+          // Only NOW do we reveal the element so the fallback logo gets
+          // smoothly replaced — never staring at a stalled <video>.
+          setVideoVisible(true)
+        }}
         onPlay={(e) => {
           // Browsers block unmuted autoplay without a recent user gesture.
           // We still TRY to unmute right after playback starts: many returning
@@ -152,6 +164,10 @@ export function SplashScreen({ onDone }: SplashScreenProps) {
           height: '100%',
           objectFit: 'cover',
           display: 'block',
+          /* Stays at opacity 0 until onPlaying fires — keeps the fallback
+             logo visible while the video is loading / blocked. */
+          opacity: videoVisible ? 1 : 0,
+          transition: 'opacity 250ms ease-out',
         }}
       />
     </div>

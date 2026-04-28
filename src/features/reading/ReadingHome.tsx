@@ -557,7 +557,7 @@ export function ReadingHome() {
                 </b>
               </div>
               <button
-                className="rh-timer-cta znk-cta-primary"
+                className="rh-timer-cta znk-cta-primary znk-tooltip"
                 onClick={() => {
                   if (readingMission) {
                     try { localStorage.setItem('znk-active-mission', readingMission.id) } catch { /* ok */ }
@@ -575,6 +575,9 @@ export function ReadingHome() {
                 disabled={allPassages.length === 0}
                 aria-label={g('התחל לקרוא', 'התחילי לקרוא')}
               >
+                <span className="znk-tip" data-placement="bottom" role="tooltip">
+                  קטע מותאם לרמה שלך — קריאה היא השריר הכי חזק בבחינה
+                </span>
                 <span>{g('התחל לקרוא', 'התחילי לקרוא')}</span>
                 {/* Arrow LEFT — forward direction in RTL (unified across gateways) */}
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M19 12H5" /><path d="M12 19l-7-7 7-7" /></svg>
@@ -641,7 +644,12 @@ export function ReadingHome() {
                   : `שלושה קטעים ברמה ${g('שלך', 'שלך')} — ${g('תתחיל', 'תתחילי')} מאחד, ו${g('תראה', 'תראי')} איך הקריאה זורמת.`}
               </p>
             </div>
-            <button className="rh-pill-btn" onClick={pickRandom}>קטע אקראי <span aria-hidden="true">→</span></button>
+            <button className="rh-pill-btn znk-tooltip" onClick={pickRandom}>
+              <span className="znk-tip" data-placement="bottom" role="tooltip">
+                קטע אקראי שעדיין לא קראת — דרך מצוינת לגלות נושאים חדשים
+              </span>
+              קטע אקראי <span aria-hidden="true">→</span>
+            </button>
           </div>
 
           <div className="rh-picks">
@@ -713,10 +721,10 @@ export function ReadingHome() {
             return (
               <button
                 key={b.id}
-                className={`rh-chip ${isActive ? 'on' : ''}`}
+                className={`rh-chip znk-tooltip ${isActive ? 'on' : ''}`}
                 onClick={() => setSelectedChannel(isActive ? null : b.id)}
-                title={b.tagline}
               >
+                <span className="znk-tip" data-placement="top" role="tooltip">{b.tagline}</span>
                 <span className={`rh-chip-dot d-${i % 3}`} />
                 <span className="rh-chip-emoji">{b.emoji}</span>
                 <span className="rh-chip-name">{b.label}</span>
@@ -730,13 +738,16 @@ export function ReadingHome() {
       {/* ═══ STATUS TABS ═══ */}
       <section className="rh-wrap rh-up d5">
         <div className="rh-tabs">
-          <button data-on={statusFilter === 'all'} onClick={() => setStatusFilter('all')}>
+          <button className="znk-tooltip" data-on={statusFilter === 'all'} onClick={() => setStatusFilter('all')}>
+            <span className="znk-tip" data-placement="top" role="tooltip">כל הקטעים — נקראו ושלא נקראו</span>
             הכל <span>{allPassages.length}</span>
           </button>
-          <button data-on={statusFilter === 'unread'} onClick={() => setStatusFilter('unread')}>
+          <button className="znk-tooltip" data-on={statusFilter === 'unread'} onClick={() => setStatusFilter('unread')}>
+            <span className="znk-tip" data-placement="top" role="tooltip">רק קטעים שעוד לא קראת — מה שמחכה לך</span>
             להשלמה <span>{unread}</span>
           </button>
-          <button data-on={statusFilter === 'read'} onClick={() => setStatusFilter('read')}>
+          <button className="znk-tooltip" data-on={statusFilter === 'read'} onClick={() => setStatusFilter('read')}>
+            <span className="znk-tip" data-placement="top" role="tooltip">קטעים שכבר סיימת — חזרה תחזק את ההבנה</span>
             הושלמו <span>{completed}</span>
           </button>
         </div>

@@ -400,7 +400,16 @@ export function ExamMissionPractice() {
       {/* RC Passage (only for RC questions) */}
       {currentSection === 'rc' && rcPassageData && (
         <>
-          <button className="w-full py-3 rounded-xl font-bold text-sm text-center" style={{ background: BG, boxShadow: S.extrudedSm, color: TEXT, fontFamily: 'var(--font-display)', border: 'none', cursor: 'pointer' }} onClick={() => setShowPassage(!showPassage)}>
+          <button
+            /* Inline znk-tooltip — tooltip explains the (non-obvious)
+               fact that the passage stays available even after hide. */
+            className="w-full py-3 rounded-xl font-bold text-sm text-center znk-tooltip"
+            style={{ background: BG, boxShadow: S.extrudedSm, color: TEXT, fontFamily: 'var(--font-display)', border: 'none', cursor: 'pointer' }}
+            onClick={() => setShowPassage(!showPassage)}
+          >
+            <span className="znk-tip" data-placement="bottom" role="tooltip">
+              הקטע זמין לאורך כל המשימה — בחר מתי להציג ומתי להסתיר
+            </span>
             {showPassage ? 'הסתר קטע 📄' : 'הצג קטע 📄'} — {rcPassageData.title}
           </button>
           {showPassage && (

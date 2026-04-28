@@ -40,7 +40,7 @@ export function GamesHub() {
     <div className="space-y-6 animate-fadeIn pb-4" dir="rtl">
       {/* Featured recommended game */}
       <div
-        className="relative overflow-hidden cursor-pointer transition-all duration-300 hover:-translate-y-0.5"
+        className="relative overflow-hidden cursor-pointer transition-[transform,box-shadow,background-color,border-color,opacity] duration-300 hover:-translate-y-0.5"
         style={{
           background: BG,
           boxShadow: S.extruded,
@@ -88,76 +88,16 @@ export function GamesHub() {
             </p>
           </div>
           <button
-            className="neu-btn-accent text-sm px-5 py-2.5 flex-shrink-0"
+            className="neu-btn-accent text-sm px-5 py-2.5 flex-shrink-0 znk-tooltip"
             onClick={(e) => {
               e.stopPropagation()
               handleGameClick(recommended)
             }}
           >
+            <span className="znk-tip" data-placement="top" role="tooltip">
+              {GAME_CONFIGS[recommended].tooltip}
+            </span>
             יאללה!
-          </button>
-        </div>
-      </div>
-
-      {/* WORD HACK — Featured association game */}
-      <div
-        className="relative overflow-hidden cursor-pointer transition-all duration-300 hover:-translate-y-0.5"
-        style={{
-          background: BG,
-          boxShadow: S.extruded,
-          borderRadius: 28,
-          padding: '24px 20px',
-        }}
-        onClick={() => handleGameClick('wordHack' as GameId)}
-      >
-        <div
-          className="absolute top-0 left-0 right-0 h-1.5"
-          style={{ background: `linear-gradient(90deg, #6366F1, #A855F7, #EC4899)` }}
-        />
-        <div className="flex items-center gap-4">
-          <div
-            className="w-14 h-14 rounded-2xl flex items-center justify-center flex-shrink-0"
-            style={{
-              background: 'linear-gradient(135deg, #6366F1, #A855F7)',
-              boxShadow: '0 4px 16px rgba(99,102,241,0.4)',
-            }}
-          >
-            <span className="text-2xl">🧠</span>
-          </div>
-          <div className="flex-1 min-w-0">
-            <p
-              className="text-xs font-bold mb-0.5"
-              style={{ color: '#A855F7', fontFamily: 'var(--font-display)' }}
-            >
-              חדש! 🔥
-            </p>
-            <h2
-              className="text-xl font-extrabold"
-              style={{ color: TEXT, fontFamily: 'var(--font-display)' }}
-            >
-              WORD HACK
-            </h2>
-            <p
-              className="text-sm mt-0.5"
-              style={{ color: MUTED, fontFamily: 'var(--font-body)' }}
-            >
-              האקים לזיכרון — טריקים למילים
-            </p>
-          </div>
-          <button
-            className="text-sm px-5 py-2.5 rounded-xl font-bold text-white flex-shrink-0"
-            style={{
-              background: 'linear-gradient(135deg, #6366F1, #A855F7)',
-              border: 'none',
-              cursor: 'pointer',
-              fontFamily: 'var(--font-display)',
-            }}
-            onClick={(e) => {
-              e.stopPropagation()
-              handleGameClick('wordHack' as GameId)
-            }}
-          >
-            שחק!
           </button>
         </div>
       </div>
@@ -226,7 +166,7 @@ export function GamesHub() {
             return (
               <div
                 key={gameId}
-                className="flex items-center gap-4 cursor-pointer transition-all duration-300 hover:-translate-y-0.5"
+                className="flex items-center gap-4 cursor-pointer transition-[transform,box-shadow,background-color,border-color,opacity] duration-300 hover:-translate-y-0.5"
                 style={{ background: BG, boxShadow: S.extrudedSm, borderRadius: 20, padding: 16 }}
                 title={config.tooltip}
                 onClick={() => handleGameClick(gameId)}
@@ -312,7 +252,7 @@ export function GamesHub() {
             return (
               <div
                 key={gameId}
-                className="cursor-pointer transition-all duration-300 hover:-translate-y-0.5"
+                className="cursor-pointer transition-[transform,box-shadow,background-color,border-color,opacity] duration-300 hover:-translate-y-0.5"
                 style={{
                   background: BG,
                   boxShadow: S.inset,

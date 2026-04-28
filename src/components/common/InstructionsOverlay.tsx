@@ -241,9 +241,12 @@ function InstructionsOverlayBody({ modeId, onDone, content }: Props) {
 
           <button
             type="button"
-            className="inx-primary"
+            className="inx-primary znk-tooltip"
             onClick={handleDone}
           >
+            <span className="znk-tip" data-placement="top" role="tooltip">
+              סוגר את ההנחיות ומתחיל את התרגול. אפשר גם Enter
+            </span>
             {/* Arrow points LEFT — forward direction in RTL */}
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M19 12H5" /><path d="M12 19l-7-7 7-7" /></svg>
             הבנתי, יאללה לתרגול

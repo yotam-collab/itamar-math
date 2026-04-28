@@ -347,7 +347,10 @@ export function JourneyPage() {
                   tgt?.scrollIntoView({ behavior: 'smooth', block: 'start' })
                 }
                 return (
-                  <button type="button" className="jp-hero-cta znk-cta-primary" onClick={handleCta}>
+                  <button type="button" className="jp-hero-cta znk-cta-primary znk-tooltip" onClick={handleCta}>
+                    <span className="znk-tip" data-placement="bottom" role="tooltip">
+                      התרגול הבא שלך — לפי המסע ולפי המקום שבו אתה עומד היום
+                    </span>
                     <span>{label}</span>
                     {/* Arrow LEFT — forward direction in RTL (unified across gateways) */}
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
@@ -469,10 +472,13 @@ export function JourneyPage() {
               {missions.length > 1 && (
                 <button
                   type="button"
-                  className="jp-missions-toggle"
+                  className="jp-missions-toggle znk-tooltip"
                   onClick={toggleMissions}
                   aria-expanded={missionsExpanded}
                 >
+                  <span className="znk-tip" data-placement="top" role="tooltip">
+                    {missionsExpanded ? 'נחסוך מקום למסך' : 'תראה את כל מה שמחכה לך היום'}
+                  </span>
                   {missionsExpanded
                     ? 'הסתר משימות נוספות ↑'
                     : `+${missions.length - 1} משימות נוספות ↓`}

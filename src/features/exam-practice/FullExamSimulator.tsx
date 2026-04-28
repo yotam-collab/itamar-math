@@ -488,9 +488,12 @@ export function FullExamSimulator() {
 
       {q.type === 'rc' && q.passage && (
         <>
-          <button className="w-full py-3 rounded-xl font-bold text-sm text-center"
+          <button className="w-full py-3 rounded-xl font-bold text-sm text-center znk-tooltip"
             style={{ background: BG, boxShadow: S.extrudedSm, color: TEXT, fontFamily: 'var(--font-display)', border: 'none', cursor: 'pointer' }}
             onClick={() => setShowRcPassage(!showRcPassage)}>
+            <span className="znk-tip" data-placement="bottom" role="tooltip">
+              הקטע זמין לאורך כל הבחינה — בחר מתי להציג ומתי להסתיר
+            </span>
             {showRcPassage ? 'הסתר קטע' : 'הצג קטע'} — {q.passageTitle}
           </button>
           {showRcPassage && (
