@@ -95,14 +95,36 @@
    right" via the React component to flip. RTL-safe: inline-end /
    inline-start are used for left-right offsets. */
 .znk-tooltip {
+  /* Position context for the absolute-positioned .znk-tip child.
+     CRITICAL: do NOT set `display` here — the .znk-tooltip class is
+     applied to existing buttons / grid items / fixed FABs that already
+     have their own display rules (flex / grid-item / inline-block). A
+     blanket `display: inline-block` was overriding all of those (this
+     CSS file loads AFTER Tailwind, so it wins on equal specificity)
+     and produced two visible regressions: the coach FAB jumped from
+     bottom-left to bottom-center (lost flex centering AND its
+     positioning context fought with the tooltip's `position:
+     relative`), and the "המסע שלך" tile in /vocabulary collapsed to
+     an inline-block sliver and looked "disappeared" inside the bento
+     grid. Keep this rule conservative — just establish a positioning
+     context and a focus outline reset. The Tooltip.tsx React wrapper
+     (which DOES need inline-block flow) sets `display: inline-block`
+     via inline style on its own outer span, where it can't leak. */
   position: relative;
-  display: inline-block;
-  /* Allow the host to be focused for keyboard tooltip — only when the
-     host is a button/link/element that's already focusable, this is a
-     no-op; for non-focusable wrappers it adds focus capability. */
   outline: none;
 }
 .znk-tooltip-host{ display: inline-block; }
+
+/* Defensive override for the "המסע שלך" bento tile — students
+   reported it disappearing on /vocabulary desktop. The most-likely
+   cause is a stale CSS cache where the old `.znk-tooltip { display:
+   inline-block }` rule still applied, collapsing the tile to a
+   sliver. Forcing the tile's display via a more specific selector
+   guarantees correct rendering even if a cached stylesheet sneaks
+   the inline-block rule back in. */
+.stage-tile.bento-cell.znk-tooltip{
+  display: flex !important;
+}
 /* The actual bubble — hidden by default. */
 .znk-tip {
   visibility: hidden;
@@ -220,6 +242,83 @@
 }
 .znk-tip.tip-yellow[data-placement="bottom"]::after { border-bottom-color: var(--znk-yellow, #FFE600); }
 .znk-tip.tip-yellow[data-placement="top"]::after    { border-top-color:    var(--znk-yellow, #FFE600); }
+
+/* ═════════════════════════════════════════════════════════════════
+   GLOBAL ANIMATION UTILITIES — used across the app
+   ─────────────────────────────────────────────────────────────────
+   1. Wrong-answer shake: shake an element briefly when an exam answer
+      is wrong (e.g., the option button the student tapped).
+   2. Skeleton shimmer: gradient that slides across loading placeholders.
+   3. Pulse-ring: a single ring scaling out + fading from the unread badge
+      on the coach FAB.
+   ═════════════════════════════════════════════════════════════════ */
+
+@keyframes znkShake{
+  0%,100% { transform: translateX(0); }
+  15% { transform: translateX(-7px); }
+  30% { transform: translateX(6px); }
+  45% { transform: translateX(-5px); }
+  60% { transform: translateX(4px); }
+  75% { transform: translateX(-2px); }
+}
+.znk-shake{
+  animation: znkShake 0.42s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+}
+
+@keyframes znkSkeletonShimmer{
+  0%   { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+.znk-skeleton{
+  position: relative;
+  background:
+    linear-gradient(
+      90deg,
+      rgba(13,41,75,0.06) 0%,
+      rgba(13,41,75,0.14) 38%,
+      rgba(13,41,75,0.06) 76%
+    );
+  background-size: 200% 100%;
+  border-radius: 12px;
+  animation: znkSkeletonShimmer 1.4s ease-in-out infinite;
+  /* Pause when offscreen — saves battery on long scroll lists. */
+  content-visibility: auto;
+}
+
+/* Onboarding progress bar — single-pass shimmer that sweeps across the
+   newly-filled segment whenever the student advances a stage. Translation
+   goes right→left to match the RTL flow of the four-stage indicator. The
+   element is clipped by its parent (overflow:hidden) so the shimmer is
+   only visible over the pink fill itself, never the empty track. */
+@keyframes znkProgressShimmer{
+  0%   { transform: translateX(110%); opacity: 0; }
+  12%  { opacity: 1; }
+  88%  { opacity: 1; }
+  100% { transform: translateX(-360%); opacity: 0; }
+}
+.znk-progress-shimmer{
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 28%;
+  pointer-events: none;
+  background: linear-gradient(
+    90deg,
+    rgba(255,255,255,0) 0%,
+    rgba(255,255,255,0.85) 50%,
+    rgba(255,255,255,0) 100%
+  );
+  /* Strong ease-out (Emil): starts fast, gives instant feedback that progress moved. */
+  animation: znkProgressShimmer 900ms cubic-bezier(0.23, 1, 0.32, 1) both;
+  will-change: transform, opacity;
+}
+
+@media (prefers-reduced-motion: reduce){
+  .znk-shake{ animation: none !important; }
+  .znk-skeleton{ animation: none !important; background: rgba(13,41,75,0.10); }
+  .znk-progress-shimmer{ animation: none !important; opacity: 0 !important; }
+}
 
 /* Coach widget typing animation */
 @keyframes typing {

@@ -33,6 +33,202 @@ const WRONG = '#EF4444'
 
 type Step = 'welcome' | 'name' | 'gender' | 'examDate' | 'psychoDate' | 'level' | 'assessment' | 'topics' | 'diagnostic' | 'done'
 
+/* ═══════════════════════════════════════════════════════════════════
+   ONBOARDING PROGRESS — 4-stage indicator at the top of every step.
+   ───────────────────────────────────────────────────────────────────
+   Maps the underlying 9-step machine to 4 student-facing milestones
+   so the bar doesn't feel like a 9-question survey:
+     Stage 1 · פרטים   →  name + gender
+     Stage 2 · מועדים  →  examDate + psychoDate
+     Stage 3 · רמה     →  level + assessment + topics
+     Stage 4 · אבחון   →  diagnostic
+   Hidden on `welcome` (it's a splash) and `done` (already finished).
+   ═══════════════════════════════════════════════════════════════════ */
+
+const STAGE_FOR_STEP: Partial<Record<Step, 1 | 2 | 3 | 4>> = {
+  name: 1,
+  gender: 1,
+  examDate: 2,
+  psychoDate: 2,
+  level: 3,
+  assessment: 3,
+  topics: 3,
+  diagnostic: 4,
+}
+
+function OnboardingProgress({ step }: { step: Step }) {
+  const currentStage = STAGE_FOR_STEP[step]
+  /* Retrigger the shimmer sweep on every forward stage advance. Bumping the
+     key remounts the shimmer node so its CSS animation restarts from frame 0
+     even when no other prop changed. Keep hooks above the early return so
+     React's hook order stays stable across renders where currentStage is
+     undefined (welcome / done). */
+  const [shimmerKey, setShimmerKey] = useState(0)
+  const prevStageRef = useRef<typeof currentStage>(currentStage)
+  useEffect(() => {
+    const prev = prevStageRef.current
+    if (currentStage && prev && currentStage > prev) {
+      setShimmerKey(k => k + 1)
+    }
+    prevStageRef.current = currentStage
+  }, [currentStage])
+  if (!currentStage) return null
+  const stages = [
+    { id: 1 as const, label: 'פרטים' },
+    { id: 2 as const, label: 'מועדים' },
+    { id: 3 as const, label: 'רמה' },
+    { id: 4 as const, label: 'אבחון' },
+  ]
+  // ZNK brand pink — used to mark completed stages (instead of generic green)
+  // so the bar matches the rest of the app's visual identity.
+  const ZNK_PINK = '#EE2B73'
+  /* Track endpoints: the connecting line starts at the CENTER of the
+     first circle and ends at the CENTER of the last circle. Each circle
+     is 36px wide with 18px to its center; track sits inside that gap. */
+  const CIRCLE_R = 18 // half of 36px
+  const progressPct = ((currentStage - 1) / (stages.length - 1)) * 100
+
+  return (
+    <div className="w-full mb-3 animate-fadeIn" dir="rtl">
+      {/* Header */}
+      <div className="flex items-center justify-center mb-3">
+        <span
+          className="text-xs font-extrabold tracking-[0.18em]"
+          style={{
+            color: ACCENT,
+            fontFamily: 'var(--font-display)',
+            textTransform: 'uppercase',
+          }}
+        >
+          השלמת פרופיל
+        </span>
+      </div>
+
+      {/* Bar wrapper: fills the FULL width of the parent column (which
+          is itself constrained by `max-w-md` = 448px on the Onboarding
+          shell). No own maxWidth so circle 1 / circle 4 align with the
+          right / left edges of the question card directly below. RTL
+          direction kept on the OUTER `dir="rtl"` so the labels read
+          natural Hebrew order (פרטים → אבחון), which means circle 1
+          ends up on the RIGHT (start of RTL flow) and circle 4 on the
+          LEFT. */}
+      <div
+        className="relative w-full"
+        style={{ padding: `0 ${CIRCLE_R}px` }}
+      >
+        <div className="relative flex items-center justify-between" style={{ width: '100%' }}>
+          {/* Background track (subtle pink tint so it visually previews
+              the brand color students will see when they complete a step). */}
+          <div
+            aria-hidden="true"
+            style={{
+              position: 'absolute',
+              top: CIRCLE_R - 2, left: CIRCLE_R, right: CIRCLE_R, height: 4,
+              background: 'rgba(238,43,115,0.14)',
+              borderRadius: 2,
+            }}
+          />
+          {/* Filled portion — pink → soft pink gradient with bloom glow.
+              Anchored on the RIGHT (where stage 1 / פרטים sits in RTL flow)
+              so the bar grows leftward toward stage 4 / אבחון as the student
+              advances — matching the visual order of the labels.
+              Implementation: keeps a constant full-track width and uses
+              `transform: scaleX()` from `transform-origin: right` to reveal
+              progress. Transitioning `width: calc(...)` between two
+              percentage-based calc() values failed to animate in Chromium
+              (the bar would jump or stay at 0); transform-based animation
+              is also GPU-accelerated and matches Emil's "only animate
+              transform/opacity" rule for UI motion. overflow:hidden clips
+              the shimmer child so the sweep is only visible over the pink. */}
+          <div
+            aria-hidden="true"
+            style={{
+              position: 'absolute',
+              top: CIRCLE_R - 2, right: CIRCLE_R, height: 4,
+              width: `calc(100% - ${CIRCLE_R * 2}px)`,
+              background: `linear-gradient(270deg, ${ZNK_PINK}, #FF6B9D)`,
+              borderRadius: 2,
+              transformOrigin: '100% 50%',
+              transform: `scaleX(${progressPct / 100})`,
+              transition: 'transform 500ms cubic-bezier(0.23, 1, 0.32, 1)',
+              boxShadow: `0 0 10px ${ZNK_PINK}66`,
+              overflow: 'hidden',
+              willChange: 'transform',
+            }}
+          >
+            {/* Single-pass white shimmer — sweeps across the just-filled
+                segment to celebrate the stage advance. The `key` flips on
+                every forward advance, remounting the node so the CSS
+                animation replays from frame 0. */}
+            <div key={shimmerKey} className="znk-progress-shimmer" />
+          </div>
+
+          {stages.map((s) => {
+            const isComplete = currentStage > s.id
+            const isCurrent = currentStage === s.id
+            /* Three visual states (now in ZNK pink + indigo, no green):
+               completed → pink filled, ✓ inside, soft pink glow
+               current   → indigo filled, number, pink halo ring
+               future    → cream BG with muted number + neumorphic inset */
+            const fillColor = isComplete ? ZNK_PINK : isCurrent ? ACCENT : BG
+            const textColor = isComplete || isCurrent ? '#fff' : MUTED
+            const shadow = isComplete
+              ? `0 4px 14px ${ZNK_PINK}55`
+              : isCurrent
+                ? `0 0 0 4px ${ZNK_PINK}33, 0 4px 14px ${ACCENT}55`
+                : S.extrudedSm
+            return (
+              <div
+                key={s.id}
+                className="flex flex-col items-center relative"
+                style={{ zIndex: 1 }}
+              >
+                <div
+                  className="flex items-center justify-center rounded-full"
+                  style={{
+                    width: 36, height: 36,
+                    background: fillColor,
+                    color: textColor,
+                    fontFamily: 'var(--font-display)',
+                    fontWeight: 900,
+                    fontSize: 14,
+                    boxShadow: shadow,
+                    transition: 'all 280ms cubic-bezier(0.34, 1.56, 0.64, 1)',
+                  }}
+                >
+                  {isComplete ? '✓' : s.id}
+                </div>
+                <span
+                  className="text-[10.5px] mt-1.5 whitespace-nowrap"
+                  style={{
+                    color: isComplete || isCurrent ? TEXT : MUTED,
+                    fontFamily: 'var(--font-display)',
+                    fontWeight: isCurrent ? 800 : 600,
+                    letterSpacing: '0.02em',
+                    opacity: isCurrent || isComplete ? 1 : 0.7,
+                  }}
+                >
+                  {s.label}
+                </span>
+              </div>
+            )
+          })}
+        </div>
+      </div>
+
+      {/* Step counter */}
+      <div className="flex items-center justify-center mt-1">
+        <span
+          className="text-[10px]"
+          style={{ color: MUTED, fontFamily: 'var(--font-body)', opacity: 0.75 }}
+        >
+          שלב {currentStage} מתוך {stages.length}
+        </span>
+      </div>
+    </div>
+  )
+}
+
 const TOPICS: { id: string; label: string; Icon: Icon; color: string }[] = [
   { id: 'Science', label: 'מדע', Icon: Atom, color: '#6C63FF' },
   { id: 'Technology', label: 'טכנולוגיה', Icon: Cpu, color: '#38B2AC' },
@@ -315,6 +511,11 @@ export function Onboarding() {
   return (
     <div className="min-h-dvh flex flex-col items-center justify-center p-6" style={{ background: BG }}>
       <div className="w-full max-w-md space-y-6 animate-fadeIn">
+
+        {/* Progress indicator — sticks to the top of every non-welcome
+            step so the student can see where they are in the flow.
+            Renders nothing on `welcome` (splash) and `done` (finished). */}
+        <OnboardingProgress step={step} />
 
         {/* ═══ WELCOME ═══ */}
         {step === 'welcome' && (
